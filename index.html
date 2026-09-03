@@ -113,6 +113,11 @@
     const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FOLDER}?ref=${BRANCH}`;
     try {
       const res = await fetch(apiUrl);
+      if (res.status === 404) {
+        // Порожня папка "tests" (Git не зберігає порожні теки) — це нормальний стан, а не помилка.
+        contentEl.innerHTML = `<div class="state-message">Поки що жодних тестів ще не завантажено.</div>`;
+        return;
+      }
       if (!res.ok) throw new Error("HTTP " + res.status);
       const items = await res.json();
       const files = items
@@ -120,7 +125,7 @@
         .sort((a, b) => a.name.localeCompare(b.name, "uk"));
 
       if (files.length === 0) {
-        contentEl.innerHTML = `<div class="state-message">Поки що тестів немає. Додай файл у папку "${FOLDER}".</div>`;
+        contentEl.innerHTML = `<div class="state-message">Поки що жодних тестів ще не завантажено.</div>`;
         return;
       }
 
@@ -162,7 +167,7 @@
         }
       });
     } catch (err) {
-      contentEl.innerHTML = `<div class="state-message error">Не вдалося завантажити список тестів. Перевір, що сторінка відкрита через GitHub Pages (не просто як файл), і що назву акаунта/репозиторію в index.html вказано правильно.</div>`;
+      contentEl.innerHTML = `<div class="state-message error">Поки що жодних тестів ще не завантажено.</div>`;
       console.error(err);
     }
   }
