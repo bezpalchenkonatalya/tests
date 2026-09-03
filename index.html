@@ -60,9 +60,18 @@
     text-decoration: none;
     color: var(--text);
   }
-  ul.test-list a:hover { color: var(--accent); }
+  ul.test-list a:hover .start-btn { background: var(--accent-hover); }
   .title-text { flex: 1; font-size: 1.05rem; font-weight: 600; }
-  .arrow { color: var(--accent); flex: 0 0 auto; }
+  .start-btn {
+    flex: 0 0 auto;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
   #noResults { display: none; }
 </style>
 </head>
@@ -70,7 +79,7 @@
   <div class="wrap">
     <h1>Тести</h1>
     <p class="subtitle">Обери тест зі списку нижче</p>
-    <input type="search" id="searchBox" placeholder="Пошук тесту…" style="display:none;">
+    <input type="search" id="searchBox" placeholder="Пошук тесту…">
     <div id="content">
       <div class="state-message" id="loading">Завантаження списку тестів…</div>
     </div>
@@ -133,7 +142,6 @@
       list.className = "test-list";
       contentEl.innerHTML = "";
       contentEl.appendChild(list);
-      searchBox.style.display = files.length > 5 ? "block" : "none";
 
       // Створюємо пункти одразу з назвою файлу й порядковим номером,
       // потім у фоні підміняємо текст на справжній <title> з кожного тесту.
@@ -146,12 +154,12 @@
         titleSpan.className = "title-text";
         titleSpan.textContent = humanTitle(f.name);
 
-        const arrow = document.createElement("span");
-        arrow.className = "arrow";
-        arrow.textContent = "→";
+        const startBtn = document.createElement("span");
+        startBtn.className = "start-btn";
+        startBtn.textContent = "Розпочати →";
 
         a.appendChild(titleSpan);
-        a.appendChild(arrow);
+        a.appendChild(startBtn);
         li.appendChild(a);
         list.appendChild(li);
         return { file: f, titleSpan };
