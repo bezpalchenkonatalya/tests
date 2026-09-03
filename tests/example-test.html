@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Приклад тесту</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --text: #1f2430;
+    --muted: #6b7280;
+    --accent: #3b5bdb;
+    --accent-hover: #2f4bc4;
+    --border: #e5e7eb;
+    --correct: #16a34a;
+    --wrong: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", Arial, sans-serif;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  a.back { color: var(--muted); text-decoration: none; font-size: 0.9rem; }
+  a.back:hover { color: var(--accent); }
+  h1 { font-size: 1.5rem; margin: 12px 0 24px; }
+  .question {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  .question p.q-text { font-weight: 600; margin-top: 0; }
+  label {
+    display: block;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  label:hover { background: #f0f2fa; }
+  label input { margin-right: 8px; }
+  button#submitBtn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  button#submitBtn:hover { background: var(--accent-hover); }
+  #result {
+    margin-top: 20px;
+    padding: 18px 20px;
+    border-radius: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    font-weight: 600;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+  .question.correct { border-color: var(--correct); }
+  .question.wrong { border-color: var(--wrong); }
+  .hint { font-size: 0.9rem; color: var(--muted); margin-top: 6px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="../index.html">← До списку тестів</a>
+    <h1>Приклад тесту: Столиці країн</h1>
+    <form id="quizForm"></form>
+    <button id="submitBtn" type="button">Перевірити відповіді</button>
+    <div id="result" style="display:none;"></div>
+  </div>
+
+<script>
+  // Кожне питання: текст, варіанти відповідей, індекс правильної відповіді (з 0)
+  const QUESTIONS = [
+    {
+      text: "Яка столиця Франції?",
+      options: ["Берлін", "Париж", "Мадрид", "Рим"],
+      correct: 1
+    },
+    {
+      text: "Яка столиця України?",
+      options: ["Львів", "Одеса", "Київ", "Харків"],
+      correct: 2
+    },
+    {
+      text: "Яка столиця Японії?",
+      options: ["Пекін", "Сеул", "Токіо", "Бангкок"],
+      correct: 2
+    }
+  ];
+
+  const form = document.getElementById("quizForm");
+  const resultEl = document.getElementById("result");
+
+  QUESTIONS.forEach((q, qi) => {
+    const block = document.createElement("div");
+    block.className = "question";
+    block.id = "q" + qi;
+
+    const p = document.createElement("p");
+    p.className = "q-text";
+    p.textContent = (qi + 1) + ". " + q.text;
+    block.appendChild(p);
+
+    q.options.forEach((opt, oi) => {
+      const label = document.createElement("label");
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = "q" + qi;
+      input.value = oi;
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(opt));
+      block.appendChild(label);
+    });
+
+    form.appendChild(block);
+  });
+
+  document.getElementById("submitBtn").addEventListener("click", () => {
+    let score = 0;
+
+    QUESTIONS.forEach((q, qi) => {
+      const block = document.getElementById("q" + qi);
+      const selected = form.querySelector(`input[name="q${qi}"]:checked`);
+      block.classList.remove("correct", "wrong");
+
+      if (!selected) {
+        block.classList.add("wrong");
+        return;
+      }
+      if (parseInt(selected.value, 10) === q.correct) {
+        block.classList.add("correct");
+        score++;
+      } else {
+        block.classList.add("wrong");
+      }
+    });
+
+    resultEl.style.display = "block";
+    resultEl.textContent = `Результат: ${score} із ${QUESTIONS.length}`;
+  });
+</script>
+</body>
+</html>
