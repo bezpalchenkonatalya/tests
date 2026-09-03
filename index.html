@@ -25,7 +25,18 @@
   }
   .wrap { max-width: 720px; margin: 0 auto; }
   h1 { font-size: 1.6rem; margin-bottom: 4px; }
-  p.subtitle { color: var(--muted); margin-top: 0; margin-bottom: 28px; }
+  p.subtitle { color: var(--muted); margin-top: 0; margin-bottom: 20px; }
+  #searchBox {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    background: var(--card);
+    color: var(--text);
+  }
+  #searchBox:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
   .state-message {
     padding: 20px;
     background: var(--card);
@@ -42,28 +53,28 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.03);
   }
   ul.test-list a {
-    display: block;
-    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
     text-decoration: none;
     color: var(--text);
-    font-size: 1.05rem;
-    font-weight: 600;
   }
   ul.test-list a:hover { color: var(--accent); }
-  ul.test-list a::after {
-    content: "→";
-    float: right;
-    color: var(--accent);
-  }
+  .title-text { flex: 1; font-size: 1.05rem; font-weight: 600; }
+  .arrow { color: var(--accent); flex: 0 0 auto; }
+  #noResults { display: none; }
 </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Тести</h1>
     <p class="subtitle">Обери тест зі списку нижче</p>
+    <input type="search" id="searchBox" placeholder="Пошук тесту…" style="display:none;">
     <div id="content">
       <div class="state-message" id="loading">Завантаження списку тестів…</div>
     </div>
+    <div class="state-message" id="noResults">Нічого не знайдено</div>
   </div>
 
 <script>
@@ -73,6 +84,8 @@
   const FOLDER = "tests";
 
   const contentEl = document.getElementById("content");
+  const searchBox = document.getElementById("searchBox");
+  const noResultsEl = document.getElementById("noResults");
 
   function humanTitle(filename) {
     return filename
@@ -80,6 +93,21 @@
       .replace(/[-_]+/g, " ")
       .trim();
   }
+
+  function applyFilter() {
+    const query = searchBox.value.trim().toLocaleLowerCase("uk");
+    const items = contentEl.querySelectorAll("li");
+    let visibleCount = 0;
+    items.forEach(li => {
+      const text = li.textContent.toLocaleLowerCase("uk");
+      const match = text.includes(query);
+      li.style.display = match ? "" : "none";
+      if (match) visibleCount++;
+    });
+    noResultsEl.style.display = (items.length > 0 && visibleCount === 0) ? "block" : "none";
+  }
+
+  searchBox.addEventListener("input", applyFilter);
 
   async function loadTests() {
     const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FOLDER}?ref=${BRANCH}`;
@@ -100,24 +128,35 @@
       list.className = "test-list";
       contentEl.innerHTML = "";
       contentEl.appendChild(list);
+      searchBox.style.display = files.length > 5 ? "block" : "none";
 
-      // Створюємо пункти одразу з назвою файлу, потім у фоні
-      // підміняємо текст на справжній <title> з кожного тесту.
+      // Створюємо пункти одразу з назвою файлу й порядковим номером,
+      // потім у фоні підміняємо текст на справжній <title> з кожного тесту.
       const items2 = files.map(f => {
         const li = document.createElement("li");
         const a = document.createElement("a");
         a.href = `${FOLDER}/${f.name}`;
-        a.textContent = humanTitle(f.name);
+
+        const titleSpan = document.createElement("span");
+        titleSpan.className = "title-text";
+        titleSpan.textContent = humanTitle(f.name);
+
+        const arrow = document.createElement("span");
+        arrow.className = "arrow";
+        arrow.textContent = "→";
+
+        a.appendChild(titleSpan);
+        a.appendChild(arrow);
         li.appendChild(a);
         list.appendChild(li);
-        return { file: f, link: a };
+        return { file: f, titleSpan };
       });
 
-      items2.forEach(async ({ file, link }) => {
+      items2.forEach(async ({ file, titleSpan }) => {
         try {
           const raw = await fetch(file.download_url).then(r => r.text());
           const match = raw.match(/<title>([^<]*)<\/title>/i);
-          if (match && match[1].trim()) link.textContent = match[1].trim();
+          if (match && match[1].trim()) titleSpan.textContent = match[1].trim();
         } catch (e) {
           // лишаємо назву файлу як запасний варіант
         }
