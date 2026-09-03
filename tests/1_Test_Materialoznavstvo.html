@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Класифікація матеріалів за природою походження</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 pb-12">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white shadow-lg mb-8">
+        <div class="max-w-4xl mx-auto px-4 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <span class="inline-block px-3 py-1 bg-indigo-500 text-indigo-100 text-xs font-semibold uppercase tracking-wider rounded-full mb-2">
+                        Матеріалознавство
+                    </span>
+                    <h1 class="text-2xl sm:text-3xl font-bold">Класифікація матеріалів за природою походження</h1>
+                    <p class="text-indigo-200 text-sm mt-1">Інтерактивний контрольний тест (8 завдань)</p>
+                </div>
+                <div class="bg-indigo-700/60 backdrop-blur border border-indigo-400/30 rounded-xl px-4 py-3 text-center self-stretch sm:self-auto">
+                    <span class="block text-xs uppercase tracking-wider text-indigo-200 font-medium">Максимальна оцінка</span>
+                    <span class="text-2xl font-bold text-amber-300">12 балів</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4">
+        
+        <!-- Score Bar / Progress -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6 sticky top-4 z-10 flex justify-between items-center">
+            <div>
+                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Прогрес і бали</span>
+                <div id="progress-text" class="text-lg font-bold text-slate-700">0 / 8 відповідей (0 балів)</div>
+            </div>
+            <button id="submit-btn" onclick="calculateScore()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-lg shadow transition duration-200 flex items-center gap-2">
+                <i class="fa-solid fa-chart-pie"></i> Підсумки
+            </button>
+        </div>
+
+        <!-- Quiz Form -->
+        <form id="quiz-form" onsubmit="event.preventDefault();" class="space-y-6">
+            <!-- Questions inserted via JS -->
+        </form>
+
+        <!-- Result Card -->
+        <div id="result-card" class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-8 mt-8 text-center">
+            <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-1">Результати тестування</h2>
+            <p class="text-slate-500 mb-6">Ваша підсумкова оцінка за 12-бальною системою:</p>
+            
+            <div class="inline-flex items-baseline justify-center gap-2 bg-slate-50 border border-slate-200 px-8 py-4 rounded-2xl mb-6">
+                <span id="total-score" class="text-5xl font-extrabold text-indigo-600">0</span>
+                <span class="text-2xl text-slate-400 font-bold">/ 12 балів</span>
+            </div>
+
+            <!-- Level Breakdown -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left mb-8 max-w-2xl mx-auto">
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <span class="text-xs text-slate-500 block">1 Рівень (2 б.)</span>
+                    <span id="l1-score" class="text-lg font-bold text-slate-700">0 / 2</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <span class="text-xs text-slate-500 block">2 Рівень (2 б.)</span>
+                    <span id="l2-score" class="text-lg font-bold text-slate-700">0 / 2</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <span class="text-xs text-slate-500 block">3 Рівень (4 б.)</span>
+                    <span id="l3-score" class="text-lg font-bold text-slate-700">0 / 4</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <span class="text-xs text-slate-500 block">4 Рівень (4 б.)</span>
+                    <span id="l4-score" class="text-lg font-bold text-slate-700">0 / 4</span>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        const quizData = [
+            {
+                id: 1,
+                level: 1,
+                levelName: "Початковий рівень",
+                points: 1,
+                badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+                question: "Які матеріали називають конструкційними в машинобудуванні?",
+                options: [
+                    "Матеріали для виготовлення деталей і конструкцій машин",
+                    "Всі хімічні елементи кристалічної будови",
+                    "Речовини з високою теплопровідністю",
+                    "Матеріали виключно природного походження"
+                ],
+                correct: 0,
+                rationale: "Конструкційні матеріали — це матеріали, з яких виготовляють деталі та конструкції машин."
+            },
+            {
+                id: 2,
+                level: 1,
+                levelName: "Початковий рівень",
+                points: 1,
+                badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+                question: "Яка з наведених властивостей є характерною специфічною ознакою металів?",
+                options: [
+                    "Висока електропровідність",
+                    "Низька теплопровідність",
+                    "Крихкість за звичайних умов",
+                    "Повна прозорість для світла"
+                ],
+                correct: 0,
+                rationale: "Метали характеризуються металевим блиском, пластичністю, високою теплопровідністю та високою електропровідністю."
+            },
+            {
+                id: 3,
+                level: 2,
+                levelName: "Середній рівень",
+                points: 1,
+                badgeColor: "bg-blue-100 text-blue-800 border-blue-200",
+                question: "До якої групи матеріалів належать залізо та його сплави за загальною класифікацією?",
+                options: [
+                    "Чорні метали",
+                    "Кольорові метали",
+                    "Легкоплавкі матеріали",
+                    "Неметалеві конструкційні матеріали"
+                ],
+                correct: 0,
+                rationale: "За загальною класифікацією до чорних металів належать залізо та його сплави (сталь, чавун)."
+            },
+            {
+                id: 4,
+                level: 2,
+                levelName: "Середній рівень",
+                points: 1,
+                badgeColor: "bg-blue-100 text-blue-800 border-blue-200",
+                question: "Яка частка чорних металів використовується в сучасній техніці?",
+                options: [
+                    "Понад 90%",
+                    "Близько 50%",
+                    "Менше 25%",
+                    "До 10%"
+                ],
+                correct: 0,
+                rationale: "У сучасній техніці використовується понад 90% чорних металів."
+            },
+            {
+                id: 5,
+                level: 3,
+                levelName: "Достатній рівень",
+                points: 2,
+                badgeColor: "bg-amber-100 text-amber-800 border-amber-200",
+                question: "Чим першочергово відрізняється сталь від чавуну за масовою часткою вуглецю?",
+                options: [
+                    "Сталь містить від 0.01% до 2% вуглецю",
+                    "Сталь містить понад 4.3% вуглецю",
+                    "Чавун містить менше 0.01% вуглецю",
+                    "Сталь взагалі не містить вуглецю"
+                ],
+                correct: 0,
+                rationale: "Сталь є залізовуглецевим сплавом із вмістом вуглецю від 0,01% до 2%, тоді як чавун містить від 2% до 4,3% (або до 6.67%) вуглецю."
+            },
+            {
+                id: 6,
+                level: 3,
+                levelName: "Достатній рівень",
+                points: 2,
+                badgeColor: "bg-amber-100 text-amber-800 border-amber-200",
+                question: "Яке явище за класифікацією Гуляєва притаманне чорним металам, але відсутнє у більшості кольорових металів?",
+                options: [
+                    "Здатність до поліморфних перетворень",
+                    "Висока стійкість проти корозії",
+                    "Низька температура плавлення",
+                    "Мала густина й висока пластичність"
+                ],
+                correct: 0,
+                rationale: "За класифікацією О. П. Гуляєва чорні метали здатні до поліморфних перетворень, тоді як для кольорових характерна відсутність поліморфізму."
+            },
+            {
+                id: 7,
+                level: 4,
+                levelName: "Високий рівень",
+                points: 2,
+                badgeColor: "bg-purple-100 text-purple-800 border-purple-200",
+                question: "Який метал у групі чорних залізних металів є винятком і не здатний до поліморфних перетворень?",
+                options: [
+                    "Нікель (Ni)",
+                    "Марганець (Mn)",
+                    "Кобальт (Co)",
+                    "Залізо (Fe)"
+                ],
+                correct: 0,
+                rationale: "Нікель (Ni) є єдиним винятком серед чорних залізних металів, який не має поліморфних перетворень."
+            },
+            {
+                id: 8,
+                level: 4,
+                levelName: "Високий рівень",
+                points: 2,
+                badgeColor: "bg-purple-100 text-purple-800 border-purple-200",
+                question: "Які з наведених елементів належать до групи легкоплавких кольорових металів?",
+                options: [
+                    "Цинк (Zn) та свинець (Pb)",
+                    "Вольфрам (W) та молібден (Mo)",
+                    "Титан (Ti) та берилій (Be)",
+                    "Залізо (Fe) та марганець (Mn)"
+                ],
+                correct: 0,
+                rationale: "Цинк (Zn) і свинець (Pb) входять до групи легкоплавких кольорових металів (температура плавлення нижча, ніж у заліза)."
+            }
+        ];
+
+        let userAnswers = {};
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-form');
+            container.innerHTML = '';
+
+            quizData.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-6 transition-all duration-200";
+                card.id = `q-card-${q.id}`;
+
+                let optionsHtml = '';
+                q.options.forEach((opt, optIdx) => {
+                    optionsHtml += `
+                        <label class="flex items-start p-3 sm:p-4 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition duration-150 option-label-${q.id}" id="opt-label-${q.id}-${optIdx}">
+                            <input type="radio" name="question-${q.id}" value="${optIdx}" onchange="selectOption(${q.id}, ${optIdx})" class="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                            <span class="ml-3 text-sm sm:text-base text-slate-700 font-medium">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-md border ${q.badgeColor}">
+                            ${q.levelName}
+                        </span>
+                        <span class="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                            Цінність: ${q.points} ${q.points === 1 ? 'бал' : 'бали'}
+                        </span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-semibold text-slate-800 mb-4">
+                        ${index + 1}. ${q.question}
+                    </h3>
+                    <div class="space-y-2.5">
+                        ${optionsHtml}
+                    </div>
+                    <div id="explanation-${q.id}" class="hidden mt-4 p-4 rounded-lg text-sm"></div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function selectOption(qId, optionIndex) {
+            // Prevent changing answer if already selected
+            if (userAnswers[qId] !== undefined) return;
+
+            userAnswers[qId] = optionIndex;
+            const q = quizData.find(item => item.id === qId);
+            
+            // Disable inputs for this question
+            const inputs = document.querySelectorAll(`input[name="question-${qId}"]`);
+            inputs.forEach(i => {
+                i.disabled = true;
+                i.parentElement.classList.remove('hover:bg-slate-50', 'cursor-pointer');
+                i.parentElement.classList.add('cursor-not-allowed');
+            });
+
+            const card = document.getElementById(`q-card-${qId}`);
+            const expBox = document.getElementById(`explanation-${qId}`);
+            expBox.classList.remove('hidden');
+
+            const isCorrect = (optionIndex === q.correct);
+
+            if (isCorrect) {
+                card.classList.add('border-emerald-300', 'bg-emerald-50/20');
+                expBox.className = "mt-4 p-4 rounded-lg text-sm bg-emerald-100/80 text-emerald-900 border border-emerald-200";
+                expBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> <strong>Правильно!</strong> ${q.rationale}`;
+                document.getElementById(`opt-label-${qId}-${optionIndex}`).classList.add('border-emerald-500', 'bg-emerald-100/50', 'font-semibold');
+            } else {
+                card.classList.add('border-rose-200', 'bg-rose-50/20');
+                expBox.className = "mt-4 p-4 rounded-lg text-sm bg-rose-100/80 text-rose-900 border border-rose-200";
+                expBox.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-1.5"></i> <strong>Помилка.</strong> ${q.rationale}`;
+                document.getElementById(`opt-label-${qId}-${optionIndex}`).classList.add('border-rose-400', 'bg-rose-100/50', 'text-rose-900');
+                document.getElementById(`opt-label-${qId}-${q.correct}`).classList.add('border-emerald-500', 'bg-emerald-100/50', 'font-semibold');
+            }
+
+            updateProgress();
+
+            // Auto show summary when all questions are answered
+            if (Object.keys(userAnswers).length === quizData.length) {
+                calculateScore();
+            }
+        }
+
+        function updateProgress() {
+            const answeredCount = Object.keys(userAnswers).length;
+            let currentPoints = 0;
+
+            quizData.forEach(q => {
+                if (userAnswers[q.id] === q.correct) {
+                    currentPoints += q.points;
+                }
+            });
+
+            document.getElementById('progress-text').innerText = `${answeredCount} / ${quizData.length} відповідей (${currentPoints} б.)`;
+        }
+
+        function calculateScore() {
+            let totalPoints = 0;
+            let levelScores = { 1: 0, 2: 0, 3: 0, 4: 0 };
+
+            quizData.forEach(q => {
+                const userChoice = userAnswers[q.id];
+                if (userChoice === q.correct) {
+                    totalPoints += q.points;
+                    levelScores[q.level] += q.points;
+                }
+            });
+
+            document.getElementById('total-score').innerText = totalPoints;
+            document.getElementById('l1-score').innerText = `${levelScores[1]} / 2`;
+            document.getElementById('l2-score').innerText = `${levelScores[2]} / 2`;
+            document.getElementById('l3-score').innerText = `${levelScores[3]} / 4`;
+            document.getElementById('l4-score').innerText = `${levelScores[4]} / 4`;
+
+            document.getElementById('result-card').classList.remove('hidden');
+            document.getElementById('result-card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.onload = renderQuiz;
+    </script>
+</body>
+</html>
