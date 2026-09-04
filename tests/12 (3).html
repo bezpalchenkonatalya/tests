@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Мідь та її сплави</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 pb-16">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-amber-700 via-orange-600 to-amber-800 text-white shadow-lg mb-6">
+        <div class="max-w-4xl mx-auto px-4 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <span class="inline-block px-3 py-1 bg-amber-900/40 border border-amber-400/30 text-amber-100 text-xs font-semibold uppercase tracking-wider rounded-full mb-2">
+                        <i class="fa-solid fa-flask-vial mr-1"></i> Матеріалознавство
+                    </span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Мідь та її сплави</h1>
+                    <p class="text-amber-100/90 text-sm mt-1">Контрольний інтерактивний тест • 8 питань</p>
+                </div>
+                <div class="bg-amber-900/40 backdrop-blur-md border border-amber-300/30 rounded-xl px-5 py-3 text-center self-stretch sm:self-auto flex sm:flex-col justify-between items-center sm:justify-center">
+                    <span class="text-xs uppercase tracking-wider text-amber-200 font-medium">Максимальна оцінка</span>
+                    <span class="text-2xl font-black text-amber-300">12 балів</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4">
+        
+        <!-- Sticky Progress Bar -->
+        <div class="bg-white/95 backdrop-blur rounded-xl shadow-md border border-slate-200 p-4 mb-6 sticky top-4 z-20 flex justify-between items-center transition-all">
+            <div>
+                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold block">Поточний прогрес</span>
+                <div id="progress-text" class="text-base sm:text-lg font-bold text-slate-800">0 / 8 відповідей (0 б.)</div>
+            </div>
+            <div class="w-1/3 bg-slate-100 h-3 rounded-full overflow-hidden border border-slate-200 hidden sm:block">
+                <div id="progress-bar" class="bg-amber-600 h-full w-0 transition-all duration-300"></div>
+            </div>
+        </div>
+
+        <!-- Quiz Form -->
+        <form id="quiz-form" onsubmit="event.preventDefault();" class="space-y-6">
+            <!-- Questions rendered dynamically via JS -->
+        </form>
+
+        <!-- Result Card -->
+        <div id="result-card" class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-8 mt-10 text-center transition-all duration-500">
+            <div class="w-20 h-20 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner">
+                <i class="fa-solid fa-award"></i>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">Тест завершено!</h2>
+            <p class="text-slate-500 mb-6">Ваш підсумковий результат за 12-бальною системою:</p>
+            
+            <div class="inline-flex items-baseline justify-center gap-2 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 px-8 py-5 rounded-2xl mb-8 shadow-sm">
+                <span id="total-score" class="text-5xl sm:text-6xl font-black text-amber-700">0</span>
+                <span class="text-2xl text-slate-500 font-bold">/ 12 балів</span>
+            </div>
+
+            <!-- Level Breakdown Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left max-w-2xl mx-auto">
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <span class="text-xs text-slate-500 font-semibold block">1 Рівень (2 б.)</span>
+                    <span id="l1-score" class="text-lg font-bold text-slate-800">0 / 2</span>
+                </div>
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <span class="text-xs text-slate-500 font-semibold block">2 Рівень (2 б.)</span>
+                    <span id="l2-score" class="text-lg font-bold text-slate-800">0 / 2</span>
+                </div>
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <span class="text-xs text-slate-500 font-semibold block">3 Рівень (4 б.)</span>
+                    <span id="l3-score" class="text-lg font-bold text-slate-800">0 / 4</span>
+                </div>
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <span class="text-xs text-slate-500 font-semibold block">4 Рівень (4 б.)</span>
+                    <span id="l4-score" class="text-lg font-bold text-slate-800">0 / 4</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const quizData = [
+            {
+                id: 1,
+                level: 1,
+                levelName: "Початковий рівень",
+                points: 1,
+                badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+                question: "Який характерний колір має чиста мідь та яка її головна перевага для застосування в електротехніці?",
+                options: [
+                    "Червоний (у зломі рожевий); висока електропровідність",
+                    "Сріблясто-білий; висока магнітна проникність",
+                    "Темно-сірий; надвисока твердість",
+                    "Жовтий; низька температура плавлення"
+                ],
+                correct: 0,
+                rationale: "Мідь — метал червоного кольору (у зломі рожевого) з відмінною електропровідністю (=0,0178 Ом·мм²/м), тому вона широко використовується в електротехніці."
+            },
+            {
+                id: 2,
+                level: 1,
+                levelName: "Початковий рівень",
+                points: 1,
+                badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+                question: "Як називаються сплави міді, у яких основним легуючим елементом є цинк (Zn)?",
+                options: [
+                    "Бронзи",
+                    "Латуні",
+                    "Бабіти",
+                    "Дюралюміни"
+                ],
+                correct: 1,
+                rationale: "Латуні — це сплави міді, у яких основним легуючим елементом є цинк (Zn)."
+            },
+            {
+                id: 3,
+                level: 2,
+                levelName: "Середній рівень",
+                points: 1,
+                badgeColor: "bg-sky-100 text-sky-800 border-sky-200",
+                question: "Чому чисту мідь вкрай рідко застосовують як самостійний конструкційний матеріал у машинобудуванні?",
+                options: [
+                    "Через високу крихкість при загартуванні",
+                    "Через відносно низькі механічні властивості (міцність σ_в = 250 МПа, твердість 45 HB)",
+                    "Через схильність до швидкого самозаймання на повітрі",
+                    "Через неможливість її обробки тиском"
+                ],
+                correct: 1,
+                rationale: "Механічні властивості чистої міді відносно низькі (міцність 250 МПа, твердість 45 HB), тому її зміцнюють шляхом створення сплавів (латуней та бронз)."
+            },
+            {
+                id: 4,
+                level: 2,
+                levelName: "Середній рівень",
+                points: 1,
+                badgeColor: "bg-sky-100 text-sky-800 border-sky-200",
+                question: "При якому вмісті цинку (Zn) латунь має максимальну пластичність?",
+                options: [
+                    "10% Zn",
+                    "37% Zn",
+                    "45% Zn",
+                    "60% Zn"
+                ],
+                correct: 1,
+                rationale: "Згідно з діаграмою стану Cu-Zn, максимальну пластичність мають однофазні латуні, що містять 37% Zn."
+            },
+            {
+                id: 5,
+                level: 3,
+                levelName: "Достатній рівень",
+                points: 2,
+                badgeColor: "bg-amber-100 text-amber-800 border-amber-200",
+                question: "Проаналізуйте марку деформованої латуні ЛЖМц 59-1-1. Який її склад?",
+                options: [
+                    "59% цинку, 1% заліза, 1% марганцю, решта — мідь",
+                    "59% міді, 1% заліза, 1% марганцю, решта — цинк",
+                    "59% міді, 59% заліза, 1% магнію, 1% цинку",
+                    "59% олова, 1% заліза, 1% міді, решта — цинк"
+                ],
+                correct: 1,
+                rationale: "У марці ЛЖМц 59-1-1 перше число означає вміст міді (59%), далі наступні числа відповідають легуючим елементам (1% Fe, 1% Mn), а решту складає цинк."
+            },
+            {
+                id: 6,
+                level: 3,
+                levelName: "Достатній рівень",
+                points: 2,
+                badgeColor: "bg-amber-100 text-amber-800 border-amber-200",
+                question: "Чим відрізняється принципова схема маркування деформованих бронз від ливарних (на прикладі БрОЦС5-5-5 та БрО5Ц5С5)?",
+                options: [
+                    "У деформованих бронзах числа вмісту елементів ставлять у кінці марки, а у ливарних — одразу після кожної літери легуючого елемента",
+                    "Деформовані бронзи не містять літер Бр у назві",
+                    "У ливарних бронзах взагалі не вказують відсотковий вміст елементів",
+                    "У деформованих бронзах числа позначають вміст міді, а у ливарних — вміст цинку"
+                ],
+                correct: 0,
+                rationale: "У марках деформованих бронз (наприклад, БрОЦС5-5-5) числа ставляться в кінці, а в ливарних (БрО5Ц5С5) — одразу після відповідної літери елемента."
+            },
+            {
+                id: 7,
+                level: 4,
+                levelName: "Високий рівень",
+                points: 2,
+                badgeColor: "bg-purple-100 text-purple-800 border-purple-200",
+                question: "Поясніть, як змінюється фазовий склад та властивості латуні при збільшенні вмісту цинку понад 39%.",
+                options: [
+                    "У структурі з'являється β-фаза (CuZn); структура стає двофазною (α+β), що підвищує міцність і твердість, але знижує пластичність",
+                    "Структура стає повністю однофазною з різким зростанням пластичності та зниженням міцності",
+                    "Сплав перетворюється на чисту бронзу з високою рідкотекучістю",
+                    "Відбувається повне розшарування міді та цинку без зміни механічних властивостей"
+                ],
+                correct: 0,
+                rationale: "При вмісті Zn > 39% у структурі з'являється β-фаза (твердий розчин на основі електронної сполуки CuZn). Двофазна (α+β) структура забезпечує вищу міцність і твердість, але зменшує пластичність."
+            },
+            {
+                id: 8,
+                level: 4,
+                levelName: "Високий рівень",
+                points: 2,
+                badgeColor: "bg-purple-100 text-purple-800 border-purple-200",
+                question: "Розшифруйте склад ливарної латуні марки ЛЦ23А6Ж3Мц2.",
+                options: [
+                    "23% міді, 6% алюмінію, 3% заліза, 2% марганцю, решта — цинк",
+                    "23% цинку, 6% алюмінію, 3% заліза, 2% марганцю, решта — мідь",
+                    "23% олова, 6% алюмінію, 3% заліза, 2% цинку, решта — мідь",
+                    "23% цинку, 6% олова, 3% заліза, 2% марганцю, решта — свинець"
+                ],
+                correct: 1,
+                rationale: "Ливарні латуні маркуються літерою Ц з відсотком цинку одразу після неї: ЛЦ23А6Ж3Мц2 містить 23% Zn, 6% Al, 3% Fe, 2% Mn, решта — Cu."
+            }
+        ];
+
+        let userAnswers = {};
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-form');
+            container.innerHTML = '';
+
+            quizData.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-6 transition-all duration-200";
+                card.id = `q-card-${q.id}`;
+
+                let optionsHtml = '';
+                q.options.forEach((opt, optIdx) => {
+                    optionsHtml += `
+                        <label class="flex items-start p-3 sm:p-4 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition duration-150 option-label-${q.id}" id="opt-label-${q.id}-${optIdx}">
+                            <input type="radio" name="question-${q.id}" value="${optIdx}" onchange="selectOption(${q.id}, ${optIdx})" class="mt-1 h-4 w-4 text-amber-600 focus:ring-amber-500 border-slate-300">
+                            <span class="ml-3 text-sm sm:text-base text-slate-700 font-medium leading-snug">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-md border ${q.badgeColor}">
+                            ${q.levelName}
+                        </span>
+                        <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md">
+                            Цінність: ${q.points} ${q.points === 1 ? 'бал' : 'бали'}
+                        </span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-4">
+                        ${index + 1}. ${q.question}
+                    </h3>
+                    <div class="space-y-2.5">
+                        ${optionsHtml}
+                    </div>
+                    <div id="explanation-${q.id}" class="hidden mt-4 p-4 rounded-xl text-sm leading-relaxed transition-all"></div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function selectOption(qId, optionIndex) {
+            if (userAnswers[qId] !== undefined) return; // Prevent re-selection
+
+            userAnswers[qId] = optionIndex;
+            const q = quizData.find(item => item.id === qId);
+
+            // Disable all inputs for this question
+            const inputs = document.querySelectorAll(`input[name="question-${qId}"]`);
+            inputs.forEach(i => {
+                i.disabled = true;
+                i.parentElement.classList.remove('hover:bg-slate-50', 'cursor-pointer');
+                i.parentElement.classList.add('cursor-not-allowed');
+            });
+
+            const card = document.getElementById(`q-card-${qId}`);
+            const expBox = document.getElementById(`explanation-${qId}`);
+            expBox.classList.remove('hidden');
+
+            const isCorrect = (optionIndex === q.correct);
+
+            if (isCorrect) {
+                card.classList.add('border-emerald-400', 'bg-emerald-50/20');
+                expBox.className = "mt-4 p-4 rounded-xl text-sm bg-emerald-100/80 text-emerald-950 border border-emerald-200 shadow-sm";
+                expBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-2 text-base"></i> <strong>Правильно!</strong> ${q.rationale}`;
+                document.getElementById(`opt-label-${qId}-${optionIndex}`).classList.add('border-emerald-500', 'bg-emerald-100/60', 'font-semibold', 'text-emerald-900');
+            } else {
+                card.classList.add('border-rose-300', 'bg-rose-50/20');
+                expBox.className = "mt-4 p-4 rounded-xl text-sm bg-rose-100/80 text-rose-950 border border-rose-200 shadow-sm";
+                expBox.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-2 text-base"></i> <strong>Помилка.</strong> ${q.rationale}`;
+                document.getElementById(`opt-label-${qId}-${optionIndex}`).classList.add('border-rose-400', 'bg-rose-100/60', 'text-rose-900');
+                document.getElementById(`opt-label-${qId}-${q.correct}`).classList.add('border-emerald-500', 'bg-emerald-100/60', 'font-semibold', 'text-emerald-900');
+            }
+
+            updateProgress();
+
+            // Auto-calculate final results when all 8 questions answered
+            if (Object.keys(userAnswers).length === quizData.length) {
+                setTimeout(calculateScore, 400);
+            }
+        }
+
+        function updateProgress() {
+            const answeredCount = Object.keys(userAnswers).length;
+            let currentPoints = 0;
+
+            quizData.forEach(q => {
+                if (userAnswers[q.id] === q.correct) {
+                    currentPoints += q.points;
+                }
+            });
+
+            document.getElementById('progress-text').innerText = `${answeredCount} / ${quizData.length} відповідей (${currentPoints} б.)`;
+            const percentage = (answeredCount / quizData.length) * 100;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+        }
+
+        function calculateScore() {
+            let totalPoints = 0;
+            let levelScores = { 1: 0, 2: 0, 3: 0, 4: 0 };
+
+            quizData.forEach(q => {
+                const userChoice = userAnswers[q.id];
+                if (userChoice === q.correct) {
+                    totalPoints += q.points;
+                    levelScores[q.level] += q.points;
+                }
+            });
+
+            document.getElementById('total-score').innerText = totalPoints;
+            document.getElementById('l1-score').innerText = `${levelScores[1]} / 2`;
+            document.getElementById('l2-score').innerText = `${levelScores[2]} / 2`;
+            document.getElementById('l3-score').innerText = `${levelScores[3]} / 4`;
+            document.getElementById('l4-score').innerText = `${levelScores[4]} / 4`;
+
+            const resultCard = document.getElementById('result-card');
+            resultCard.classList.remove('hidden');
+            resultCard.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.onload = renderQuiz;
+    </script>
+</body>
+</html>
