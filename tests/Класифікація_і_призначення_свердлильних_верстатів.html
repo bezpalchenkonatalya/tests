@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="uk" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Класифікація і призначення свердлильних верстатів</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans antialiased text-slate-800 min-h-full flex flex-col">
+
+    <header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6">
+            <div class="flex items-center justify-between gap-4 mb-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-industry text-blue-600 text-xl"></i>
+                    <h1 class="text-base sm:text-lg font-bold text-slate-900 truncate">Свердлильні верстати</h1>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <span id="score-display" class="text-sm sm:text-base font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+                        0 / 12 балів
+                    </span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200">
+                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300 w-0"></div>
+                </div>
+                <span id="progress-text" class="text-xs font-medium text-slate-500 whitespace-nowrap">0 / 8</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+            <h2 class="text-xl font-bold text-slate-900 mb-2">Інтерактивна перевірка знань</h2>
+            <p class="text-slate-600 text-sm leading-relaxed">
+                Дайте відповіді на 8 запитань різних рівнів складності. Система оцінювання відповідає 12-бальній шкалі: 
+                <strong>Початковий</strong> (2 б.), <strong>Середній</strong> (2 б.), <strong>Достатній</strong> (4 б.) та <strong>Високий</strong> (4 б.).
+            </p>
+        </div>
+
+        <div id="quiz-container" class="space-y-6"></div>
+
+        <div id="summary-card" class="hidden bg-white rounded-2xl border border-slate-200 shadow-lg p-6 sm:p-8 space-y-6 animate-fade-in">
+            <div class="text-center space-y-2 border-b border-slate-100 pb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-blue-600 mb-2">
+                    <i class="fa-solid fa-award text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900">Тестування завершено!</h2>
+                <p class="text-slate-500 text-sm">Ваш підсумковий результат за 12-бальною системою оцінювання:</p>
+                <div class="pt-2">
+                    <span id="final-score" class="text-5xl font-extrabold text-blue-600">0</span>
+                    <span class="text-2xl font-bold text-slate-400"> / 12 балів</span>
+                </div>
+                <div id="grade-badge" class="inline-block mt-2 px-4 py-1.5 rounded-full text-sm font-semibold"></div>
+            </div>
+
+            <div>
+                <h3 class="text-base font-semibold text-slate-800 mb-3">Деталізація за рівнями складності:</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="levels-breakdown">
+                    </div>
+            </div>
+
+            <div class="pt-4 flex justify-center">
+                <button onclick="window.location.reload()" class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm hover:shadow transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    Пройти тест повторно
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="mt-auto py-4 bg-white border-t border-slate-200 text-center text-xs text-slate-400">
+        Навчальний інтерактивний тест • Технологія механічної обробки
+    </footer>
+
+    <script>
+        const questionsData = [
+            // ПОЧАТКОВИЙ РІВЕНЬ (2 б. сумарно -> 2 питання по 1 б.)
+            {
+                id: 1,
+                levelKey: 'initial',
+                levelName: 'Початковий рівень',
+                levelBadgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
+                points: 1,
+                question: 'До якої групи металорізальних верстатів належать свердлильні верстати згідно з класифікацією?',
+                options: [
+                    '1 група',
+                    '2 група',
+                    '5 група',
+                    '8 група'
+                ],
+                correctIndex: 1,
+                explanation: 'Згідно з загальною класифікацією металорізальних верстатів, свердлильні та розточувальні верстати відносяться до 2-ї групи[cite: 10].'
+            },
+            {
+                id: 2,
+                levelKey: 'initial',
+                levelName: 'Початковий рівень',
+                levelBadgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
+                points: 1,
+                question: 'Які типи свердлильних верстатів є найпоширенішими в промисловості?',
+                options: [
+                    'Координатно-розточувальні',
+                    'Горизонтально-свердлильні',
+                    'Вертикально-свердлильні',
+                    'Алмазно-розточувальні'
+                ],
+                correctIndex: 2,
+                explanation: 'Найуніверсальнішими є вертикально- та радіально-свердлильні, а найпоширенішими серед усіх — саме вертикально-свердлильні верстати[cite: 21].'
+            },
+
+            // СЕРЕДНІЙ РІВЕНЬ (2 б. сумарно -> 2 питання по 1 б.)
+            {
+                id: 3,
+                levelKey: 'middle',
+                levelName: 'Середній рівень',
+                levelBadgeClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                points: 1,
+                question: 'Який інструмент призначений для остаточної обробки отворів після свердління чи зенкерування з метою одержання високого квалітету точності та малої шорсткості?',
+                options: [
+                    'Зенківка',
+                    'Розвертка',
+                    'Мітчик',
+                    'Цеківка'
+                ],
+                correctIndex: 1,
+                explanation: 'Розвертка — це багатолезовий інструмент для кінцевої (чистової) обробки отвору, що забезпечує високу точність та якість поверхні[cite: 40, 50].'
+            },
+            {
+                id: 4,
+                levelKey: 'middle',
+                levelName: 'Середній рівень',
+                levelBadgeClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                points: 1,
+                question: 'Яке призначення має коробка швидкостей у будові вертикально-свердлильного верстата?',
+                options: [
+                    'Для надання шпинделю поздовжнього руху подачі',
+                    'Для закріплення заготовки та пристроїв',
+                    'Для ступеневого регулювання частот обертання шпинделя',
+                    'Для пересування станини по напрямних'
+                ],
+                correctIndex: 2,
+                explanation: 'Коробка швидкостей призначена для ступеневого регулювання частот обертання шпинделя (головного руху)[cite: 27].'
+            },
+
+            // ДОСТАТНІЙ РІВЕНЬ (4 б. сумарно -> 2 питання по 2 б.)
+            {
+                id: 5,
+                levelKey: 'sufficient',
+                levelName: 'Достатній рівень',
+                levelBadgeClass: 'bg-amber-100 text-amber-800 border-amber-200',
+                points: 2,
+                question: 'У чому полягає відмінність між технологічними операціями зенкування та цекування?',
+                options: [
+                    'Зенкування використовується для нарізання різі, а цекування — для розточування отворів великого діаметра',
+                    'Зенкування утворює конічні/циліндричні заглиблення під головки деталей, а цекування обробляє торцеву поверхню для забезпечення перпендикулярності до осі',
+                    'Зенкування здійснюється лише в суцільному матеріалі, а цекування — для збільшення діаметра просвердленого отвору',
+                    'Цекування виконується спіральним свердлом, а зенкування — спеціальним мітчиком'
+                ],
+                correctIndex: 1,
+                explanation: 'Зенкування створює заглиблення конічної/циліндричної форми під головки гвинтів/болтів [cite: 39, 53], тоді як цекування (обробка торцевим зенкером) запечує перпендикулярність плоскої торцевої поверхні відносно осі отвору[cite: 54].'
+            },
+            {
+                id: 6,
+                levelKey: 'sufficient',
+                levelName: 'Достатній рівень',
+                levelBadgeClass: 'bg-amber-100 text-amber-800 border-amber-200',
+                points: 2,
+                question: 'Яка конструктивна особливість шпиндельного вузла вертикально-свердлильного верстата забезпечує можливість здійснення руху подачі (S)?',
+                options: [
+                    'Шпиндель жорстко приварений до станини верстата',
+                    'Шпиндель входить у шліцевий отвір останнього вала коробки швидкостей і може пересуватись у ньому в осьовому напрямку',
+                    'Здійснення подачі відбувається шляхом повертання фундаментальної плити',
+                    'Шпиндель обертається разом із робочим столом верстата'
+                ],
+                correctIndex: 1,
+                explanation: 'Шпиндель входить у шліцевий отвір вала коробки швидкостей, що дає йому змогу вільно пересуватися в осьовому напрямку під дією механізму подач[cite: 28].'
+            },
+
+            // ВИСОКИЙ РІВЕНЬ (4 б. сумарно -> 2 питання по 2 б.)
+            {
+                id: 7,
+                levelKey: 'high',
+                levelName: 'Високий рівень',
+                levelBadgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                points: 2,
+                question: 'На виробництві потрібно отримати отвір діаметром 36 мм у сталевій суцільній заготовці з високою точністю та низькою шорсткістю. Вкажіть найбільш раціональну послідовність технологічних переходів:',
+                options: [
+                    'Центрування -> Нарізання різі -> Цекування -> Зенкування',
+                    'Свердління (Ø36 мм) -> Розвертування -> Зенкерування',
+                    'Свердління (наприклад Ø18-20 мм) -> Розсвердлювання (до Ø34-35 мм) -> Зенкерування -> Розвертування',
+                    'Розвертування -> Зенкерування -> Розсвердлювання -> Свердління'
+                ],
+                correctIndex: 2,
+                explanation: 'Для великих діаметрів (>30 мм) у суцільному матеріалі спочатку спочатку свердлять отвір меншого діаметра [cite: 45, 48], потім розсвердлюють його [cite: 47], після цього застосовують зенкерування для підвищення точності й форми [cite: 36, 49] та остаточне розвертування для досягнення потрібного квалітету й шорсткості[cite: 40, 50].'
+            },
+            {
+                id: 8,
+                levelKey: 'high',
+                levelName: 'Високий рівень',
+                levelBadgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                points: 2,
+                question: 'У чому полягає конструктивна та функціональна перевага зенкера порівняно зі спіральним свердлом під час обробки литих або штампованих отворів?',
+                options: [
+                    'Зенкер має менше ріжучих кромка і призначений лише для нарізання гвинтових канавок',
+                    'Зенкер має більшу кількість головних ріжучих ребер та зворотну конусність, що забезпечує краще спрямування, вищу жорсткість, точність і зменшує тертя',
+                    'Зенкер виконує лише головний рух різання без руху подачі',
+                    'Зенкер використовується виключно для обробки м’яких неметалевих матеріалів'
+                ],
+                correctIndex: 1,
+                explanation: 'Спіральний циліндричний зенкер має більшу кількість ріжучих ребер (3-4 проти 2 у свердла), що покращує його спрямування та жорсткість [cite: 37], а незначна зворотна конусність напрямної частини зменшує тертя[cite: 38].'
+            }
+        ];
+
+        let answeredCount = 0;
+        let totalScore = 0;
+
+        // Level stats tracking
+        const levelStats = {
+            initial: { name: 'Початковий', total: 2, earned: 0 },
+            middle: { name: 'Середній', total: 2, earned: 0 },
+            sufficient: { name: 'Достатній', total: 4, earned: 0 },
+            high: { name: 'Високий', total: 4, earned: 0 }
+        };
+
+        // Render Quiz Questions
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            questionsData.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6 transition-all duration-200";
+                card.id = `q-card-${q.id}`;
+
+                let optionsHTML = '';
+                q.options.forEach((opt, optIdx) => {
+                    optionsHTML += `
+                        <label id="q-${q.id}-opt-${optIdx}-label" 
+                               class="flex items-start p-3.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors group">
+                            <div class="flex items-center h-5 mt-0.5">
+                                <input type="radio" 
+                                       name="question-${q.id}" 
+                                       value="${optIdx}" 
+                                       onchange="handleAnswer(${q.id}, ${optIdx})"
+                                       class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500">
+                            </div>
+                            <span class="ml-3 text-sm text-slate-700 group-hover:text-slate-900 font-medium leading-relaxed">
+                                ${opt}
+                            </span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-md border ${q.levelBadgeClass}">
+                            ${q.levelName} (${q.points} ${q.points === 1 ? 'бал' : 'бали'})
+                        </span>
+                        <span class="text-xs font-medium text-slate-400">Питання ${idx + 1} з ${questionsData.length}</span>
+                    </div>
+
+                    <h3 class="text-base sm:text-lg font-semibold text-slate-900 mb-4 leading-snug">
+                        ${q.question}
+                    </h3>
+
+                    <div class="space-y-2.5">
+                        ${optionsHTML}
+                    </div>
+
+                    <div id="feedback-${q.id}" class="hidden mt-4 p-4 rounded-xl border text-sm leading-relaxed animate-fade-in">
+                        <div class="flex items-center gap-2 font-bold mb-1" id="feedback-title-${q.id}"></div>
+                        <p id="feedback-text-${q.id}" class="text-slate-700"></p>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Handle User Selection
+        function handleAnswer(qId, selectedOptionIndex) {
+            const q = questionsData.find(item => item.id === qId);
+            if (!q) return;
+
+            // Disable all radio buttons for this question
+            const radios = document.querySelectorAll(`input[name="question-${qId}"]`);
+            radios.forEach(r => r.disabled = true);
+
+            const feedbackEl = document.getElementById(`feedback-${qId}`);
+            const feedbackTitleEl = document.getElementById(`feedback-title-${qId}`);
+            const feedbackTextEl = document.getElementById(`feedback-text-${qId}`);
+
+            const isCorrect = (selectedOptionIndex === q.correctIndex);
+
+            // Update stats
+            answeredCount++;
+            if (isCorrect) {
+                totalScore += q.points;
+                levelStats[q.levelKey].earned += q.points;
+            }
+
+            // Update option styles
+            q.options.forEach((_, optIdx) => {
+                const labelEl = document.getElementById(`q-${qId}-opt-${optIdx}-label`);
+                labelEl.classList.remove('hover:bg-slate-50', 'cursor-pointer');
+                labelEl.classList.add('cursor-not-allowed');
+
+                if (optIdx === q.correctIndex) {
+                    // Correct answer style (Green)
+                    labelEl.classList.remove('border-slate-200');
+                    labelEl.classList.add('bg-emerald-50', 'border-emerald-300', 'text-emerald-900');
+                } else if (optIdx === selectedOptionIndex && !isCorrect) {
+                    // Incorrect selected answer style (Red)
+                    labelEl.classList.remove('border-slate-200');
+                    labelEl.classList.add('bg-rose-50', 'border-rose-300', 'text-rose-900');
+                } else {
+                    labelEl.classList.add('opacity-60');
+                }
+            });
+
+            // Feedback box content
+            feedbackEl.classList.remove('hidden');
+            if (isCorrect) {
+                feedbackEl.classList.add('bg-emerald-50', 'border-emerald-200');
+                feedbackTitleEl.className = 'flex items-center gap-2 font-bold text-emerald-800 mb-1';
+                feedbackTitleEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> Правильно! (+${q.points} б.)`;
+            } else {
+                feedbackEl.classList.add('bg-rose-50', 'border-rose-200');
+                feedbackTitleEl.className = 'flex items-center gap-2 font-bold text-rose-800 mb-1';
+                feedbackTitleEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i> Помилка (0 б.)`;
+            }
+            feedbackTextEl.innerText = q.explanation;
+
+            // Update Progress Header
+            updateProgress();
+
+            // Check if test is complete
+            if (answeredCount === questionsData.length) {
+                setTimeout(showFinalSummary, 600);
+            }
+        }
+
+        function updateProgress() {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const scoreDisplay = document.getElementById('score-display');
+
+            const percentage = (answeredCount / questionsData.length) * 100;
+            progressBar.style.width = `${percentage}%`;
+            progressText.innerText = `${answeredCount} / ${questionsData.length}`;
+            scoreDisplay.innerText = `${totalScore} / 12 балів`;
+        }
+
+        function showFinalSummary() {
+            const summaryCard = document.getElementById('summary-card');
+            const finalScoreEl = document.getElementById('final-score');
+            const gradeBadge = document.getElementById('grade-badge');
+            const breakdownEl = document.getElementById('levels-breakdown');
+
+            finalScoreEl.innerText = totalScore;
+
+            // Grade distinction based on 12-point scale
+            if (totalScore >= 10) {
+                gradeBadge.className = "inline-block mt-2 px-4 py-1.5 rounded-full text-sm font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200";
+                gradeBadge.innerText = "Високий рівень знань";
+            } else if (totalScore >= 7) {
+                gradeBadge.className = "inline-block mt-2 px-4 py-1.5 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 border border-blue-200";
+                gradeBadge.innerText = "Достатній рівень знань";
+            } else if (totalScore >= 4) {
+                gradeBadge.className = "inline-block mt-2 px-4 py-1.5 rounded-full text-sm font-semibold bg-amber-100 text-amber-800 border border-amber-200";
+                gradeBadge.innerText = "Середній рівень знань";
+            } else {
+                gradeBadge.className = "inline-block mt-2 px-4 py-1.5 rounded-full text-sm font-semibold bg-rose-100 text-rose-800 border border-rose-200";
+                gradeBadge.innerText = "Початковий рівень знань";
+            }
+
+            // Populate levels breakdown
+            breakdownEl.innerHTML = `
+                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <div>
+                        <div class="text-xs text-slate-500 font-medium">Початковий рівень</div>
+                        <div class="text-sm font-bold text-slate-800">2 питання</div>
+                    </div>
+                    <span class="font-bold text-slate-700">${levelStats.initial.earned} / ${levelStats.initial.total} б.</span>
+                </div>
+                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <div>
+                        <div class="text-xs text-slate-500 font-medium">Середній рівень</div>
+                        <div class="text-sm font-bold text-slate-800">2 питання</div>
+                    </div>
+                    <span class="font-bold text-slate-700">${levelStats.middle.earned} / ${levelStats.middle.total} б.</span>
+                </div>
+                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <div>
+                        <div class="text-xs text-slate-500 font-medium">Достатній рівень</div>
+                        <div class="text-sm font-bold text-slate-800">2 питання</div>
+                    </div>
+                    <span class="font-bold text-slate-700">${levelStats.sufficient.earned} / ${levelStats.sufficient.total} б.</span>
+                </div>
+                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <div>
+                        <div class="text-xs text-slate-500 font-medium">Високий рівень</div>
+                        <div class="text-sm font-bold text-slate-800">2 питання</div>
+                    </div>
+                    <span class="font-bold text-slate-700">${levelStats.high.earned} / ${levelStats.high.total} б.</span>
+                </div>
+            `;
+
+            summaryCard.classList.remove('hidden');
+            summaryCard.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', renderQuiz);
+    </script>
+</body>
+</html>
