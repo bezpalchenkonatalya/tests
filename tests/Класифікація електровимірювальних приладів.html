@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="uk" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Класифікація електровимірювальних приладів</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col justify-between antialiased">
+
+    <!-- Sticky Header / Progress Bar -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm transition-all duration-300">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold shadow-md shadow-indigo-100 shrink-0">
+                    <i class="fa-solid fa-gauge-high text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-800 text-sm sm:text-base leading-tight">Класифікація електровимірювальних приладів</h1>
+                    <p class="text-xs text-slate-500">12-бальна система оцінювання</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col items-end w-full sm:w-auto">
+                <div class="flex justify-between sm:justify-end items-center w-full sm:w-auto space-x-4 mb-1.5 text-xs sm:text-sm font-semibold text-slate-700">
+                    <span id="progressText">відповідано 0 / 8</span>
+                    <span id="scoreText" class="text-indigo-600 font-bold bg-indigo-50 px-2.5 py-0.5 rounded-md border border-indigo-100">0 балів з 12</span>
+                </div>
+                <div class="w-full sm:w-56 bg-slate-200 rounded-full h-2 overflow-hidden">
+                    <div id="progressBar" class="bg-indigo-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow space-y-6">
+        
+        <!-- Notice Banner for Attempt Restriction -->
+        <div id="attemptNotice" class="hidden bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-sm">
+            <div class="flex items-start space-x-3">
+                <i class="fa-solid fa-lock text-amber-600 text-xl mt-0.5"></i>
+                <div>
+                    <h3 class="font-bold text-amber-800">Спроба вичерпана</h3>
+                    <p class="text-amber-700 text-sm mt-0.5">Ви вже пройшли цей тест. Тест дозволено складати лише один раз. Нижче відображено ваші відповіді та підсумковий результат.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Introductory Card -->
+        <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 shadow-md relative overflow-hidden">
+            <div class="absolute -right-8 -bottom-8 opacity-10 pointer-events-none">
+                <i class="fa-solid fa-bolt text-[180px]"></i>
+            </div>
+            <div class="relative z-10 space-y-3">
+                <div class="inline-flex items-center space-x-2 bg-indigo-500/30 text-indigo-200 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur border border-indigo-400/20">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>Перевірка знань</span>
+                </div>
+                <h2 class="text-xl sm:text-2xl font-extrabold text-white">Інтерактивний тест з електротехніки</h2>
+                <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl">
+                    Тест містить 8 питань, розподілених за 4 рівнями складності. Кожна відповідь фіксується одразу. Уважно читайте питання перед вибором відповіді!
+                </p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2 text-xs">
+                    <div class="bg-white/10 backdrop-blur p-2.5 rounded-xl border border-white/10 text-center">
+                        <span class="block text-sky-300 font-bold">Початковий</span>
+                        <span class="text-slate-300">2 питаня (2 б.)</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur p-2.5 rounded-xl border border-white/10 text-center">
+                        <span class="block text-emerald-300 font-bold">Середній</span>
+                        <span class="text-slate-300">2 питання (2 б.)</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur p-2.5 rounded-xl border border-white/10 text-center">
+                        <span class="block text-amber-300 font-bold">Достатній</span>
+                        <span class="text-slate-300">2 питання (4 б.)</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur p-2.5 rounded-xl border border-white/10 text-center">
+                        <span class="block text-purple-300 font-bold">Високий</span>
+                        <span class="text-slate-300">2 питання (4 б.)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions List Container -->
+        <div id="questionsContainer" class="space-y-6"></div>
+
+        <!-- Final Summary Card -->
+        <div id="summaryCard" class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden transition-all duration-500">
+            <div id="summaryHeader" class="p-6 sm:p-8 text-center text-white bg-gradient-to-r from-indigo-600 to-blue-600">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 backdrop-blur mb-4">
+                    <i class="fa-solid fa-award text-3xl text-yellow-300"></i>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold">Тестування завершено!</h2>
+                <p class="text-indigo-100 mt-1 text-sm sm:text-base">Ваш підсумковий результат за 12-бальною системою:</p>
+                <div class="mt-4 inline-block bg-white text-indigo-900 rounded-2xl px-8 py-3 font-black text-4xl sm:text-5xl shadow-inner">
+                    <span id="finalScoreDisplay">0</span> <span class="text-xl sm:text-2xl text-slate-500 font-bold">/ 12 б.</span>
+                </div>
+                <div id="gradeTitle" class="mt-4 font-bold text-lg sm:text-xl text-yellow-200">...</div>
+                <p id="gradeDesc" class="mt-1 text-xs sm:text-sm text-indigo-100 max-w-lg mx-auto">...</p>
+            </div>
+
+            <div class="p-6 sm:p-8 space-y-6">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                    <i class="fa-solid fa-chart-pie text-indigo-600"></i>
+                    <span>Розбивка результатів за рівнями складності:</span>
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="levelBreakdownContainer">
+                    <!-- Javascript inserts breakdown items here -->
+                </div>
+
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 text-center text-xs text-slate-500 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-shield-halved text-indigo-500 text-sm"></i>
+                    <span>Результат зафіксовано в локальному сховищі пристрою. Спроба вичерпана.</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        <p>Інтерактивний навчальний тест з предмету «Електротехніка»</p>
+    </footer>
+
+    <!-- Quiz Logic JavaScript -->
+    <script>
+        // Questions Dataset based on Lesson Notes
+        const quizData = [
+            // Початковий рівень (2 питання по 1 балу = 2 бали)
+            {
+                id: 1,
+                level: "Початковий",
+                levelCode: "level1",
+                points: 1,
+                question: "Який електровимірювальний прилад призначений для вимірювання електричного опору кола?",
+                options: [
+                    "Вольтметр",
+                    "Омметр",
+                    "Ватметр",
+                    "Амперметр"
+                ],
+                correct: 1,
+                explanation: "Омметр призначений для вимірювання електричного опору (одиниця вимірювання — Ом, позначення Ω)."
+            },
+            {
+                id: 2,
+                level: "Початковий",
+                levelCode: "level1",
+                points: 1,
+                question: "Яку фізичну величину вимірюють за допомогою амперметра?",
+                options: [
+                    "Електричну напругу",
+                    "Силу електричного струму",
+                    "Потужність струму",
+                    "Кількість спожитої електроенергії"
+                ],
+                correct: 1,
+                explanation: "Амперметр — це прилад, який вимірює силу електричного струму (в Амперах [А])."
+            },
+
+            // Середній рівень (2 питання по 1 балу = 2 бали)
+            {
+                id: 3,
+                level: "Середній",
+                levelCode: "level2",
+                points: 1,
+                question: "До якої категорії за ступенем точності належать прилади класів 0,2 та 0,5?",
+                options: [
+                    "Контрольні прилади",
+                    "Лабораторні прилади",
+                    "Технічні прилади",
+                    "Навчальні прилади"
+                ],
+                correct: 1,
+                explanation: "Згідно з класифікацією за ступенем точності: 0,05 і 0,1 — контрольні; 0,2 і 0,5 — лабораторні; 1; 1,5 і 2,5 — технічні; 4 — навчальні."
+            },
+            {
+                id: 4,
+                level: "Середній",
+                levelCode: "level2",
+                points: 1,
+                question: "Який вимірювальний прилад використовують для визначення кількості витраченої електроенергії за час?",
+                options: [
+                    "Ватметр",
+                    "Лічильник електроенергії",
+                    "Вольтметр",
+                    "Омметр"
+                ],
+                correct: 1,
+                explanation: "Лічильник вимірює кількість витраченої електроенергії за час (у Вт/год або кВт·год)."
+            },
+
+            // Достатній рівень (2 питання по 2 бали = 4 бали)
+            {
+                id: 5,
+                level: "Достатній",
+                levelCode: "level3",
+                points: 2,
+                question: "Вимірювальний прилад належить до експлуатаційної групи «Б». Для яких кліматичних умов він призначений?",
+                options: [
+                    "Температура від +10 до +35 °C, вологість до 80%",
+                    "Температура від -30 до +40 °C, вологість до 90%",
+                    "Температура від -40 до +50 °C, вологість до 95%",
+                    "Температура від -50 до +80 °C, вологість до 98%"
+                ],
+                correct: 1,
+                explanation: "Група «Б» відповідає умовам експлуатації при температурі від -30 °C до +40 °C та відносній вологості до 90%."
+            },
+            {
+                id: 6,
+                level: "Достатній",
+                levelCode: "level3",
+                points: 2,
+                question: "Електровимірювальний прилад має клас точності 4. До якої групи за призначенням він належить?",
+                options: [
+                    "Контрольні прилади",
+                    "Лабораторні прилади",
+                    "Технічні прилади",
+                    "Навчальні прилади"
+                ],
+                correct: 3,
+                explanation: "Прилади з класом точності 4 належать до навчальних вимірювальних приладів."
+            },
+
+            // Високий рівень (2 питання по 2 бали = 4 бали)
+            {
+                id: 7,
+                level: "Високий",
+                levelCode: "level4",
+                points: 2,
+                question: "Яких обов’язкових правил необхідно дотримуватися перед та під час проведення вимірювань приладом?",
+                options: [
+                    "Встановити стрілку коректором на нуль, вмикати в коло відповідного роду струму та забезпечити нормальне робоче положення корпусу",
+                    "Ввімкнути прилад під максимальну напругу, а потім відкоригувати нуль стрілки",
+                    "Розташувати прилад під будь-яким кутом та підключати до будь-якого роду струму",
+                    "Не зважати на клас точності та випробувану напругу ізоляції приладу"
+                ],
+                correct: 0,
+                explanation: "Основні правила: 1) перед ввімкненням встановити стрілку коректором на нуль; 2) вмикати в коло того роду струму, для якого він призначений; 3) корпус повинен займати нормальне встановлене положення."
+            },
+            {
+                id: 8,
+                level: "Високий",
+                levelCode: "level4",
+                points: 2,
+                question: "На шкалі приладу присутні символи: «V», хвиляста лінія «~», «1,0», «2 kV» та «Б». Яке точне розшифрування цих позначень?",
+                options: [
+                    "Вольтметр постійного струму, контрольний, з ізоляцією 200 В, групи А",
+                    "Вольтметр змінного струму, технічний (клас 1,0), ізоляція випробувана на 2 кВ, експлуатаційна група Б",
+                    "Амперметр змінного струму, лабораторний, ізоляція 2 кВ, групи В1",
+                    "Ватметр трифазного струму, навчальний, ізоляція 20 кВ, групи Б"
+                ],
+                correct: 1,
+                explanation: "«V» — вольтметр; «~» — змінний струм; «1,0» — клас точності (технічний); «2 kV» — випробувальна напруга ізоляції 2 кВ; «Б» — експлуатаційна група."
+            }
+        ];
+
+        const STORAGE_KEY = 'electro_quiz_v1_saved_state';
+        let userAnswers = {};
+
+        // Helper for plural text
+        function getPointsText(pts) {
+            if (pts === 1) return 'бал';
+            if (pts >= 2 && pts <= 4) return 'бали';
+            return 'балів';
+        }
+
+        // Render all questions to DOM
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            quizData.forEach((q, qIndex) => {
+                let levelBadgeClass = '';
+                if (q.levelCode === 'level1') levelBadgeClass = 'bg-sky-100 text-sky-800 border-sky-300';
+                else if (q.levelCode === 'level2') levelBadgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                else if (q.levelCode === 'level3') levelBadgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
+                else levelBadgeClass = 'bg-purple-100 text-purple-800 border-purple-300';
+
+                const qCard = document.createElement('div');
+                qCard.className = 'bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 transition-all duration-300';
+                qCard.id = `question-card-${qIndex}`;
+
+                let optionsHTML = '';
+                q.options.forEach((opt, optIndex) => {
+                    optionsHTML += `
+                        <label id="opt-label-${qIndex}-${optIndex}" 
+                               class="flex items-start space-x-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-all cursor-pointer select-none">
+                            <input type="radio" 
+                                   name="q_${qIndex}" 
+                                   value="${optIndex}" 
+                                   onchange="handleAnswer(${qIndex}, ${optIndex})"
+                                   class="mt-0.5 w-4 h-4 text-indigo-600 border-slate-300 focus:ring-indigo-500 cursor-pointer shrink-0">
+                            <span class="text-slate-700 text-sm sm:text-base leading-snug flex-grow">${opt}</span>
+                            <span id="opt-icon-${qIndex}-${optIndex}" class="hidden shrink-0 text-lg ml-2"></span>
+                        </label>
+                    `;
+                });
+
+                qCard.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Питання ${qIndex + 1} з ${quizData.length}</span>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full border ${levelBadgeClass}">
+                            ${q.level} рівень (${q.points} ${getPointsText(q.points)})
+                        </span>
+                    </div>
+
+                    <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-4 leading-snug">
+                        ${q.question}
+                    </h3>
+
+                    <div class="space-y-2.5">
+                        ${optionsHTML}
+                    </div>
+
+                    <div id="feedback-${qIndex}" class="hidden mt-4 p-4 rounded-xl text-sm leading-relaxed transition-all"></div>
+                `;
+
+                container.appendChild(qCard);
+            });
+        }
+
+        // Handle answer selection
+        function handleAnswer(qIndex, selectedOptIndex) {
+            if (userAnswers[qIndex] !== undefined) return; // Prevent changing answer
+
+            userAnswers[qIndex] = selectedOptIndex;
+            saveToLocalStorage();
+            updateQuestionUI(qIndex, selectedOptIndex);
+            updateProgress();
+
+            // Check if test completed
+            if (Object.keys(userAnswers).length === quizData.length) {
+                finishQuiz();
+            }
+        }
+
+        // Update Question UI elements after answer selection
+        function updateQuestionUI(qIndex, selectedOptIndex) {
+            const q = quizData[qIndex];
+            const isCorrect = (selectedOptIndex === q.correct);
+
+            // Disable all inputs for this question
+            const radios = document.getElementsByName(`q_${qIndex}`);
+            radios.forEach(r => { r.disabled = true; });
+
+            if (radios[selectedOptIndex]) {
+                radios[selectedOptIndex].checked = true;
+            }
+
+            // Update label styles
+            q.options.forEach((_, optIndex) => {
+                const label = document.getElementById(`opt-label-${qIndex}-${optIndex}`);
+                const icon = document.getElementById(`opt-icon-${qIndex}-${optIndex}`);
+
+                label.classList.remove('hover:bg-slate-50', 'cursor-pointer');
+                label.classList.add('cursor-not-allowed');
+
+                if (optIndex === q.correct) {
+                    // Correct Option
+                    label.className = 'flex items-start space-x-3 p-3.5 sm:p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/80 text-emerald-900 font-medium cursor-not-allowed transition-all';
+                    if (icon) {
+                        icon.className = 'fa-solid fa-circle-check text-emerald-600 text-lg ml-2 shrink-0';
+                        icon.classList.remove('hidden');
+                    }
+                } else if (optIndex === selectedOptIndex && !isCorrect) {
+                    // Incorrect Selected Option
+                    label.className = 'flex items-start space-x-3 p-3.5 sm:p-4 rounded-xl border-2 border-rose-500 bg-rose-50/80 text-rose-900 font-medium cursor-not-allowed transition-all';
+                    if (icon) {
+                        icon.className = 'fa-solid fa-circle-xmark text-rose-600 text-lg ml-2 shrink-0';
+                        icon.classList.remove('hidden');
+                    }
+                } else {
+                    // Unselected options
+                    label.className = 'flex items-start space-x-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-400 opacity-60 cursor-not-allowed transition-all';
+                }
+            });
+
+            // Show explanation feedback box
+            const feedbackEl = document.getElementById(`feedback-${qIndex}`);
+            feedbackEl.classList.remove('hidden');
+
+            if (isCorrect) {
+                feedbackEl.className = 'mt-4 p-4 rounded-xl text-sm leading-relaxed bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-start space-x-3';
+                feedbackEl.innerHTML = `
+                    <i class="fa-solid fa-circle-check text-emerald-600 text-xl mt-0.5 shrink-0"></i>
+                    <div>
+                        <p class="font-bold text-emerald-800">Правильно! (+${q.points} ${getPointsText(q.points)})</p>
+                        <p class="mt-1 text-emerald-700">${q.explanation}</p>
+                    </div>
+                `;
+            } else {
+                feedbackEl.className = 'mt-4 p-4 rounded-xl text-sm leading-relaxed bg-rose-50 border border-rose-200 text-rose-900 flex items-start space-x-3';
+                feedbackEl.innerHTML = `
+                    <i class="fa-solid fa-circle-xmark text-rose-600 text-xl mt-0.5 shrink-0"></i>
+                    <div>
+                        <p class="font-bold text-rose-800">Помилка! (0 балів)</p>
+                        <p class="mt-1 text-rose-700">${q.explanation}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Calculate current total score
+        function calculateTotalScore() {
+            let score = 0;
+            quizData.forEach((q, idx) => {
+                if (userAnswers[idx] === q.correct) {
+                    score += q.points;
+                }
+            });
+            return score;
+        }
+
+        // Update progress bar in header
+        function updateProgress() {
+            const answeredCount = Object.keys(userAnswers).length;
+            const currentScore = calculateTotalScore();
+            const totalQuestions = quizData.length;
+
+            document.getElementById('progressText').innerText = `відповідано ${answeredCount} / ${totalQuestions}`;
+            document.getElementById('scoreText').innerText = `${currentScore} балів з 12`;
+
+            const percent = (answeredCount / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = `${percent}%`;
+        }
+
+        // Show Final Summary Result Card
+        function finishQuiz() {
+            const totalScore = calculateTotalScore();
+            const summaryCard = document.getElementById('summaryCard');
+            summaryCard.classList.remove('hidden');
+
+            document.getElementById('finalScoreDisplay').innerText = totalScore;
+
+            const gradeTitleEl = document.getElementById('gradeTitle');
+            const gradeDescEl = document.getElementById('gradeDesc');
+            const headerEl = document.getElementById('summaryHeader');
+
+            // 12-point Ukrainian grading scale assessment
+            if (totalScore >= 10) {
+                gradeTitleEl.innerText = 'Високий рівень знань! (10-12 балів)';
+                gradeDescEl.innerText = 'Чудова робота! Ви детально засвоїли класифікацію, умовні позначення на шкалі та правила експлуатації електровимірювальних приладів.';
+                headerEl.className = 'p-6 sm:p-8 text-center text-white bg-gradient-to-r from-emerald-600 to-teal-600';
+            } else if (totalScore >= 7) {
+                gradeTitleEl.innerText = 'Достатній рівень знань (7-9 балів)';
+                gradeDescEl.innerText = 'Хороший результат! Ви добре орієнтуєтесь у більшості питань тему. Перегляньте пояснення до відповідей для усунення прогалин.';
+                headerEl.className = 'p-6 sm:p-8 text-center text-white bg-gradient-to-r from-indigo-600 to-blue-600';
+            } else if (totalScore >= 4) {
+                gradeTitleEl.innerText = 'Середній рівень знань (4-6 балів)';
+                gradeDescEl.innerText = 'Задовільно. Рекомендуємо додатково повторити розділи конспекту щодо класів точності та умов експлуатації приладів.';
+                headerEl.className = 'p-6 sm:p-8 text-center text-white bg-gradient-to-r from-amber-600 to-orange-600';
+            } else {
+                gradeTitleEl.innerText = 'Початковий рівень знань (1-3 бали)';
+                gradeDescEl.innerText = 'Низький результат. Вам потрібно повторно та уважно опрацювати матеріали конспекту уроку.';
+                headerEl.className = 'p-6 sm:p-8 text-center text-white bg-gradient-to-r from-rose-600 to-red-600';
+            }
+
+            // Render Level Breakdown
+            const breakdownContainer = document.getElementById('levelBreakdownContainer');
+            breakdownContainer.innerHTML = '';
+
+            const levelDefs = [
+                { code: 'level1', name: 'Початковий рівень', max: 2, badge: 'bg-sky-100 text-sky-800 border-sky-200' },
+                { code: 'level2', name: 'Середній рівень', max: 2, badge: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+                { code: 'level3', name: 'Достатній рівень', max: 4, badge: 'bg-amber-100 text-amber-800 border-amber-200' },
+                { code: 'level4', name: 'Високий рівень', max: 4, badge: 'bg-purple-100 text-purple-800 border-purple-200' }
+            ];
+
+            levelDefs.forEach(lvl => {
+                let earned = 0;
+                quizData.forEach((q, idx) => {
+                    if (q.levelCode === lvl.code && userAnswers[idx] === q.correct) {
+                        earned += q.points;
+                    }
+                });
+
+                const percent = Math.round((earned / lvl.max) * 100);
+
+                const card = document.createElement('div');
+                card.className = 'bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between space-y-2';
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border ${lvl.badge}">${lvl.name}</span>
+                        <span class="font-extrabold text-slate-800 text-sm">${earned} / ${lvl.max} б.</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                        <div class="bg-indigo-600 h-2 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+                    </div>
+                `;
+                breakdownContainer.appendChild(card);
+            });
+
+            // Smooth scroll to summary
+            summaryCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Storage handlers
+        function saveToLocalStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(userAnswers));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    userAnswers = JSON.parse(saved);
+                } catch (e) {
+                    userAnswers = {};
+                }
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderQuestions();
+            loadFromLocalStorage();
+
+            const answeredIndices = Object.keys(userAnswers);
+            if (answeredIndices.length > 0) {
+                answeredIndices.forEach(idx => {
+                    const qIndex = parseInt(idx, 10);
+                    updateQuestionUI(qIndex, userAnswers[qIndex]);
+                });
+
+                updateProgress();
+
+                if (answeredIndices.length === quizData.length) {
+                    document.getElementById('attemptNotice').classList.remove('hidden');
+                    finishQuiz();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
