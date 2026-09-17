@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Неметалеві композиційні та експлуатаційні матеріали</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header / Sticky Progress Bar (Initially hidden) -->
+    <header id="sticky-header" class="hidden sticky top-0 z-50 bg-white shadow-md border-b border-slate-200">
+        <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-2 mb-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid font-bold text-blue-600 fa-user-graduate text-xl"></i>
+                    <span id="header-student-name" class="font-semibold text-slate-700">Учень</span>
+                </div>
+                <div class="flex items-center gap-4 text-sm font-medium">
+                    <span class="text-slate-600">Відповідано: <strong id="progress-text" class="text-slate-900">0 / 8</strong></span>
+                    <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-200 font-bold">
+                        Бали: <span id="current-score">0</span> / 12
+                    </span>
+                </div>
+            </div>
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-4xl mx-auto px-4 py-6 sm:px-6 flex-grow w-full">
+
+        <!-- Welcome / Registration Modal/Card -->
+        <div id="start-card" class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 max-w-xl mx-auto mt-8 border border-slate-200">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-full mb-4">
+                    <i class="fa-solid fa-file-pen text-3xl"></i>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Підсумковий тест</h1>
+                <p class="text-slate-600 font-medium">Тема: «Неметалеві композиційні та експлуатаційні матеріали»</p>
+            </div>
+
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded-r-lg">
+                <div class="flex items-start">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500 text-lg mt-0.5 mr-3"></i>
+                    <p class="text-sm text-amber-800">
+                        <strong>Увага!</strong> Тест можна виконати лише <strong>один раз</strong>. Всі відповіді оцінюються за 12-бальною системою одразу після їх вибору.
+                    </p>
+                </div>
+            </div>
+
+            <form id="start-form" onsubmit="handleStartTest(event)" class="space-y-4">
+                <div>
+                    <label for="last-name" class="block text-sm font-semibold text-slate-700 mb-1">Прізвище <span class="text-red-500">*</span></label>
+                    <input type="text" id="last-name" required placeholder="Введіть ваше прізвище" 
+                           class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                </div>
+                <div>
+                    <label for="first-name" class="block text-sm font-semibold text-slate-700 mb-1">Ім'я <span class="text-red-500">*</span></label>
+                    <input type="text" id="first-name" required placeholder="Введіть ваше ім'я" 
+                           class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2">
+                    Розпочати тест <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Quiz Container (Initially Hidden) -->
+        <div id="quiz-container" class="hidden space-y-6">
+            <!-- Questions dynamically generated here -->
+        </div>
+
+        <!-- Already Completed Modal Card (if took test previously) -->
+        <div id="blocked-card" class="hidden bg-white rounded-2xl shadow-xl p-6 sm:p-8 max-w-xl mx-auto mt-8 border border-slate-200 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full mb-4">
+                <i class="fa-solid fa-lock text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">Тест вже виконано!</h2>
+            <p id="blocked-message" class="text-slate-600 mb-6">Ви вже проходили цей тест раніше. Повторне проходження неможливе.</p>
+            <div id="blocked-summary" class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-left">
+                <!-- Summary inserted via JS -->
+            </div>
+        </div>
+
+        <!-- Results Card (Shown after completing test) -->
+        <div id="results-card" class="hidden bg-white rounded-2xl shadow-xl p-6 sm:p-8 max-w-2xl mx-auto mt-8 border border-slate-200">
+            <div class="text-center mb-6">
+                <div id="grade-badge-icon" class="inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 text-4xl">
+                    <!-- Icon JS -->
+                </div>
+                <h2 class="text-3xl font-bold text-slate-900 mb-1">Тестування завершено!</h2>
+                <p id="result-student-name" class="text-lg text-slate-600 font-medium"></p>
+            </div>
+
+            <!-- Score overview box -->
+            <div class="bg-slate-50 rounded-xl p-6 mb-6 border border-slate-200 text-center">
+                <div class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-1">Загальний результат</div>
+                <div class="text-5xl font-black text-blue-600 mb-2">
+                    <span id="final-score">0</span> <span class="text-2xl text-slate-400 font-normal">/ 12 балів</span>
+                </div>
+                <div id="grade-title" class="inline-block px-4 py-1.5 rounded-full text-sm font-bold mt-2">
+                    <!-- Grade title -->
+                </div>
+            </div>
+
+            <!-- Level Breakdown Table -->
+            <h3 class="text-lg font-bold text-slate-800 mb-3">Розбивка результатів за рівнями:</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div class="p-4 rounded-xl border border-slate-200 bg-sky-50/50">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-semibold text-sky-900 text-sm">Початковий рівень</span>
+                        <span id="lvl-initial-score" class="font-bold text-sky-700">0 / 2 б.</span>
+                    </div>
+                    <p class="text-xs text-sky-700">2 питання по 1 балу</p>
+                </div>
+
+                <div class="p-4 rounded-xl border border-slate-200 bg-emerald-50/50">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-semibold text-emerald-900 text-sm">Середній рівень</span>
+                        <span id="lvl-average-score" class="font-bold text-emerald-700">0 / 2 б.</span>
+                    </div>
+                    <p class="text-xs text-emerald-700">2 питання по 1 балу</p>
+                </div>
+
+                <div class="p-4 rounded-xl border border-slate-200 bg-amber-50/50">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-semibold text-amber-900 text-sm">Достатній рівень</span>
+                        <span id="lvl-sufficient-score" class="font-bold text-amber-700">0 / 4 б.</span>
+                    </div>
+                    <p class="text-xs text-amber-700">2 питання по 2 бали</p>
+                </div>
+
+                <div class="p-4 rounded-xl border border-slate-200 bg-purple-50/50">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-semibold text-purple-900 text-sm">Високий рівень</span>
+                        <span id="lvl-high-score" class="font-bold text-purple-700">0 / 4 б.</span>
+                    </div>
+                    <p class="text-xs text-purple-700">2 питання по 2 бали</p>
+                </div>
+            </div>
+
+            <div class="text-center text-xs text-slate-500 border-t border-slate-200 pt-4">
+                Результат збережено пристроєм. Повторне складання тесту недоступне.
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-200 bg-white mt-8">
+        Тест з теми «Неметалеві композиційні та експлуатаційні матеріали» • 12-бальна система оцінювання
+    </footer>
+
+    <script>
+        // Questions Data Based on Provided Material
+        const questions = [
+            {
+                id: 1,
+                level: 'Початковий рівень',
+                levelKey: 'initial',
+                points: 1,
+                badgeClass: 'bg-sky-100 text-sky-800 border-sky-300',
+                question: 'Яка речовина є основным вулканізуючим агентом при виготовленні гумових матеріалів?',
+                options: [
+                    'Сірка',
+                    'Сажа',
+                    'Крейда',
+                    'Фенол'
+                ],
+                correct: 0,
+                explanation: 'Основним вулканізуючим агентом є сірка, яка забезпечує «зшивання» ниткоподібних молекул каучуку в просторові макромолекули.'
+            },
+            {
+                id: 2,
+                level: 'Початковий рівень',
+                levelKey: 'initial',
+                points: 1,
+                badgeClass: 'bg-sky-100 text-sky-800 border-sky-300',
+                question: 'До якої групи належать пластмаси, які при нагріванні розм\'якшуються та плавляться, зберігаючи здатність до повторної переробки?',
+                options: [
+                    'Термореактивні',
+                    'Термопластичні',
+                    'Керамічні',
+                    'Композитні'
+                ],
+                correct: 1,
+                explanation: 'Термопластичні пластмаси при нагріванні розм\'якшуються та плавляться, і після пресування не втрачають здатності до повторної переробки.'
+            },
+            {
+                id: 3,
+                level: 'Середній рівень',
+                levelKey: 'average',
+                points: 1,
+                badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+                question: 'Який з наведених наповнювачів гуми є активним, тобто не лише здешевлює матеріал, а й підвищує його міцність?',
+                options: [
+                    'Крейда',
+                    'Тальк',
+                    'Сажа',
+                    'Гіпс'
+                ],
+                correct: 2,
+                explanation: 'Сажа (а також окис кремнію, каолін тощо) належить до активних наповнювачів, які забезпечують підвищення міцності гуми.'
+            },
+            {
+                id: 4,
+                level: 'Середній рівень',
+                levelKey: 'average',
+                points: 1,
+                badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+                question: 'Що використовується як армувальний наповнювач у вуглепластиках (карбоні)?',
+                options: [
+                    'Скловолокно',
+                    'Вуглецеве волокно',
+                    'Арамідне волокно (кевлар)',
+                    'Борове волокно'
+                ],
+                correct: 1,
+                explanation: 'У вуглепластиках (карбоні) наповнювачем є вуглецеве волокно, що забезпечує надвисоку жорсткість і малу вагу.'
+            },
+            {
+                id: 5,
+                level: 'Достатній рівень',
+                levelKey: 'sufficient',
+                points: 2,
+                badgeClass: 'bg-amber-100 text-amber-800 border-amber-300',
+                question: 'У чому полягає хімічна сутність процесу вулканізації каучуку при виготовленні гуми?',
+                options: [
+                    'У розтворенні каучуку в бензині та мінеральних маслах',
+                    'У «зшиванні» ниткоподібних молекул каучуку й утворенні просторових макромолекул',
+                    'У випаровуванні надлишку вологи та окисненні киснем повітря',
+                    'У заповненні пористої структури каучуку дрібнодисперсним тальком'
+                ],
+                correct: 1,
+                explanation: 'Сутність вулканізації полягає в хімічному «зшиванні» ниткоподібних молекул каучуку за допомогою сірки з утворенням тривимірних просторових макромолекул.'
+            },
+            {
+                id: 6,
+                level: 'Достатній рівень',
+                levelKey: 'sufficient',
+                points: 2,
+                badgeClass: 'bg-amber-100 text-amber-800 border-amber-300',
+                question: 'Чому саме керамічні та вуглець-вуглецеві композиційні матеріали використовують для сопел ракет і термозахисту космічних кораблів?',
+                options: [
+                    'Вони мають найнижчу вартість виготовлення серед усіх матеріалів',
+                    'Вони здатні працювати в екстремальних умовах та витримують температури понад 1500°C',
+                    'Вони є найкращими провідниками електричного струму',
+                    'Вони легко розчиняються в бензині для демонтажу після польоту'
+                ],
+                correct: 1,
+                explanation: 'Керамічні та вуглець-вуглецеві композити мають виняткову термостійкість (витримують понад 1500°C), тому незамінні для сопел ракет і термозахисту.'
+            },
+            {
+                id: 7,
+                level: 'Високий рівень',
+                levelKey: 'high',
+                points: 2,
+                badgeClass: 'bg-purple-100 text-purple-800 border-purple-300',
+                question: 'Конструктор розробляє елемент обшивки літака та бронежилет. Який композиційний матеріал із високою стійкістю до ударів і розтягування йому варто обрати?',
+                options: [
+                    'Склопластик на основі поліефірних смол',
+                    'Органопластик (Кевлар) на основі арамідних волокон',
+                    'Однокомпонентний поліетилен',
+                    'Ебоніт із вмістом сірки понад 30%'
+                ],
+                correct: 1,
+                explanation: 'Органопластики (кевлар) на основі арамідних або борових волокон визначаються високою стійкістю до ударів і розтягування, тому застосовуються в бронежилетах та обшивці літаків.'
+            },
+            {
+                id: 8,
+                level: 'Високий рівень',
+                levelKey: 'high',
+                points: 2,
+                badgeClass: 'bg-purple-100 text-purple-800 border-purple-300',
+                question: 'Виробнику потрібно сповільнити процес старіння гумових деталей під впливом кисню та світла. Які речовини та за яким принципом слід ввести до складу суміші?',
+                options: [
+                    'Активні наповнювачі (сажу), оскільки вони повністю нейтралізують сонячне світло',
+                    'Неактивні наповнювачі (крейду), оскільки вони поглинають увесь кисень',
+                    'Противостарітелі (феноли, парафін), які реагують з киснем швидше за каучук або створюють захисну плівку',
+                    'Прискорювачі вулканізації (тіурам), щоб пришвидшити випаровування кисню'
+                ],
+                correct: 2,
+                explanation: 'Противостарітелі (наприклад, феноли) зменшують втрату пластичності, оскільки реагують з киснем швидше за каучук, або створюють захисну плівку на поверхні (парафін).'
+            }
+        ];
+
+        // State variables
+        let student = { firstName: '', lastName: '' };
+        let answeredQuestions = {};
+        let totalScore = 0;
+        let answeredCount = 0;
+        let levelScores = {
+            initial: 0,
+            average: 0,
+            sufficient: 0,
+            high: 0
+        };
+
+        const STORAGE_KEY = 'quiz_nonmetal_materials_results';
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                try {
+                    const parsed = JSON.parse(savedData);
+                    showBlockedScreen(parsed);
+                } catch (e) {
+                    console.error("Помилка зчитування збереженого результату", e);
+                }
+            }
+        });
+
+        // Handle Test Start Form
+        function handleStartTest(e) {
+            e.preventDefault();
+            const lastNameInput = document.getElementById('last-name').value.trim();
+            const firstNameInput = document.getElementById('first-name').value.trim();
+
+            if (!lastNameInput || !firstNameInput) return;
+
+            student.lastName = lastNameInput;
+            student.firstName = firstNameInput;
+
+            document.getElementById('start-card').classList.add('hidden');
+            document.getElementById('sticky-header').classList.remove('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+
+            document.getElementById('header-student-name').textContent = `${student.lastName} ${student.firstName}`;
+
+            renderQuestions();
+        }
+
+        // Render Question Cards
+        function renderQuestions() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.id = `question-card-${q.id}`;
+                card.className = 'bg-white rounded-2xl shadow-md p-6 border border-slate-200 transition-all duration-300';
+
+                let optionsHTML = '';
+                q.options.forEach((opt, optIndex) => {
+                    optionsHTML += `
+                        <label id="option-label-${q.id}-${optIndex}" 
+                               class="flex items-center p-4 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition duration-150">
+                            <input type="radio" name="question-${q.id}" value="${optIndex}" 
+                                   onchange="handleSelectOption(${q.id}, ${optIndex})"
+                                   class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-slate-300">
+                            <span class="ml-3 text-slate-800 text-sm sm:text-base font-medium">${escapeHTML(opt)}</span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-bold border ${q.badgeClass}">
+                            ${q.level} • ${q.points} ${q.points === 1 ? 'бал' : 'бали'}
+                        </span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Питання ${index + 1} з ${questions.length}</span>
+                    </div>
+
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-900 mb-4">${q.question}</h3>
+
+                    <div class="space-y-3 mb-4">
+                        ${optionsHTML}
+                    </div>
+
+                    <div id="explanation-${q.id}" class="hidden p-4 rounded-xl text-sm transition-all duration-300 mt-4"></div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Handle Option Selection
+        function handleSelectOption(qId, selectedIdx) {
+            if (answeredQuestions[qId] !== undefined) return; // Already answered
+
+            const q = questions.find(item => item.id === qId);
+            if (!q) return;
+
+            answeredQuestions[qId] = selectedIdx;
+            answeredCount++;
+
+            const isCorrect = selectedIdx === q.correct;
+
+            if (isCorrect) {
+                totalScore += q.points;
+                levelScores[q.levelKey] += q.points;
+            }
+
+            // Lock all radio inputs for this question
+            const radios = document.querySelectorAll(`input[name="question-${q.id}"]`);
+            radios.forEach(radio => radio.disabled = true);
+
+            // Highlight Options
+            q.options.forEach((_, optIdx) => {
+                const label = document.getElementById(`option-label-${q.id}-${optIdx}`);
+                label.classList.remove('hover:bg-slate-50', 'cursor-pointer');
+                label.classList.add('cursor-default');
+
+                if (optIdx === q.correct) {
+                    // Correct answer style
+                    label.className = 'flex items-center p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-semibold';
+                } else if (optIdx === selectedIdx && !isCorrect) {
+                    // Wrong answer style
+                    label.className = 'flex items-center p-4 rounded-xl border-2 border-red-500 bg-red-50 text-red-900';
+                } else {
+                    label.className = 'flex items-center p-4 rounded-xl border border-slate-200 bg-slate-50 opacity-60 text-slate-500';
+                }
+            });
+
+            // Show explanation feedback
+            const expBox = document.getElementById(`explanation-${q.id}`);
+            expBox.classList.remove('hidden');
+
+            if (isCorrect) {
+                expBox.className = 'p-4 rounded-xl text-sm bg-emerald-50 border border-emerald-200 text-emerald-900';
+                expBox.innerHTML = `
+                    <div class="flex items-start">
+                        <i class="fa-solid fa-circle-check text-emerald-600 text-lg mr-2.5 mt-0.5"></i>
+                        <div>
+                            <strong class="font-bold text-emerald-800">Правильно! (+${q.points} ${q.points === 1 ? 'бал' : 'бали'})</strong>
+                            <p class="mt-1 text-emerald-900">${q.explanation}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                expBox.className = 'p-4 rounded-xl text-sm bg-red-50 border border-red-200 text-red-900';
+                expBox.innerHTML = `
+                    <div class="flex items-start">
+                        <i class="fa-solid fa-circle-xmark text-red-600 text-lg mr-2.5 mt-0.5"></i>
+                        <div>
+                            <strong class="font-bold text-red-800">Помилка! (0 балів)</strong>
+                            <p class="mt-1 text-red-900">${q.explanation}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Update Progress Header
+            updateProgressHeader();
+
+            // Check if test completed
+            if (answeredCount === questions.length) {
+                finishQuiz();
+            }
+        }
+
+        // Update progress bar & score display
+        function updateProgressHeader() {
+            document.getElementById('progress-text').textContent = `${answeredCount} / ${questions.length}`;
+            document.getElementById('current-score').textContent = totalScore;
+            
+            const percentage = (answeredCount / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+        }
+
+        // Finish Quiz and show Final Results
+        function finishQuiz() {
+            const resultsData = {
+                studentName: `${student.lastName} ${student.firstName}`,
+                score: totalScore,
+                levelScores: levelScores,
+                timestamp: new Date().toLocaleString('uk-UA')
+            };
+
+            // Save to localStorage to lock single attempt
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(resultsData));
+            } catch (e) {
+                console.error("Неможливо зберегти результат у localStorage", e);
+            }
+
+            setTimeout(() => {
+                showResultsScreen(resultsData);
+            }, 800);
+        }
+
+        // Render Results Card
+        function showResultsScreen(data) {
+            document.getElementById('quiz-container').classList.add('hidden');
+            
+            const resultsCard = document.getElementById('results-card');
+            resultsCard.classList.remove('hidden');
+
+            document.getElementById('result-student-name').textContent = data.studentName;
+            document.getElementById('final-score').textContent = data.score;
+
+            document.getElementById('lvl-initial-score').textContent = `${data.levelScores.initial} / 2 б.`;
+            document.getElementById('lvl-average-score').textContent = `${data.levelScores.average} / 2 б.`;
+            document.getElementById('lvl-sufficient-score').textContent = `${data.levelScores.sufficient} / 4 б.`;
+            document.getElementById('lvl-high-score').textContent = `${data.levelScores.high} / 4 б.`;
+
+            // Grade evaluation according to 12-point system
+            const gradeBadgeIcon = document.getElementById('grade-badge-icon');
+            const gradeTitle = document.getElementById('grade-title');
+
+            if (data.score >= 10) {
+                gradeBadgeIcon.className = 'inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 text-4xl bg-purple-100 text-purple-600';
+                gradeBadgeIcon.innerHTML = '<i class="fa-solid fa-trophy"></i>';
+                gradeTitle.className = 'inline-block px-4 py-1.5 rounded-full text-sm font-bold bg-purple-100 text-purple-800';
+                gradeTitle.textContent = 'Високий рівень знань';
+            } else if (data.score >= 7) {
+                gradeBadgeIcon.className = 'inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 text-4xl bg-amber-100 text-amber-600';
+                gradeBadgeIcon.innerHTML = '<i class="fa-solid fa-award"></i>';
+                gradeTitle.className = 'inline-block px-4 py-1.5 rounded-full text-sm font-bold bg-amber-100 text-amber-800';
+                gradeTitle.textContent = 'Достатній рівень знань';
+            } else if (data.score >= 4) {
+                gradeBadgeIcon.className = 'inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 text-4xl bg-emerald-100 text-emerald-600';
+                gradeBadgeIcon.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>';
+                gradeTitle.className = 'inline-block px-4 py-1.5 rounded-full text-sm font-bold bg-emerald-100 text-emerald-800';
+                gradeTitle.textContent = 'Середній рівень знань';
+            } else {
+                gradeBadgeIcon.className = 'inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 text-4xl bg-sky-100 text-sky-600';
+                gradeBadgeIcon.innerHTML = '<i class="fa-solid fa-book-open"></i>';
+                gradeTitle.className = 'inline-block px-4 py-1.5 rounded-full text-sm font-bold bg-sky-100 text-sky-800';
+                gradeTitle.textContent = 'Початковий рівень знань';
+            }
+
+            // Scroll smoothly to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show Blocked Screen if taken before
+        function showBlockedScreen(data) {
+            document.getElementById('start-card').classList.add('hidden');
+            const blockedCard = document.getElementById('blocked-card');
+            blockedCard.classList.remove('hidden');
+
+            document.getElementById('blocked-summary').innerHTML = `
+                <p class="text-sm font-semibold text-slate-800 mb-1">Студент: <span class="text-blue-600">${escapeHTML(data.studentName)}</span></p>
+                <p class="text-sm text-slate-700 mb-1">Загальний результат: <strong class="text-slate-900">${data.score} з 12 балів</strong></p>
+                <p class="text-xs text-slate-500">Дата складання: ${data.timestamp || 'Збережено у системі'}</p>
+            `;
+        }
+
+        // Helper to escape HTML characters
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+    </script>
+</body>
+</html>
