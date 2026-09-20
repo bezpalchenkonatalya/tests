@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="uk" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Свердління та розсвердлювання отворів</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome 6 CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-radio {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 50%;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .custom-radio:checked {
+            border-color: #0284c7;
+            background-color: #0284c7;
+        }
+        .custom-radio:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.5rem;
+            height: 0.5rem;
+            background-color: white;
+            border-radius: 50%;
+        }
+        .transition-all-200 {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-full flex flex-col text-slate-800 antialiased pb-12">
+
+    <!-- Sticky Progress Header -->
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6">
+            <div class="flex items-center justify-between gap-4 mb-2">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-sm sm:text-base font-bold text-slate-900 leading-tight">
+                            Свердління та розсвердлювання
+                        </h1>
+                        <p class="text-xs text-slate-500 hidden sm:block">
+                            Тест знань (12-бальна система оцінювання)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Stats and Teacher button -->
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <div class="text-xs text-slate-500 font-medium">Відповідано</div>
+                        <div class="text-xs sm:text-sm font-bold text-slate-900">
+                            <span id="answered-count">0</span> / <span id="total-count">8</span>
+                            <span class="mx-1 text-slate-300">|</span>
+                            <span id="current-score" class="text-blue-600">0</span> / 12 балів
+                        </div>
+                    </div>
+                    <button id="teacher-btn" onclick="openTeacherModal()" title="Панель вчителя" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200">
+                        <i class="fa-solid fa-user-shield text-base"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                <div id="progress-bar" class="bg-gradient-to-r from-blue-500 to-indigo-600 h-full w-0 transition-all duration-300 ease-out"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 mt-6 flex-grow w-full">
+        
+        <!-- Already Completed Alert Banner (Hidden by default) -->
+        <div id="already-completed-banner" class="hidden mb-6 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-sm">
+            <div class="flex items-start">
+                <div class="flex-shrink-0 text-amber-600 mt-0.5">
+                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-bold text-amber-800">Повторне проходження обмежене</h3>
+                    <p class="text-sm text-amber-700 mt-1">
+                        Ви вже складали цей тест. Нижче відображено вашу підсумкову картку з результатами та правильні відповіді для ознайомлення.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Result Card (Top position when test is complete) -->
+        <div id="summary-card" class="hidden mb-8 bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden transition-all duration-500">
+            <!-- Header section of summary card -->
+            <div id="summary-header" class="p-6 sm:p-8 bg-gradient-to-br from-slate-900 to-indigo-950 text-white relative">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div class="text-center sm:text-left">
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-slate-200 mb-2 backdrop-blur-sm">
+                            Результат оцінювання
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                            Підсумкова картка
+                        </h2>
+                        <p id="summary-verdict" class="text-sm sm:text-base text-slate-300 mt-1">
+                            Оцінку сформовано за 12-бальною шкалою
+                        </p>
+                    </div>
+
+                    <!-- Circular score badge -->
+                    <div class="flex flex-col items-center justify-center bg-white/10 backdrop-blur-md rounded-2xl p-4 min-w-[140px] border border-white/10 shadow-inner">
+                        <span id="final-score-value" class="text-4xl sm:text-5xl font-black text-amber-400 leading-none">0</span>
+                        <span class="text-xs uppercase font-bold text-slate-300 mt-1">з 12 балів</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Breakdown by levels -->
+            <div class="p-6 sm:p-8 bg-slate-50 border-t border-slate-100">
+                <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-blue-600"></i>
+                    Розбивка балів за рівнями складності
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="levels-breakdown-grid">
+                    <!-- Dynamic rendering of level results -->
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500 text-center sm:text-left">
+                        <i class="fa-solid fa-circle-info mr-1"></i>
+                        Своєчасно збережено у шкільному локальному реєстрі
+                    </div>
+                    <button onclick="openTeacherModal()" class="text-xs font-semibold text-slate-600 hover:text-blue-600 underline flex items-center gap-1.5">
+                        <i class="fa-solid fa-lock"></i>
+                        Скидання спроби (для вчителя)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Questions Container -->
+        <div id="questions-container" class="space-y-6">
+            <!-- Questions will be injected here dynamically -->
+        </div>
+
+    </main>
+
+    <!-- Teacher Reset Modal -->
+    <div id="teacher-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100 transform transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                        <i class="fa-solid fa-key text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Режим вчителя</h3>
+                        <p class="text-xs text-slate-500">Скидання результатів тестування</p>
+                    </div>
+                </div>
+                <button onclick="closeTeacherModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <p class="text-sm text-slate-600 mb-4">
+                Введіть пароль адміністратора для скидання збереженої спроби проходження тесту учнем:
+            </p>
+
+            <form onsubmit="handleTeacherReset(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Пароль вчителя</label>
+                    <input type="password" id="teacher-password" placeholder="Введіть пароль..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all">
+                </div>
+
+                <div id="teacher-error" class="hidden text-xs font-semibold text-rose-600 bg-rose-50 p-2.5 rounded-lg border border-rose-200">
+                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Невірний пароль! Спробуйте ще раз.
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeTeacherModal()" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">
+                        Скасувати
+                    </button>
+                    <button type="submit" class="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-md transition-colors">
+                        Скинути спробу
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Quiz Questions Dataset (Strictly according to 12-point Ukrainian scale)
+        const questionsData = [
+            {
+                id: 1,
+                level: 'Початковий рівень',
+                levelBadgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                points: 1,
+                question: 'Що таке розсвердлювання?',
+                options: [
+                    'Технологія утворення отвору більшого діаметру на базі існуючого.',
+                    'Технологія отримання отвору у суцільному металі.',
+                    'Шліфування внутрішньої поверхні для 1-го квалітету точності.',
+                    'Термічна обробка металу для підвищення його твердості.'
+                ],
+                correctIndex: 0,
+                explanation: 'Згідно з технічними визначеннями, розсвердлювання — це розширення вже існуючого отвору до більшого діаметру (12-11 квалітет).'
+            },
+            {
+                id: 2,
+                level: 'Початковий рівень',
+                levelBadgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                points: 1,
+                question: 'Чим слід очищати виведене та зупинене свердло від стружки?',
+                options: [
+                    'Голими руками під час обертання шпинделя.',
+                    'Металевим скребком під час руху свердла.',
+                    'Щіткою.',
+                    'Очищення не потрібне, стружка випадає сама.'
+                ],
+                correctIndex: 2,
+                explanation: 'Виведене свердло з виключеним обертанням очищають спеціальною щіткою від стружки та промивають струменем МОР.'
+            },
+            {
+                id: 3,
+                level: 'Середній рівень',
+                levelBadgeClass: 'bg-blue-100 text-blue-800 border-blue-200',
+                points: 1,
+                question: 'За скільки міліметрів до торкання упорного кільця об площину слід вимкнути механічну подачу та перейти на ручну?',
+                options: [
+                    'За 1...2 мм.',
+                    'За 4...6 мм.',
+                    'За 10...15 мм.',
+                    'Вимикати механічну подачу взагалі не потрібно.'
+                ],
+                correctIndex: 1,
+                explanation: 'Щоб запобігти удару та поломці інструмента, механічну подачу відключають і переходять на ручну за 4...6 мм до торкання кільця.'
+            },
+            {
+                id: 4,
+                level: 'Середній рівень',
+                levelBadgeClass: 'bg-blue-100 text-blue-800 border-blue-200',
+                points: 1,
+                question: 'Яка мастильно-охолодна рідина (МОР) рекомендована при свердлінні деталей зі сталі?',
+                options: [
+                    'Гас.',
+                    'Чиста вода.',
+                    'Емульсія.',
+                    'Свердління проводиться тільки насухо.'
+                ],
+                correctIndex: 2,
+                explanation: 'Свердління сталей рекомендується проводити з обов\'язковим охолодженням емульсією.'
+            },
+            {
+                id: 5,
+                level: 'Достатній рівень',
+                levelBadgeClass: 'bg-amber-100 text-amber-800 border-amber-200',
+                points: 2,
+                question: 'Чому перед виходом поперечної кромки свердла зі зворотного боку наскрізного отвору слід пригальмувати подачу (зменшити вдвічі)?',
+                options: [
+                    'Щоб запобігти «стрибку» шпинделя через різке зменшення осьової сили.',
+                    'Щоб підвищити частоту обертання шпинделя втричі.',
+                    'Щоб утворити фаску під кутом 45 градусів.',
+                    'Щоб загартувати вихідний отвір за рахунок тертя.'
+                ],
+                correctIndex: 0,
+                explanation: 'На виході з отвору опір матеріалу стрімко падає, що може спричинити заклинювання або «стрибок» шпинделя та поломку свердла.'
+            },
+            {
+                id: 6,
+                level: 'Достатній рівень',
+                levelBadgeClass: 'bg-amber-100 text-amber-800 border-amber-200',
+                points: 2,
+                question: 'Що необхідно зробити свердлувальнику, якщо під час перевірки на частоті 31...50 об/хв виявлено биття інструмента?',
+                options: [
+                    'Провернути інструмент у перехідній втулці, а втулку — у шпинделі.',
+                    'Збільшити оберти шпинделя до максимум 2000 об/хв.',
+                    'Постукати по кінцю свердла сталевим молотком.',
+                    'Продовжити роботу, биття зникне самостійно.'
+                ],
+                correctIndex: 0,
+                explanation: 'Для усунення биття інструмент повертають відносно втулки або втулку відносно шпинделя (при потребі 2-3 рази).'
+            },
+            {
+                id: 7,
+                level: 'Високий рівень',
+                levelBadgeClass: 'bg-purple-100 text-purple-800 border-purple-200',
+                points: 2,
+                question: 'Обчисліть глибину різання (t) при розсвердлюванні отвору з початкового діаметра d = 12 мм до діаметра D = 20 мм.',
+                options: [
+                    '8 мм',
+                    '4 мм',
+                    '2 мм',
+                    '16 мм'
+                ],
+                correctIndex: 1,
+                explanation: 'Формула глибини різання при розсвердлюванні: t = (D - d) / 2 = (20 - 12) / 2 = 4 мм.'
+            },
+            {
+                id: 8,
+                level: 'Високий рівень',
+                levelBadgeClass: 'bg-purple-100 text-purple-800 border-purple-200',
+                points: 2,
+                question: 'Куди слід направити заготовки, якщо на площині свердління виявлено наклеп, свищі або повітряні пустоти?',
+                options: [
+                    'До термічного цеху з оформленням спеціального акта.',
+                    'Одразу на смітник без повідомлення майстра.',
+                    'На дільницю фарбування для замащування заковиш.',
+                    'Залишити для свердління на підвищених подачах.'
+                ],
+                correctIndex: 0,
+                explanation: 'Для усунення дефектів твердості та структурування металу заготовки повертають у термічний цех для термообробки.'
+            }
+        ];
+
+        const STORAGE_KEY = 'drill_quiz_completion_v2';
+        let userAnswers = {}; // Map of qId -> selectedIndex
+        let isCompleted = false;
+
+        // Initialize application on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkExistingCompletion();
+            renderQuestions();
+            updateProgress();
+        });
+
+        function checkExistingCompletion() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                try {
+                    const parsed = JSON.parse(savedData);
+                    userAnswers = parsed.userAnswers || {};
+                    isCompleted = true;
+                    document.getElementById('already-completed-banner').classList.remove('hidden');
+                } catch(e) {
+                    console.error('Failed to parse saved quiz state', e);
+                }
+            }
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            questionsData.forEach((q, index) => {
+                const isAnswered = userAnswers.hasOwnProperty(q.id);
+                const selectedOption = isAnswered ? userAnswers[q.id] : null;
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300 ${
+                    isAnswered ? 'border-slate-300' : 'hover:border-blue-300 hover:shadow-md'
+                }`;
+                card.id = `question-card-${q.id}`;
+
+                let optionsHTML = '';
+                q.options.forEach((opt, optIdx) => {
+                    let optionStyle = 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-700';
+                    let badgeHTML = '';
+                    let isChecked = false;
+
+                    if (isAnswered) {
+                        isChecked = (selectedOption === optIdx);
+                        
+                        if (optIdx === q.correctIndex) {
+                            // Correct answer
+                            optionStyle = 'border-emerald-500 bg-emerald-50/80 text-emerald-900 font-medium';
+                            badgeHTML = `<span class="ml-auto text-emerald-600 font-bold text-sm flex items-center gap-1">
+                                            <i class="fa-solid fa-circle-check"></i> Правильна
+                                         </span>`;
+                        } else if (selectedOption === optIdx && selectedOption !== q.correctIndex) {
+                            // User chose wrong answer
+                            optionStyle = 'border-rose-500 bg-rose-50/80 text-rose-900 font-medium';
+                            badgeHTML = `<span class="ml-auto text-rose-600 font-bold text-sm flex items-center gap-1">
+                                            <i class="fa-solid fa-circle-xmark"></i> Ваша відповідь
+                                         </span>`;
+                        } else {
+                            // Unchosen incorrect options
+                            optionStyle = 'border-slate-100 bg-slate-50/50 text-slate-400 opacity-70';
+                        }
+                    }
+
+                    optionsHTML += `
+                        <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border-2 transition-all cursor-pointer ${optionStyle} ${isAnswered ? 'cursor-default' : ''}">
+                            <input type="radio" 
+                                   name="question_${q.id}" 
+                                   value="${optIdx}" 
+                                   class="custom-radio mr-3" 
+                                   ${isChecked ? 'checked' : ''} 
+                                   ${isAnswered ? 'disabled' : ''}
+                                   onchange="handleSelectOption(${q.id}, ${optIdx})">
+                            <span class="text-sm sm:text-base leading-snug pr-2">${opt}</span>
+                            ${badgeHTML}
+                        </label>
+                    `;
+                });
+
+                // Explanation box rendering
+                let explanationHTML = '';
+                if (isAnswered) {
+                    const isCorrect = (selectedOption === q.correctIndex);
+                    explanationHTML = `
+                        <div class="mt-4 p-4 rounded-xl border ${
+                            isCorrect 
+                                ? 'bg-emerald-50/90 border-emerald-200 text-emerald-900' 
+                                : 'bg-rose-50/90 border-rose-200 text-rose-900'
+                        } transition-all">
+                            <div class="flex items-center gap-2 font-bold text-sm mb-1">
+                                <i class="fa-solid ${isCorrect ? 'fa-circle-check text-emerald-600' : 'fa-circle-xmark text-rose-600'}"></i>
+                                <span>${isCorrect ? 'Правильно!' : 'Помилка!'}</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                                ${q.explanation}
+                            </p>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="p-5 sm:p-6">
+                        <!-- Card Header / Meta -->
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold border ${q.levelBadgeClass}">
+                                    ${q.level}
+                                </span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                    Кількість балів: ${q.points} ${q.points === 1 ? 'бал' : 'бали'}
+                                </span>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-400">Питання ${index + 1} з ${questionsData.length}</span>
+                        </div>
+
+                        <!-- Question Text -->
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-4 leading-snug">
+                            ${q.question}
+                        </h3>
+
+                        <!-- Options List -->
+                        <div class="space-y-2.5">
+                            ${optionsHTML}
+                        </div>
+
+                        <!-- Explanation Area -->
+                        ${explanationHTML}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            if (Object.keys(userAnswers).length === questionsData.length) {
+                showSummaryCard();
+            }
+        }
+
+        function handleSelectOption(questionId, selectedIdx) {
+            if (userAnswers.hasOwnProperty(questionId)) return; // Already locked
+
+            userAnswers[questionId] = selectedIdx;
+
+            // Check if all questions answered
+            if (Object.keys(userAnswers).length === questionsData.length) {
+                isCompleted = true;
+                saveToLocalStorage();
+            }
+
+            renderQuestions();
+            updateProgress();
+
+            // Smooth scroll to next unanswered or summary
+            if (Object.keys(userAnswers).length === questionsData.length) {
+                setTimeout(() => {
+                    document.getElementById('summary-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 200);
+            }
+        }
+
+        function calculateScore() {
+            let total = 0;
+            const levelScores = {
+                'Початковий рівень': { got: 0, max: 0 },
+                'Середній рівень': { got: 0, max: 0 },
+                'Достатній рівень': { got: 0, max: 0 },
+                'Високий рівень': { got: 0, max: 0 }
+            };
+
+            questionsData.forEach(q => {
+                levelScores[q.level].max += q.points;
+                if (userAnswers[q.id] === q.correctIndex) {
+                    total += q.points;
+                    levelScores[q.level].got += q.points;
+                }
+            });
+
+            return { total, levelScores };
+        }
+
+        function updateProgress() {
+            const answeredCount = Object.keys(userAnswers).length;
+            const totalCount = questionsData.length;
+            const { total } = calculateScore();
+
+            document.getElementById('answered-count').innerText = answeredCount;
+            document.getElementById('total-count').innerText = totalCount;
+            document.getElementById('current-score').innerText = total;
+
+            const percentage = (answeredCount / totalCount) * 100;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+        }
+
+        function showSummaryCard() {
+            const summaryCard = document.getElementById('summary-card');
+            summaryCard.classList.remove('hidden');
+
+            const { total, levelScores } = calculateScore();
+            document.getElementById('final-score-value').innerText = total;
+
+            // Determine verdict text according to 12-point grading scale
+            let verdict = '';
+            let headerBgClass = 'from-slate-900 to-indigo-950';
+
+            if (total >= 10) {
+                verdict = 'Відмінний результат! Ви досконало володієте технологією свердління та розсвердлювання.';
+                headerBgClass = 'from-emerald-900 to-teal-950';
+            } else if (total >= 7) {
+                verdict = 'Добре! Ви показали належний рівень теоретичних знань та розуміння технологічних процесів.';
+                headerBgClass = 'from-blue-900 to-indigo-950';
+            } else if (total >= 4) {
+                verdict = 'Задовільно. Загальні уявлення є, проте рекомендуємо повторити теми режимів різання та підготовки.';
+                headerBgClass = 'from-amber-900 to-orange-950';
+            } else {
+                verdict = 'Початковий рівень. Необхідно детально опрацювати навчальний конспект заново.';
+                headerBgClass = 'from-rose-900 to-red-950';
+            }
+
+            document.getElementById('summary-verdict').innerText = verdict;
+            
+            const summaryHeader = document.getElementById('summary-header');
+            summaryHeader.className = `p-6 sm:p-8 bg-gradient-to-br ${headerBgClass} text-white relative transition-all duration-500`;
+
+            // Render breakdown grid
+            const grid = document.getElementById('levels-breakdown-grid');
+            grid.innerHTML = '';
+
+            const levelConfig = [
+                { name: 'Початковий рівень', icon: 'fa-seedling', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+                { name: 'Середній рівень', icon: 'fa-chart-line', color: 'text-blue-600 bg-blue-50 border-blue-200' },
+                { name: 'Достатній рівень', icon: 'fa-award', color: 'text-amber-600 bg-amber-50 border-amber-200' },
+                { name: 'Високий рівень', icon: 'fa-trophy', color: 'text-purple-600 bg-purple-50 border-purple-200' }
+            ];
+
+            levelConfig.forEach(lvl => {
+                const data = levelScores[lvl.name] || { got: 0, max: 0 };
+                const pct = data.max > 0 ? (data.got / data.max) * 100 : 0;
+
+                const item = document.createElement('div');
+                item.className = 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between';
+                item.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-lg ${lvl.color} flex items-center justify-center text-xs">
+                                <i class="fa-solid ${lvl.icon}"></i>
+                            </div>
+                            <span class="text-sm font-bold text-slate-800">${lvl.name}</span>
+                        </div>
+                        <span class="text-sm font-extrabold text-slate-900">${data.got} / ${data.max} б.</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                        <div class="bg-blue-600 h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                    </div>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        function saveToLocalStorage() {
+            const dataToSave = {
+                userAnswers: userAnswers,
+                timestamp: new Date().toISOString(),
+                completed: true
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+        }
+
+        function openTeacherModal() {
+            document.getElementById('teacher-modal').classList.remove('hidden');
+            document.getElementById('teacher-password').value = '';
+            document.getElementById('teacher-error').classList.add('hidden');
+            setTimeout(() => {
+                document.getElementById('teacher-password').focus();
+            }, 100);
+        }
+
+        function closeTeacherModal() {
+            document.getElementById('teacher-modal').classList.add('hidden');
+        }
+
+        function handleTeacherReset(e) {
+            e.preventDefault();
+            const password = document.getElementById('teacher-password').value;
+            const errorElement = document.getElementById('teacher-error');
+
+            if (password === 'admin') {
+                localStorage.removeItem(STORAGE_KEY);
+                userAnswers = {};
+                isCompleted = false;
+
+                closeTeacherModal();
+                document.getElementById('already-completed-banner').classList.add('hidden');
+                document.getElementById('summary-card').classList.add('hidden');
+
+                renderQuestions();
+                updateProgress();
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                errorElement.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
