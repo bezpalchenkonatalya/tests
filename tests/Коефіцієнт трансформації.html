@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="uk" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест з електротехніки: Коефіцієнт трансформації</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-radio:checked + label {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-full flex flex-col pb-12">
+
+    <!-- Sticky Header & Progress Bar -->
+    <header class="sticky top-0 z-50 bg-white shadow-md border-b border-slate-200">
+        <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-amber-500"></i>
+                        Коефіцієнт трансформації
+                    </h1>
+                    <p class="text-xs text-slate-500">Контроль знань з електротехніки (12-бальна система)</p>
+                </div>
+                <div class="flex items-center gap-3 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-700">
+                    <span>Відповідано:</span>
+                    <span id="progress-text" class="text-blue-600">0 з 8</span>
+                    <span class="text-slate-300">|</span>
+                    <span>Отримано:</span>
+                    <span id="score-text" class="text-amber-600">0 з 12 балів</span>
+                </div>
+            </div>
+            <!-- Progress Line -->
+            <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 mt-6 flex-grow w-full">
+
+        <!-- Locked Notice (Shown if test is already completed) -->
+        <div id="already-taken-banner" class="hidden mb-6 p-4 bg-amber-50 border-l-4 border-amber-500 rounded-r-lg text-amber-800 shadow-sm">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-lock text-xl"></i>
+                <div>
+                    <p class="font-bold">Тест вже виконано!</p>
+                    <p class="text-sm">Ви вже проходили цей тест раніше. Повторне складання недоступне, ваші результати зафіксовано.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 mb-6">
+            <h2 class="text-md font-semibold text-slate-800 mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-blue-500"></i> Інструкція до виконання
+            </h2>
+            <p class="text-sm text-slate-600">
+                Тест складається з 8 питань, розділених за 4 рівнями складності. Максимальна сума — 12 балів. Тест можна скласти <strong>лише один раз</strong>. Відповідь фіксується одразу після її вибору.
+            </p>
+        </div>
+
+        <!-- Questions List Container -->
+        <div id="questions-container" class="space-y-6">
+            <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Summary Final Card (Hidden until finished) -->
+        <div id="summary-card" class="hidden mt-8 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-900 text-white p-6 text-center relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 opacity-10 text-9xl">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <span class="inline-block px-3 py-1 bg-amber-500/20 text-amber-300 text-xs font-semibold rounded-full uppercase tracking-wider mb-2">Підсумковий результат</span>
+                <h2 class="text-2xl font-extrabold mb-1">Тестування завершено!</h2>
+                <p class="text-slate-400 text-sm">Ваша остаточна оцінка за 12-бальною шкалою</p>
+
+                <div class="mt-6 inline-flex flex-col items-center justify-center w-32 h-32 rounded-full bg-slate-800 border-4 border-amber-500 shadow-inner">
+                    <span id="final-score" class="text-4xl font-extrabold text-amber-400">0</span>
+                    <span class="text-xs text-slate-400 font-medium">із 12 балів</span>
+                </div>
+                <div id="final-grade-badge" class="mt-4 inline-block px-4 py-1.5 rounded-full text-sm font-bold">
+                    --
+                </div>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <h3 class="font-bold text-slate-800 text-md border-b pb-2">Результати за рівнями складності:</h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Level 1 -->
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 block uppercase">Початковий рівень</span>
+                            <span class="text-sm font-bold text-slate-700">Базові поняття та формули</span>
+                        </div>
+                        <span id="score-level-1" class="text-lg font-bold text-slate-800">0 / 2 балів</span>
+                    </div>
+
+                    <!-- Level 2 -->
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 block uppercase">Середній рівень</span>
+                            <span class="text-sm font-bold text-slate-700">Типи трансформаторів і струми</span>
+                        </div>
+                        <span id="score-level-2" class="text-lg font-bold text-slate-800">0 / 2 балів</span>
+                    </div>
+
+                    <!-- Level 3 -->
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 block uppercase">Достатній рівень</span>
+                            <span class="text-sm font-bold text-slate-700">Практичний розрахунок k та U</span>
+                        </div>
+                        <span id="score-level-3" class="text-lg font-bold text-slate-800">0 / 4 балів</span>
+                    </div>
+
+                    <!-- Level 4 -->
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 block uppercase">Високий рівень</span>
+                            <span class="text-sm font-bold text-slate-700">Комплексний аналіз параметрів</span>
+                        </div>
+                        <span id="score-level-4" class="text-lg font-bold text-slate-800">0 / 4 балів</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+                    <p class="text-xs text-slate-500">Результат збережено у локальному сховищі вашого браузера.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Database of Questions aligned with the 12-point system
+        const questionsData = [
+            // ПОЧАТКОВИЙ РІВЕНЬ (2 бали загалом, 2 питання по 1 балу)
+            {
+                id: 1,
+                levelId: 1,
+                levelName: "Початковий рівень",
+                levelBadgeBg: "bg-emerald-100 text-emerald-800 border-emerald-300",
+                points: 1,
+                question: "Що виражає та характеризує коефіцієнт трансформації (k) у трансформаторі?",
+                options: [
+                    "Теплові втрати електричної енергії в сталевому осерді",
+                    "Зміну електричної напруги або струму під час передачі енергії з первинної обмотки у вторинну",
+                    "Омнічний опір провідників первинної обмотки",
+                    "Частоту змінного струму в електричній мережі"
+                ],
+                correct: 1,
+                explanation: "Коефіцієнт трансформації k — це масштабна величина, що визначає відношення напруг, кількості витків або ЕРС первинної та вторинної обмоток."
+            },
+            {
+                id: 2,
+                levelId: 1,
+                levelName: "Початковий рівень",
+                levelBadgeBg: "bg-emerald-100 text-emerald-800 border-emerald-300",
+                points: 1,
+                question: "Яка з наведених формул правильно визначає коефіцієнт трансформації через кількість витків первинної (N₁) та вторинної (N₂) обмоток?",
+                options: [
+                    "k = N₁ / N₂",
+                    "k = N₂ / N₁",
+                    "k = N₁ · N₂",
+                    "k = N₁ - N₂"
+                ],
+                correct: 0,
+                explanation: "За визначенням у режимі холостого ходу: k = U₁ / U₂ = N₁ / N₂ = E₁ / E₂."
+            },
+
+            // СЕРЕДНІЙ РІВЕНЬ (2 бали загалом, 2 питання по 1 балу)
+            {
+                id: 3,
+                levelId: 2,
+                levelName: "Середній рівень",
+                levelBadgeBg: "bg-blue-100 text-blue-800 border-blue-300",
+                points: 1,
+                question: "Яким є трансформатор, якщо його коефіцієнт трансформації k > 1?",
+                options: [
+                    "Підвищувальним (напруга U₂ більша за U₁)",
+                    "Знижувальним (напруга U₁ більша за U₂)",
+                    "Узгоджувальним або розділовим (U₁ = U₂)",
+                    "Резонансним"
+                ],
+                correct: 1,
+                explanation: "При k > 1 напруга первинної обмотки більша за вторинну (U₁ > U₂), тобто трансформатор знижує напругу."
+            },
+            {
+                id: 4,
+                levelId: 2,
+                levelName: "Середній рівень",
+                levelBadgeBg: "bg-blue-100 text-blue-800 border-blue-300",
+                points: 1,
+                question: "Як коефіцієнт трансформації k пов'язаний зі струмами у первинній (I₁) та вторинній (I₂) обмотках ідеального трансформатора?",
+                options: [
+                    "k ≈ I₁ / I₂",
+                    "k ≈ I₂ / I₁",
+                    "k ≈ I₁ · I₂",
+                    "Коефіцієнт k не залежить від струмів"
+                ],
+                correct: 1,
+                explanation: "Оскільки потужність зберігається (P₁ ≈ P₂), підвищення напруги призводить до зменшення струму: k = U₁ / U₂ ≈ I₂ / I₁."
+            },
+
+            // ДОСТАТНІЙ РІВЕНЬ (4 бали загалом, 2 питання по 2 бали)
+            {
+                id: 5,
+                levelId: 3,
+                levelName: "Достатній рівень",
+                levelBadgeBg: "bg-amber-100 text-amber-800 border-amber-300",
+                points: 2,
+                question: "Первинна обмотка трансформатора має N₁ = 1200 витків, а вторинна — N₂ = 120 витків. Обчисліть коефіцієнт трансформації k та визначте тип трансформатора.",
+                options: [
+                    "k = 10; знижувальний",
+                    "k = 0,1; підвищувальний",
+                    "k = 10; підвищувальний",
+                    "k = 1080; знижувальний"
+                ],
+                correct: 0,
+                explanation: "k = N₁ / N₂ = 1200 / 120 = 10. Оскільки k = 10 > 1, це знижувальний трансформатор."
+            },
+            {
+                id: 6,
+                levelId: 3,
+                levelName: "Достатній рівень",
+                levelBadgeBg: "bg-amber-100 text-amber-800 border-amber-300",
+                points: 2,
+                question: "На первинну обмотку знижувального трансформатора з k = 5 подано напругу U₁ = 220 В. Визначте напругу U₂ на вторинній обмотці у режимі холостого ходу.",
+                options: [
+                    "44 В",
+                    "1100 В",
+                    "220 В",
+                    "110 В"
+                ],
+                correct: 0,
+                explanation: "З формули k = U₁ / U₂ отримуємо: U₂ = U₁ / k = 220 В / 5 = 44 В."
+            },
+
+            // ВИСОКИЙ РІВЕНЬ (4 бали загалом, 2 питання по 2 бали)
+            {
+                id: 7,
+                levelId: 4,
+                levelName: "Високий рівень",
+                levelBadgeBg: "bg-purple-100 text-purple-800 border-purple-300",
+                points: 2,
+                question: "Струм у первинній обмотці знижувального трансформатора з k = 8 становить I₁ = 0,5 А. Знайдіть значення струму I₂ у вторинній обмотці.",
+                options: [
+                    "4 А",
+                    "0,0625 А",
+                    "8 А",
+                    "16 А"
+                ],
+                correct: 0,
+                explanation: "Оскільки k ≈ I₂ / I₁, то I₂ = k · I₁ = 8 · 0,5 А = 4 А."
+            },
+            {
+                id: 8,
+                levelId: 4,
+                levelName: "Високий рівень",
+                levelBadgeBg: "bg-purple-100 text-purple-800 border-purple-300",
+                points: 2,
+                question: "Підвищувальний трансформатор має k = 0,05. Напруга на вторинній обмотці дорівнює U₂ = 4000 В. Якою є напруга U₁ на первинній обмотці та яка обмотка має більшу кількість витків?",
+                options: [
+                    "U₁ = 200 В; вторинна обмотка має більшу кількість витків",
+                    "U₁ = 80000 В; первинна обмотка має більшу кількість витків",
+                    "U₁ = 200 В; первинна обмотка має більшу кількість витків",
+                    "U₁ = 100 В; вторинна обмотка має більшу кількість витків"
+                ],
+                correct: 0,
+                explanation: "U₁ = k · U₂ = 0,05 · 4000 В = 200 В. Для підвищувального трансформатора k < 1, тому N₂ > N₁ (вторинна обмотка містить більше витків)."
+            }
+        ];
+
+        const STORAGE_KEY = 'transformer_test_scores_v2';
+        let state = {
+            answers: {}, // questionIndex -> chosenOptionIndex
+            isFinished: false
+        };
+
+        // Load state from local storage
+        function loadSavedState() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    state = JSON.parse(saved);
+                } catch (e) {
+                    console.error("Помилка читання збереженого стану:", e);
+                }
+            }
+        }
+
+        // Save state to local storage
+        function saveCurrentState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        // Render test UI
+        function renderQuiz() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            if (state.isFinished) {
+                document.getElementById('already-taken-banner').classList.remove('hidden');
+            }
+
+            questionsData.forEach((q, qIndex) => {
+                const isAnswered = state.answers.hasOwnProperty(qIndex);
+                const selectedOption = isAnswered ? state.answers[qIndex] : null;
+
+                const qCard = document.createElement('div');
+                qCard.className = `bg-white rounded-xl shadow-sm border border-slate-200 p-5 transition-all ${isAnswered ? 'bg-slate-50/50' : ''}`;
+                qCard.id = `q-card-${qIndex}`;
+
+                // Header section
+                let headerHtml = `
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${q.levelBadgeBg}">
+                            ${q.levelName}
+                        </span>
+                        <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
+                            Кількість балів: ${q.points} ${q.points === 1 ? 'бал' : 'бали'}
+                        </span>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800 mb-4">
+                        <span class="text-blue-600 mr-1">${qIndex + 1}.</span> ${q.question}
+                    </h3>
+                `;
+
+                // Options list
+                let optionsHtml = `<div class="space-y-2.5">`;
+
+                q.options.forEach((optText, optIndex) => {
+                    let optionStyle = "border-slate-200 hover:border-blue-300 hover:bg-slate-50";
+                    let iconHtml = "";
+
+                    if (isAnswered) {
+                        if (optIndex === q.correct) {
+                            // Correct Option
+                            optionStyle = "border-emerald-500 bg-emerald-50 text-emerald-900 font-semibold ring-1 ring-emerald-500";
+                            iconHtml = `<i class="fa-solid fa-circle-check text-emerald-600 ml-auto text-lg"></i>`;
+                        } else if (optIndex === selectedOption && selectedOption !== q.correct) {
+                            // Incorrect Selected Option
+                            optionStyle = "border-rose-400 bg-rose-50 text-rose-900 ring-1 ring-rose-400";
+                            iconHtml = `<i class="fa-solid fa-circle-xmark text-rose-500 ml-auto text-lg"></i>`;
+                        } else {
+                            // Other unselected options
+                            optionStyle = "border-slate-200 opacity-60 bg-slate-100/50";
+                        }
+                    }
+
+                    const inputDisabled = isAnswered ? "disabled" : "";
+                    const isChecked = selectedOption === optIndex ? "checked" : "";
+
+                    optionsHtml += `
+                        <div class="relative">
+                            <input type="radio" 
+                                   name="question_${qIndex}" 
+                                   id="q_${qIndex}_opt_${optIndex}" 
+                                   value="${optIndex}" 
+                                   class="hidden custom-radio" 
+                                   ${isChecked} 
+                                   ${inputDisabled}
+                                   onchange="handleSelectOption(${qIndex}, ${optIndex})">
+                            <label for="q_${qIndex}_opt_${optIndex}" 
+                                   class="flex items-center p-3.5 rounded-lg border text-sm cursor-pointer transition-all ${optionStyle}">
+                                <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center mr-3 text-xs font-bold text-slate-500 shrink-0 bg-white">
+                                    ${String.fromCharCode(65 + optIndex)}
+                                </span>
+                                <span class="flex-grow">${optText}</span>
+                                ${iconHtml}
+                            </label>
+                        </div>
+                    `;
+                });
+
+                optionsHtml += `</div>`;
+
+                // Feedback section
+                let feedbackHtml = '';
+                if (isAnswered) {
+                    const isCorrect = selectedOption === q.correct;
+                    feedbackHtml = `
+                        <div class="mt-4 p-3.5 rounded-lg border text-xs sm:text-sm ${isCorrect ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'}">
+                            <div class="flex items-start gap-2">
+                                <i class="fa-solid ${isCorrect ? 'fa-circle-check text-emerald-600' : 'fa-circle-exclamation text-rose-600'} text-base mt-0.5"></i>
+                                <div>
+                                    <p class="font-bold text-sm mb-0.5">${isCorrect ? 'Правильно!' : 'Помилка!'}</p>
+                                    <p>${q.explanation}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                qCard.innerHTML = headerHtml + optionsHtml + feedbackHtml;
+                container.appendChild(qCard);
+            });
+
+            updateProgress();
+        }
+
+        // Option selection handler
+        function handleSelectOption(qIndex, optIndex) {
+            if (state.answers.hasOwnProperty(qIndex) || state.isFinished) return;
+
+            state.answers[qIndex] = optIndex;
+
+            if (Object.keys(state.answers).length === questionsData.length) {
+                state.isFinished = true;
+            }
+
+            saveCurrentState();
+            renderQuiz();
+
+            if (state.isFinished) {
+                showSummaryCard();
+            }
+        }
+
+        // Progress bar and score calculations
+        function updateProgress() {
+            const answeredCount = Object.keys(state.answers).length;
+            const totalCount = questionsData.length;
+
+            let currentEarnedPoints = 0;
+            questionsData.forEach((q, idx) => {
+                if (state.answers[idx] === q.correct) {
+                    currentEarnedPoints += q.points;
+                }
+            });
+
+            document.getElementById('progress-text').innerText = `${answeredCount} з ${totalCount}`;
+            document.getElementById('score-text').innerText = `${currentEarnedPoints} з 12 балів`;
+
+            const percentage = (answeredCount / totalCount) * 100;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+
+            if (answeredCount === totalCount) {
+                showSummaryCard();
+            }
+        }
+
+        // Show summary card with level breakdown
+        function showSummaryCard() {
+            const summaryCard = document.getElementById('summary-card');
+            summaryCard.classList.remove('hidden');
+
+            let levelScores = { 1: 0, 2: 0, 3: 0, 4: 0 };
+            let totalScore = 0;
+
+            questionsData.forEach((q, idx) => {
+                if (state.answers[idx] === q.correct) {
+                    levelScores[q.levelId] += q.points;
+                    totalScore += q.points;
+                }
+            });
+
+            document.getElementById('final-score').innerText = totalScore;
+            document.getElementById('score-level-1').innerText = `${levelScores[1]} / 2 балів`;
+            document.getElementById('score-level-2').innerText = `${levelScores[2]} / 2 балів`;
+            document.getElementById('score-level-3').innerText = `${levelScores[3]} / 4 балів`;
+            document.getElementById('score-level-4').innerText = `${levelScores[4]} / 4 балів`;
+
+            // Badge text according to 12-point system
+            const gradeBadge = document.getElementById('final-grade-badge');
+            if (totalScore >= 10) {
+                gradeBadge.className = "mt-4 inline-block px-4 py-1.5 rounded-full text-sm font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                gradeBadge.innerText = "Високий рівень знань";
+            } else if (totalScore >= 7) {
+                gradeBadge.className = "mt-4 inline-block px-4 py-1.5 rounded-full text-sm font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30";
+                gradeBadge.innerText = "Достатній рівень знань";
+            } else if (totalScore >= 4) {
+                gradeBadge.className = "mt-4 inline-block px-4 py-1.5 rounded-full text-sm font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30";
+                gradeBadge.innerText = "Середній рівень знань";
+            } else {
+                gradeBadge.className = "mt-4 inline-block px-4 py-1.5 rounded-full text-sm font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30";
+                gradeBadge.innerText = "Початковий рівень знань";
+            }
+        }
+
+        // Initialize application
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSavedState();
+            renderQuiz();
+        });
+    </script>
+</body>
+</html>
