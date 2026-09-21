@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестування: Закон Ома для ділянки кола</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- HEADER & NAVBAR -->
+    <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-bolt text-yellow-300 text-2xl animate-bounce"></i>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold leading-tight">Фізика: Закон Ома</h1>
+                    <p class="text-xs text-indigo-200">Інтерактивний контрольний тест</p>
+                </div>
+            </div>
+            <!-- API Sync Badge -->
+            <div id="apiStatus" class="flex items-center text-xs bg-indigo-800 px-3 py-1.5 rounded-full border border-indigo-500">
+                <span class="w-2 h-2 rounded-full bg-amber-400 mr-2 animate-pulse" id="statusDot"></span>
+                <span id="statusText">Подключення API...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow">
+
+        <!-- PROGRESS & STATS PANEL -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
+            <div class="flex flex-wrap justify-between items-center gap-4 mb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-semibold text-slate-500">Прогрес:</span>
+                    <span id="questionCounter" class="text-sm font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">Питання 1 / 4</span>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <div class="flex items-center space-x-2" title="Плин часу">
+                        <i class="fa-regular fa-clock text-slate-400"></i>
+                        <span id="timerDisplay" class="font-mono text-base font-bold text-slate-700">00:00</span>
+                    </div>
+                    <div class="flex items-center space-x-2" title="Поточний рахунок">
+                        <i class="fa-solid fa-trophy text-amber-500"></i>
+                        <span id="scoreDisplay" class="text-base font-bold text-slate-700">0 / 12 балів</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                <div id="progressBar" class="bg-indigo-600 h-full w-0 transition-all duration-500 ease-out"></div>
+            </div>
+        </section>
+
+        <!-- QUIZ CONTAINER -->
+        <div id="quizContainer">
+            <!-- Question Card Rendered via JS -->
+        </div>
+
+        <!-- RESULTS & FINAL SCREEN (Hidden by default) -->
+        <div id="resultContainer" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 text-center">
+                <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Тестування завершено!</h2>
+                <p class="text-slate-600 mb-6">Ви відповіли на всі запитання. Перегляньте свій результат нижче.</p>
+
+                <!-- Final Score Dashboard -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                        <p class="text-xs text-slate-500 mb-1">Набрано балів</p>
+                        <p id="finalScore" class="text-2xl font-bold text-indigo-600">0 / 12</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                        <p class="text-xs text-slate-500 mb-1">Загальний час</p>
+                        <p id="finalTime" class="text-2xl font-bold text-slate-700">00:00</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                        <p class="text-xs text-slate-500 mb-1">Успішність</p>
+                        <p id="finalPercentage" class="text-2xl font-bold text-emerald-600">0%</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="exportToText()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-medium transition flex items-center space-x-2 shadow-sm">
+                        <i class="fa-solid fa-file-arrow-down"></i>
+                        <span>Експортувати в текст</span>
+                    </button>
+                    <button onclick="restartQuiz()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition flex items-center space-x-2 shadow-sm">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Пройти знову</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Leaderboard Submission Form -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center space-x-2">
+                    <i class="fa-solid fa-user-plus text-indigo-600"></i>
+                    <span>Зберегти результат у загальний лідерборд</span>
+                </h3>
+                <form id="leaderboardForm" onsubmit="submitScore(event)" class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="studentName" required placeholder="Введіть ваше ім'я та прізвище" 
+                           class="flex-grow px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button type="submit" id="submitScoreBtn" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl transition shadow-sm flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Надіслати результат</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Detailed Answers Review -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center space-x-2">
+                    <i class="fa-solid fa-square-check text-indigo-600"></i>
+                    <span>Детальний аналіз відповідей</span>
+                </h3>
+                <div id="answersReview" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- GLOBAL LEADERBOARD SECTION -->
+        <section class="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-ranking-star text-amber-500 text-xl"></i>
+                    <h2 class="text-xl font-bold text-slate-800">Загальний лідерборд (Синхронізовано)</h2>
+                </div>
+                <button onclick="fetchLeaderboard()" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center space-x-1">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>Оновити</span>
+                </button>
+            </div>
+            
+            <p class="text-xs text-slate-500 mb-4">Результати синхронізуються між користувачами з різних пристроїв через REST API.</p>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-500 uppercase">
+                            <th class="py-3 px-4">#</th>
+                            <th class="py-3 px-4">Слухач</th>
+                            <th class="py-3 px-4">Бали (з 12)</th>
+                            <th class="py-3 px-4">Час</th>
+                            <th class="py-3 px-4">Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody" class="divide-y divide-slate-100 text-sm">
+                        <tr>
+                            <td colspan="5" class="py-6 text-center text-slate-400">
+                                <i class="fa-solid fa-spinner animate-spin text-lg mr-2"></i> Завантаження лідерборду...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-100 border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        <div class="max-w-4xl mx-auto px-4">
+            Онлайн-платформа тестування з фізики &copy; 2026. Усі питання відповідають шкільній програмі з теми «Закон Ома».
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // API Endpoint for Leaderboard (Using Restful-API.dev free public mock DB)
+        const API_URL = 'https://api.restful-api.dev/objects';
+        const DB_COLLECTION_ID = 'ohms_law_quiz_leaderboard_2026';
+
+        // Quiz Question Definitions
+        const originalQuestions = [
+            {
+                id: 1,
+                type: 'mcq',
+                points: 3,
+                question: '1. Яка математична формула описує закон Ома для ділянки кола?',
+                options: [
+                    { text: 'I = U / R', isCorrect: true },
+                    { text: 'I = U · R', isCorrect: false },
+                    { text: 'R = I / U', isCorrect: false },
+                    { text: 'U = R / I', isCorrect: false }
+                ],
+                explanation: 'Правильна відповідь: I = U / R. Сила струму в ділянці кола прямо пропорційна напрузі та обернено пропорційна опору.'
+            },
+            {
+                id: 2,
+                type: 'matching',
+                points: 3,
+                question: '2. Установіть відповідність між фізичною величиною та її одиницею вимірювання в СІ:',
+                pairs: [
+                    { left: 'Сила струму (I)', right: 'Ампер (А)' },
+                    { left: 'Електрична напруга (U)', right: 'Вольт (В)' },
+                    { left: 'Електричний опір (R)', right: 'Ом (Ом)' },
+                    { left: 'Електричний заряд (q)', right: 'Кулон (Кл)' }
+                ],
+                explanation: 'Правильні пари: Сила струму — Ампер; Напруга — Вольт; Опір — Ом; Заряд — Кулон.'
+            },
+            {
+                id: 3,
+                type: 'boolean',
+                points: 3,
+                question: '3. Встановіть істинність твердження (Так / Ні):',
+                statement: '«При постійній напрузі на ділянці кола, якщо опір провідника збільшити в 2 рази, сила струму в ньому також збільшиться в 2 рази.»',
+                correctValue: false, // Ні
+                explanation: 'Правильно: НІ. Оскільки сила струму обернено пропорційна опору (I = U/R), при збільшенні опору в 2 рази сила струму ЗМЕНШИТЬСЯ в 2 рази.'
+            },
+            {
+                id: 4,
+                type: 'open',
+                points: 3,
+                question: '4. Задача з короткою відповіддю:',
+                taskDescription: 'Обчисліть силу струму в спіралі електроплитки опором 44 Ом, якщо вона увімкнена в мережу з напругою 220 В. У відповідь запишіть тільки числове значення (в Амперах).',
+                correctAnswer: '5',
+                explanation: 'Правильна відповідь: 5. За законом Ома: I = U / R = 220 В / 44 Ом = 5 А.'
+            }
+        ];
+
+        // State Variables
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timerSeconds = 0;
+        let timerInterval = null;
+        let userAnswers = {};
+        let isSubmitted = false;
+
+        // Shuffle Utility (Fisher-Yates)
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Initialize Quiz
+        function initQuiz() {
+            // Clone and Shuffle Options
+            currentQuestions = JSON.parse(JSON.stringify(originalQuestions)).map(q => {
+                if (q.type === 'mcq') {
+                    q.options = shuffleArray(q.options);
+                } else if (q.type === 'matching') {
+                    // Shuffle rights options
+                    const rightValues = q.pairs.map(p => p.right);
+                    q.shuffledRights = shuffleArray(rightValues);
+                }
+                return q;
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = {};
+            isSubmitted = false;
+            timerSeconds = 0;
+
+            document.getElementById('quizContainer').classList.remove('hidden');
+            document.getElementById('resultContainer').classList.add('hidden');
+            document.getElementById('scoreDisplay').innerText = `0 / 12 балів`;
+
+            startTimer();
+            renderQuestion();
+            fetchLeaderboard();
+        }
+
+        // Timer Logic
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerSeconds = 0;
+            updateTimerUI();
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                updateTimerUI();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function updateTimerUI() {
+            const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+            const secs = (timerSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${mins}:${secs}`;
+        }
+
+        // Render Current Question
+        function renderQuestion() {
+            const container = document.getElementById('quizContainer');
+            const q = currentQuestions[currentQuestionIndex];
+            const total = currentQuestions.length;
+
+            // Update Header Progress
+            document.getElementById('questionCounter').innerText = `Питання ${currentQuestionIndex + 1} / ${total}`;
+            const progressPercent = ((currentQuestionIndex + 1) / total) * 100;
+            document.getElementById('progressBar').style.width = `${progressPercent}%`;
+
+            let html = `
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 transition-all">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                            3 Бали
+                        </span>
+                        <span class="text-xs text-slate-400 font-medium">Тип: ${getQuestionTypeName(q.type)}</span>
+                    </div>
+                    <h2 class="text-lg md:text-xl font-bold text-slate-800 mb-4">${q.question}</h2>
+            `;
+
+            if (q.type === 'mcq') {
+                html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">`;
+                q.options.forEach((opt, idx) => {
+                    const selected = userAnswers[q.id] === idx;
+                    html += `
+                        <button onclick="selectMCQ(${idx})" 
+                                class="w-full text-left p-4 rounded-xl border transition flex items-center justify-between ${
+                                    selected 
+                                    ? 'border-indigo-600 bg-indigo-50/50 text-indigo-900 font-semibold shadow-sm' 
+                                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700'
+                                }">
+                            <span>${opt.text}</span>
+                            <div class="w-5 h-5 rounded-full border flex items-center justify-center ${selected ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-300'}">
+                                ${selected ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
+                            </div>
+                        </button>
+                    `;
+                });
+                html += `</div>`;
+            } else if (q.type === 'matching') {
+                html += `<p class="text-sm text-slate-500 mb-4">Виберіть відповідну одиницю вимірювання для кожної фізичної величини:</p>`;
+                html += `<div class="space-y-3 mb-6">`;
+                q.pairs.forEach((pair, idx) => {
+                    const savedMatch = userAnswers[q.id] ? userAnswers[q.id][idx] : '';
+                    html += `
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200 gap-2">
+                            <span class="font-medium text-slate-700 text-sm">${pair.left}</span>
+                            <select onchange="selectMatching(${idx}, this.value)" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">-- Виберіть відповідність --</option>
+                                ${q.shuffledRights.map(r => `
+                                    <option value="${r}" ${savedMatch === r ? 'selected' : ''}>${r}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            } else if (q.type === 'boolean') {
+                const currentAns = userAnswers[q.id];
+                html += `
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-slate-700 italic text-sm md:text-base">
+                        ${q.statement}
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <button onclick="selectBoolean(true)" class="py-3 px-6 rounded-xl font-bold border transition flex items-center justify-center space-x-2 ${
+                            currentAns === true 
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                        }">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>ТАК (Істина)</span>
+                        </button>
+                        <button onclick="selectBoolean(false)" class="py-3 px-6 rounded-xl font-bold border transition flex items-center justify-center space-x-2 ${
+                            currentAns === false 
+                            ? 'bg-rose-600 text-white border-rose-600 shadow-sm' 
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                        }">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                            <span>НІ (Хиба)</span>
+                        </button>
+                    </div>
+                `;
+            } else if (q.type === 'open') {
+                const textVal = userAnswers[q.id] || '';
+                html += `
+                    <p class="text-sm text-slate-600 mb-4">${q.taskDescription}</p>
+                    <div class="mb-6">
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-2">Ваша відповідь (число):</label>
+                        <input type="text" value="${textVal}" oninput="selectOpen(this.value)" 
+                               placeholder="Наприклад: 5" 
+                               class="w-full sm:w-64 px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-lg">
+                    </div>
+                `;
+            }
+
+            // Navigation Buttons
+            html += `
+                <div class="flex justify-between items-center border-t border-slate-100 pt-5">
+                    <button onclick="prevQuestion()" ${currentQuestionIndex === 0 ? 'disabled class="opacity-40 cursor-not-allowed px-4 py-2 bg-slate-100 text-slate-400 rounded-xl font-medium text-sm"' : 'class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium text-sm transition flex items-center space-x-2"'}>
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Назад</span>
+                    </button>
+                    ${currentQuestionIndex === total - 1 ? `
+                        <button onclick="finishQuiz()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
+                            <span>Завершити тест</span>
+                            <i class="fa-solid fa-flag-checkered"></i>
+                        </button>
+                    ` : `
+                        <button onclick="nextQuestion()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium text-sm transition shadow-sm flex items-center space-x-2">
+                            <span>Далі</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    `}
+                </div>
+            </div>`;
+
+            container.innerHTML = html;
+        }
+
+        // Helper: Get question type title
+        function getQuestionTypeName(type) {
+            switch(type) {
+                case 'mcq': return 'Одиночний вибір';
+                case 'matching': return 'Встановлення відповідності';
+                case 'boolean': return 'Так / Ні';
+                case 'open': return 'Числова відповідь';
+                default: return '';
+            }
+        }
+
+        // User Selection Handlers
+        function selectMCQ(index) {
+            const qId = currentQuestions[currentQuestionIndex].id;
+            userAnswers[qId] = index;
+            renderQuestion();
+        }
+
+        function selectMatching(pairIdx, val) {
+            const qId = currentQuestions[currentQuestionIndex].id;
+            if (!userAnswers[qId]) userAnswers[qId] = {};
+            userAnswers[qId][pairIdx] = val;
+        }
+
+        function selectBoolean(val) {
+            const qId = currentQuestions[currentQuestionIndex].id;
+            userAnswers[qId] = val;
+            renderQuestion();
+        }
+
+        function selectOpen(val) {
+            const qId = currentQuestions[currentQuestionIndex].id;
+            userAnswers[qId] = val.trim();
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        // Calculate Results and Show Summary
+        function finishQuiz() {
+            stopTimer();
+            score = 0;
+
+            const reviewContainer = document.getElementById('answersReview');
+            reviewContainer.innerHTML = '';
+
+            currentQuestions.forEach((q, idx) => {
+                let isCorrect = false;
+                let userChoiceText = 'Не надано';
+
+                if (q.type === 'mcq') {
+                    const selectedIdx = userAnswers[q.id];
+                    if (selectedIdx !== undefined) {
+                        const selectedOpt = q.options[selectedIdx];
+                        userChoiceText = selectedOpt.text;
+                        if (selectedOpt.isCorrect) isCorrect = true;
+                    }
+                } else if (q.type === 'matching') {
+                    const userMatches = userAnswers[q.id] || {};
+                    let correctMatchesCount = 0;
+                    const matchesSummary = [];
+
+                    q.pairs.forEach((pair, pIdx) => {
+                        const uVal = userMatches[pIdx] || '—';
+                        matchesSummary.push(`${pair.left} → ${uVal}`);
+                        if (uVal === pair.right) correctMatchesCount++;
+                    });
+
+                    userChoiceText = matchesSummary.join('; ');
+                    if (correctMatchesCount === q.pairs.length) isCorrect = true;
+                } else if (q.type === 'boolean') {
+                    const userBool = userAnswers[q.id];
+                    if (userBool !== undefined) {
+                        userChoiceText = userBool ? 'ТАК' : 'НІ';
+                        if (userBool === q.correctValue) isCorrect = true;
+                    }
+                } else if (q.type === 'open') {
+                    const userVal = userAnswers[q.id] || '';
+                    userChoiceText = userVal || 'Не введено';
+                    // Clean input for simple numeric compare
+                    if (userVal.toString().replace(',', '.').trim() === q.correctAnswer) {
+                        isCorrect = true;
+                    }
+                }
+
+                if (isCorrect) score += q.points;
+
+                // Build Review Card
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border ${isCorrect ? 'border-emerald-200 bg-emerald-50/50' : 'border-rose-200 bg-rose-50/50'}`;
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-2">
+                        <span class="font-bold text-slate-800 text-sm">Завдання ${idx + 1} (${isCorrect ? '+3' : '0'} / 3 балів)</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                            ${isCorrect ? 'Правильно' : 'Неправильно'}
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-600 mb-2">${q.question}</p>
+                    <p class="text-xs font-semibold ${isCorrect ? 'text-emerald-700' : 'text-rose-700'} mb-1">
+                        Ваша відповідь: ${userChoiceText}
+                    </p>
+                    <p class="text-xs text-slate-500 bg-white/80 p-2.5 rounded-lg border border-slate-200/60 mt-2">
+                        <i class="fa-solid fa-circle-info mr-1 text-indigo-500"></i> ${q.explanation}
+                    </p>
+                `;
+                reviewContainer.appendChild(card);
+            });
+
+            // Update UI Score Elements
+            document.getElementById('scoreDisplay').innerText = `${score} / 12 балів`;
+            document.getElementById('finalScore').innerText = `${score} / 12`;
+            document.getElementById('finalTime').innerText = document.getElementById('timerDisplay').innerText;
+            const percentage = Math.round((score / 12) * 100);
+            document.getElementById('finalPercentage').innerText = `${percentage}%`;
+
+            // Toggle Screens
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultContainer').classList.remove('hidden');
+        }
+
+        // Export Results to Text File
+        function exportToText() {
+            const timeStr = document.getElementById('finalTime').innerText;
+            const dateStr = new Date().toLocaleString('uk-UA');
+            let content = `=================================================\n`;
+            content += `         ЗВІТ ТЕСТУВАННЯ: ЗАКОН ОМА             \n`;
+            content += `=================================================\n`;
+            content += `Дата проходження: ${dateStr}\n`;
+            content += `Витрачений час : ${timeStr}\n`;
+            content += `Підсумковий бал  : ${score} з 12 балів (${Math.round((score/12)*100)}%)\n`;
+            content += `-------------------------------------------------\n\n`;
+
+            currentQuestions.forEach((q, idx) => {
+                content += `Завдання ${idx + 1}: ${q.question}\n`;
+                if (q.type === 'mcq') {
+                    const ans = userAnswers[q.id] !== undefined ? q.options[userAnswers[q.id]].text : 'Не обрано';
+                    content += `Ваша відповідь: ${ans}\n`;
+                } else if (q.type === 'matching') {
+                    const userMatches = userAnswers[q.id] || {};
+                    content += `Ваша відповідь:\n`;
+                    q.pairs.forEach((p, pIdx) => {
+                        content += `  - ${p.left} -> ${userMatches[pIdx] || '—'}\n`;
+                    });
+                } else if (q.type === 'boolean') {
+                    const ans = userAnswers[q.id] !== undefined ? (userAnswers[q.id] ? 'ТАК' : 'НІ') : 'Не обрано';
+                    content += `Ваша відповідь: ${ans}\n`;
+                } else if (q.type === 'open') {
+                    content += `Ваша відповідь: ${userAnswers[q.id] || 'Порожньо'}\n`;
+                }
+                content += `Пояснення: ${q.explanation}\n`;
+                content += `-------------------------------------------------\n`;
+            });
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Результат_Закон_Ома_${new Date().toISOString().slice(0,10)}.txt`;
+            link.click();
+        }
+
+        // API Integration: Fetch Leaderboard Data
+        async function fetchLeaderboard() {
+            const tbody = document.getElementById('leaderboardBody');
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+
+            try {
+                statusText.innerText = 'Оновлення API...';
+                statusDot.className = 'w-2 h-2 rounded-full bg-amber-400 mr-2 animate-pulse';
+
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Помилка сервера');
+                
+                const data = await response.json();
+                
+                // Filter items belonging to our quiz app
+                const quizEntries = data
+                    .filter(item => item.data && item.data.quizCollection === DB_COLLECTION_ID)
+                    .map(item => item.data)
+                    .sort((a, b) => b.score - a.score || a.timeSeconds - b.timeSeconds);
+
+                statusDot.className = 'w-2 h-2 rounded-full bg-emerald-400 mr-2';
+                statusText.innerText = 'API Активне';
+
+                renderLeaderboardTable(quizEntries);
+            } catch (err) {
+                console.warn('API Error, falling back to LocalStorage:', err);
+                statusDot.className = 'w-2 h-2 rounded-full bg-rose-500 mr-2';
+                statusText.innerText = 'Офлайн режим (Local)';
+                
+                const localEntries = JSON.parse(localStorage.getItem('ohms_law_leaderboard') || '[]');
+                renderLeaderboardTable(localEntries);
+            }
+        }
+
+        // Render Leaderboard Rows
+        function renderLeaderboardTable(entries) {
+            const tbody = document.getElementById('leaderboardBody');
+            if (!entries || entries.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-6 text-center text-slate-400">
+                            Поки немає збережених результатів. будьте першим!
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = entries.map((entry, idx) => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3 px-4 font-bold text-slate-400">${idx + 1}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${escapeHtml(entry.name)}</td>
+                    <td class="py-3 px-4 font-bold text-indigo-600">${entry.score} / 12</td>
+                    <td class="py-3 px-4 font-mono text-xs text-slate-600">${formatSeconds(entry.timeSeconds)}</td>
+                    <td class="py-3 px-4 text-xs text-slate-400">${entry.date || '—'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // API Integration: Submit Result
+        async function submitScore(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitScoreBtn');
+            const nameInput = document.getElementById('studentName');
+            const name = nameInput.value.trim();
+
+            if (!name) return;
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>Відправка...</span>`;
+
+            const payload = {
+                name: name,
+                score: score,
+                timeSeconds: timerSeconds,
+                date: new Date().toLocaleDateString('uk-UA'),
+                quizCollection: DB_COLLECTION_ID
+            };
+
+            try {
+                // Post to API
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: `QuizResult_${Date.now()}`,
+                        data: payload
+                    })
+                });
+
+                // Save locally as well
+                saveLocalEntry(payload);
+
+                alert('Ваш результат успішно збережено в загальному лідерборді!');
+                nameInput.value = '';
+                fetchLeaderboard();
+            } catch (err) {
+                console.error('API submission failed, saving locally:', err);
+                saveLocalEntry(payload);
+                alert('Результат збережено локально на даному пристрої!');
+                fetchLeaderboard();
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> <span>Надіслати результат</span>`;
+            }
+        }
+
+        function saveLocalEntry(payload) {
+            const localEntries = JSON.parse(localStorage.getItem('ohms_law_leaderboard') || '[]');
+            localEntries.push(payload);
+            localEntries.sort((a, b) => b.score - a.score || a.timeSeconds - b.timeSeconds);
+            localStorage.setItem('ohms_law_leaderboard', JSON.stringify(localEntries));
+        }
+
+        function restartQuiz() {
+            initQuiz();
+        }
+
+        function formatSeconds(sec) {
+            if (!sec) return '00:00';
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // Start App on Load
+        window.addEventListener('DOMContentLoaded', initQuiz);
+    </script>
+</body>
+</html>
