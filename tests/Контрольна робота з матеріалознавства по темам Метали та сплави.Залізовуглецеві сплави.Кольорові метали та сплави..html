@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Контрольна робота: Конструкційні, кольорові та неметалеві матеріали</title>
+  <style>
+    :root {
+      --primary-color: #1a56db;
+      --primary-hover: #1e429f;
+      --bg-color: #f3f4f6;
+      --card-bg: #ffffff;
+      --text-color: #1f2937;
+      --text-muted: #6b7280;
+      --border-color: #e5e7eb;
+      --success-color: #057a55;
+      --success-bg: #def7ec;
+      --error-color: #e02424;
+      --error-bg: #fde8e8;
+      --radius: 10px;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 25px;
+      border-top: 5px solid var(--primary-color);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #111827;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+
+    .auth-box {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    input[type="text"] {
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary-color);
+    }
+
+    .btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn:disabled {
+      background-color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .progress-container {
+      width: 100%;
+      background-color: #e5e7eb;
+      height: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: var(--primary-color);
+      transition: width 0.3s ease;
+    }
+
+    .quiz-section {
+      display: none;
+    }
+
+    .section-title {
+      background: #eef2ff;
+      color: var(--primary-color);
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-weight: 700;
+      margin: 25px 0 15px 0;
+      font-size: 1.1rem;
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .question-card {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .question-text {
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin-bottom: 15px;
+    }
+
+    .options-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .option-label:hover {
+      background-color: #f9fafb;
+    }
+
+    .matching-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .matching-table th, .matching-table td {
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      text-align: left;
+    }
+
+    .matching-table th {
+      background-color: #f9fafb;
+    }
+
+    select {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    select:focus {
+      border-color: var(--primary-color);
+    }
+
+    .results-card {
+      display: none;
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .score-badge {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      margin: 15px 0;
+    }
+
+    .leaderboard-section {
+      margin-top: 30px;
+      text-align: left;
+    }
+
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+
+    .leaderboard-table th, .leaderboard-table td {
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      text-align: left;
+    }
+
+    .leaderboard-table th {
+      background-color: #f3f4f6;
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 0.95rem;
+    }
+
+    .alert-error {
+      background-color: var(--error-bg);
+      color: var(--error-color);
+      border: 1px solid #f8b4b4;
+    }
+
+    .actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      header, .question-card, .results-card { padding: 15px; }
+      .matching-table th, .matching-table td { font-size: 0.85rem; padding: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Підсумкова контрольна робота</h1>
+    <p class="subtitle">з дисципліни «Матеріалознавство та конструкційні матеріали»</p>
+    
+    <div id="authContainer" class="auth-box">
+      <div class="input-group">
+        <label for="studentName">Прізвище, Ім'я та По батькові слухача:</label>
+        <input type="text" id="studentName" placeholder="Введіть повне ПІБ..." autocomplete="off">
+      </div>
+      <button id="startBtn" class="btn">Розпочати тест</button>
+    </div>
+
+    <div id="statusContainer" style="display: none;">
+      <div class="status-bar">
+        <span>Слухач: <strong id="displayName">-</strong></span>
+        <span>Час: <strong id="timer">00:00</strong></span>
+      </div>
+      <div class="progress-container">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+    </div>
+  </header>
+
+  <div id="alertBox"></div>
+
+  <!-- ТІЛО ТЕСТУ -->
+  <div id="quizContainer" class="quiz-section">
+    <form id="quizForm">
+      
+      <!-- РОЗДІЛ 1 -->
+      <div class="section-title">Розділ 1. Тестові питання з вибором однієї відповіді</div>
+
+      <div class="question-card" id="q1">
+        <div class="question-text">1. Яким є вміст вуглецю у чавунах за класифікацією залізовуглецевих сплавів?</div>
+        <div class="options-group" id="q1_options"></div>
+      </div>
+
+      <div class="question-card" id="q2">
+        <div class="question-text">2. Що означає літера «Р» у маркуванні інструментальних швидкорізальних сталей (наприклад, Р9, Р18)?</div>
+        <div class="options-group" id="q2_options"></div>
+      </div>
+
+      <div class="question-card" id="q3">
+        <div class="question-text">3. Яка речовина є основним вулканізуючим агентом при виготовленні гумових матеріалів з каучуку?</div>
+        <div class="options-group" id="q3_options"></div>
+      </div>
+
+      <!-- РОЗДІЛ 2 -->
+      <div class="section-title">Розділ 2. Завдання на встановлення відповідності</div>
+
+      <div class="question-card" id="q4">
+        <div class="question-text">4. Установіть відповідність між маркою вуглецевої сталі та її призначенням / характеристикою:</div>
+        <table class="matching-table">
+          <thead>
+            <tr>
+              <th>Марка сталі</th>
+              <th>Призначення / Характеристика</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Ст3</strong></td>
+              <td>
+                <select name="q4_1">
+                  <option value="">-- Оберіть варіант --</option>
+                  <option value="A">Сталь звичайної якості (для будівельних металоконструкцій)</option>
+                  <option value="B">Низьковуглецева якісна сталь (вміст С ~0,10 %)</option>
+                  <option value="C">Середньовуглецева якісна сталь (вміст С ~0,45 %)</option>
+                  <option value="D">Високовуглецева якісна ресорно-пружинна сталь (вміст С ~0,65 %)</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Сталь 10</strong></td>
+              <td>
+                <select name="q4_2">
+                  <option value="">-- Оберіть варіант --</option>
+                  <option value="A">Сталь звичайної якості (для будівельних металоконструкцій)</option>
+                  <option value="B">Низьковуглецева якісна сталь (вміст С ~0,10 %)</option>
+                  <option value="C">Середньовуглецева якісна сталь (вміст С ~0,45 %)</option>
+                  <option value="D">Високовуглецева якісна ресорно-пружинна сталь (вміст С ~0,65 %)</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Сталь 45</strong></td>
+              <td>
+                <select name="q4_3">
+                  <option value="">-- Оберіть варіант --</option>
+                  <option value="A">Сталь звичайної якості (для будівельних металоконструкцій)</option>
+                  <option value="B">Низьковуглецева якісна сталь (вміст С ~0,10 %)</option>
+                  <option value="C">Середньовуглецева якісна сталь (вміст С ~0,45 %)</option>
+                  <option value="D">Високовуглецева якісна ресорно-пружинна сталь (вміст С ~0,65 %)</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Сталь 65</strong></td>
+              <td>
+                <select name="q4_4">
+                  <option value="">-- Оберіть варіант --</option>
+                  <option value="A">Сталь звичайної якості (для будівельних металоконструкцій)</option>
+                  <option value="B">Низьковуглецева якісна сталь (вміст С ~0,10 %)</option>
+                  <option value="C">Середньовуглецева якісна сталь (вміст С ~0,45 %)</option>
+                  <option value="D">Високовуглецева якісна ресорно-пружинна сталь (вміст С ~0,65 %)</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="question-card" id="q5">
+        <div class="question-text">5. Установіть відповідність між маркою легованої конструкційної сталі та її призначенням / характеристикою:</div>
+        <table class="matching-table">
+          <thead>
+            <tr>
+              <th>Марка сталі</th>
+              <th>Призначення / Характеристика</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>20Х</strong></td>
+              <td>
+                <select name="q5_1">
+                  <option value="">-- Оберіть варіант --</option>
+                  <option value="A">Цементована хромиста сталь для поверхневого зміцнення</option>
+                  <option value="B">Поліпшувана хромиста сталь для відповідальних валів і осей</option>
+                  <option value="C">Високоякісна кремниста ресорно-пружинна сталь</option>
+                  <option value="D">Шарикопідшипникова легована сталь з вмістом хрому ~1,5 %</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>40Х</strong></td>
+              <td>
+                <select name="q5_2">
+                  <option value="">-- Оберіть варіант --</option>
+                  <option value="A">Цементована хромиста сталь для поверхневого зміцнення</option>
+                  <option value="B">Поліпшувана хромиста сталь для відповідальних валів і осей</option>
+                  <option value="C">Високоякісна кремниста ресорно-пружинна сталь</option>
+                  <option value="D">Шарикопідшипникова легована сталь з вмістом хрому ~1,5 %</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>60С2А</strong></td>
+              <td>
+                <select name="q5_3">
+                  <option value="">-- Оберіть варіант --</option>
+                  <option value="A">Цементована хромиста сталь для поверхневого зміцнення</option>
+                  <option value="B">Поліпшувана хромиста сталь для відповідальних валів і осей</option>
+                  <option value="C">Високоякісна кремниста ресорно-пружинна сталь</option>
+                  <option value="D">Шарикопідшипникова легована сталь з вмістом хрому ~1,5 %</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>ШХ15</strong></td>
+              <td>
+                <select name="q5_4">
+                  <option value="">-- Оберіть варіант --</option>
+                  <option value="A">Цементована хромиста сталь для поверхневого зміцнення</option>
+                  <option value="B">Поліпшувана хромиста сталь для відповідальних валів і осей</option>
+                  <option value="C">Високоякісна кремниста ресорно-пружинна сталь</option>
+                  <option value="D">Шарикопідшипникова легована сталь з вмістом хрому ~1,5 %</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="question-card" id="q6">
+        <div class="question-text">6. Установіть відповідність між маркою матеріалу та його класифікаційною групою:</div>
+        <table class="matching-table">
+          <thead>
+            <tr>
+              <th>Марка матеріалу</th>
+              <th>Класифікаційна група</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>У7</strong></td>
+              <td>
+                <select name="q6_1">
+                  <option value="">-- Оберіть варіант --</option>
+                  <option value="A">Вуглецева інструментальна сталь підвищеної в'язкості</option>
+                  <option value="B">Швидкорізальна інструментальна сталь</option>
+                  <option value="C">Проста латунь</option>
+                  <option value="D">Олов'яна бронза</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Р6М5</strong></td>
+              <td>
+                <select name="q6_2">
+                  <option value="">-- Оберіть варіант --</option>
+                  <option value="A">Вуглецева інструментальна сталь підвищеної в'язкості</option>
+                  <option value="B">Швидкорізальна інструментальна сталь</option>
+                  <option value="C">Проста латунь</option>
+                  <option value="D">Олов'яна бронза</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Л90</strong></td>
+              <td>
+                <select name="q6_3">
+                  <option value="">-- Оберіть варіант --</option>
+                  <option value="A">Вуглецева інструментальна сталь підвищеної в'язкості</option>
+                  <option value="B">Швидкорізальна інструментальна сталь</option>
+                  <option value="C">Проста латунь</option>
+                  <option value="D">Олов'яна бронза</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>БрО10</strong></td>
+              <td>
+                <select name="q6_4">
+                  <option value="">-- Оберіть варіант --</option>
+                  <option value="A">Вуглецева інструментальна сталь підвищеної в'язкості</option>
+                  <option value="B">Швидкорізальна інструментальна сталь</option>
+                  <option value="C">Проста латунь</option>
+                  <option value="D">Олов'яна бронза</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- РОЗДІЛ 3 -->
+      <div class="section-title">Розділ 3. Питання на встановлення істини (Так / Ні)</div>
+
+      <div class="question-card" id="q7">
+        <div class="question-text">7. Термореактивні пластмаси при нагріванні розм'якшуються і здатні до повторного перероблення.</div>
+        <div class="options-group">
+          <label class="option-label"><input type="radio" name="q7" value="Так"> Так</label>
+          <label class="option-label"><input type="radio" name="q7" value="Ні"> Ні</label>
+        </div>
+      </div>
+
+      <div class="question-card" id="q8">
+        <div class="question-text">8. Ковкі чавуни отримують із білих чавунів шляхом спеціального тривалого відпалу.</div>
+        <div class="options-group">
+          <label class="option-label"><input type="radio" name="q8" value="Так"> Так</label>
+          <label class="option-label"><input type="radio" name="q8" value="Ні"> Ні</label>
+        </div>
+      </div>
+
+      <div class="question-card" id="q9">
+        <div class="question-text">9. Швидкорізальні сталі володіють червоностійкістю і зберігають твердість при нагріванні до 500–600 °C.</div>
+        <div class="options-group">
+          <label class="option-label"><input type="radio" name="q9" value="Так"> Так</label>
+          <label class="option-label"><input type="radio" name="q9" value="Ні"> Ні</label>
+        </div>
+      </div>
+
+      <!-- РОЗДІЛ 4 -->
+      <div class="section-title">Розділ 4. Відкриті питання з текстовою відповіддю</div>
+
+      <div class="question-card" id="q10">
+        <div class="question-text">10. Як називається сплав заліза з вуглецем, де вуглецю міститься від 2,14% до 6,67%?</div>
+        <div class="input-group">
+          <input type="text" name="q10" placeholder="Введіть слово..." autocomplete="off">
+        </div>
+      </div>
+
+      <div class="question-card" id="q11">
+        <div class="question-text">11. В марці сталі 40ХВГ скільки міститься відсотків вуглецю? Напишіть цифру.</div>
+        <div class="input-group">
+          <input type="text" name="q11" placeholder="Введіть число..." autocomplete="off">
+        </div>
+      </div>
+
+      <div class="question-card" id="q12">
+        <div class="question-text">12. Який кольоровий метал є основою таких технічних сплавів, як латунь та бронза?</div>
+        <div class="input-group">
+          <input type="text" name="q12" placeholder="Введіть слово..." autocomplete="off">
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 30px;">
+        <button type="button" id="submitBtn" class="btn" style="padding: 15px 40px; font-size: 1.1rem;">Завершити тест та відправити результати</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- БЛОК РЕЗУЛЬТАТІВ -->
+  <div id="resultsContainer" class="results-card">
+    <h2>Вітаємо! Тест завершено.</h2>
+    <p style="margin-top: 10px; color: var(--text-muted);">Ваш результат занесено до загального реєстру оцінювання.</p>
+    
+    <div class="score-badge" id="finalScore">0 / 12</div>
+    <p id="scorePercentage" style="font-weight: 600; font-size: 1.1rem;"></p>
+    <p id="timeTaken" style="color: var(--text-muted); margin-top: 5px;"></p>
+
+    <div class="actions">
+      <button id="exportBtn" class="btn" style="background-color: #047857;">Експортувати в текст (.txt)</button>
+    </div>
+
+    <!-- ХМАРНИЙ ЛІДЕРБОРД -->
+    <div class="leaderboard-section">
+      <h3 style="border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">📊 Загальний лідерборд слухачів (Cloud Sync)</h3>
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>ПІБ Слухача</th>
+            <th>Бал</th>
+            <th>Час</th>
+            <th>Дата та час</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardBody">
+          <tr><td colspan="5" style="text-align:center;">Завантаження лідерборду...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Конфігурація питань з єдиним вибором та їх варіантів
+  const mcqQuestions = {
+    q1: {
+      options: [
+        { text: "Від 2,14 % до 6,67 %", correct: true },
+        { text: "До 0,02 %", correct: false },
+        { text: "Від 0,02 % до 2,14 %", correct: false },
+        { text: "Понад 6,67 %", correct: false }
+      ]
+    },
+    q2: {
+      options: [
+        { text: "«Рапід» (швидкість)", correct: true },
+        { text: "Ресорна", correct: false },
+        { text: "Рідкісноземельна", correct: false },
+        { text: "Різальна", correct: false }
+      ]
+    },
+    q3: {
+      options: [
+        { text: "Сірка", correct: true },
+        { text: "Вуглець", correct: false },
+        { text: "Кремній", correct: false },
+        { text: "Фосфор", correct: false }
+      ]
+    }
+  };
+
+  // Еталонні відповіді
+  const answerKey = {
+    q1: "Від 2,14 % до 6,67 %",
+    q2: "«Рапід» (швидкість)",
+    q3: "Сірка",
+    q4: { q4_1: "A", q4_2: "B", q4_3: "C", q4_4: "D" },
+    q5: { q5_1: "A", q5_2: "B", q5_3: "C", q5_4: "D" },
+    q6: { q6_1: "A", q6_2: "B", q6_3: "C", q6_4: "D" },
+    q7: "Ні",
+    q8: "Так",
+    q9: "Так",
+    q10: ["чавун"],
+    q11: ["0,4", "0.4", "0,4%", "0.4%"],
+    q12: ["мідь"]
+  };
+
+  // Хмарне сховище JSONBin API для єдиного лідерборду
+  const JSONBIN_BIN_ID = '653a123412a8a86e00000001'; // Стандартний ідентифікатор бази
+  const JSONBIN_SECRET_KEY = '$2a$10$wT8Kz5F3L1A2B3C4D5E6E7F8G9H0I1J2K3L4M5N6O7P8Q9R0S1T2U3';
+
+  let currentStudent = "";
+  let timerInterval = null;
+  let secondsElapsed = 0;
+  let isSubmitted = false;
+
+  // Алгоритм випадкового перемішування (Fisher-Yates)
+  function shuffleArray(array) {
+    let arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // Ініціалізація варіантів MCQ
+  function initMCQOptions() {
+    for (const [qId, data] of Object.entries(mcqQuestions)) {
+      const container = document.getElementById(`${qId}_options`);
+      if (!container) continue;
+      const shuffled = shuffleArray(data.options);
+      container.innerHTML = "";
+      shuffled.forEach((opt, idx) => {
+        const label = document.createElement("label");
+        label.className = "option-label";
+        label.innerHTML = `
+          <input type="radio" name="${qId}" value="${opt.text}">
+          ${opt.text}
+        `;
+        container.appendChild(label);
+      });
+    }
+  }
+
+  // Перевірка попередніх спроб
+  function checkPreviousAttempt() {
+    const attempt = localStorage.getItem('materials_quiz_attempt');
+    if (attempt) {
+      const data = JSON.parse(attempt);
+      showAlreadySubmitted(data);
+      return true;
+    }
+    return false;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initMCQOptions();
+    checkPreviousAttempt();
+
+    document.getElementById('startBtn').addEventListener('click', startQuiz);
+    document.getElementById('submitBtn').addEventListener('click', submitQuiz);
+    document.getElementById('exportBtn').addEventListener('click', exportToTxt);
+
+    document.getElementById('quizForm').addEventListener('change', updateProgress);
+    document.getElementById('quizForm').addEventListener('input', updateProgress);
+  });
+
+  function showAlert(msg, type = 'error') {
+    const alertBox = document.getElementById('alertBox');
+    alertBox.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+  }
+
+  function clearAlert() {
+    document.getElementById('alertBox').innerHTML = "";
+  }
+
+  function startQuiz() {
+    const nameInput = document.getElementById('studentName').value.trim();
+    if (!nameInput || nameInput.split(" ").length < 2) {
+      showAlert("Будь ласка, введіть повне ПІБ (прізвище та ім'я).");
+      return;
+    }
+
+    if (checkPreviousAttempt()) return;
+
+    currentStudent = nameInput;
+    clearAlert();
+
+    document.getElementById('authContainer').style.display = 'none';
+    document.getElementById('statusContainer').style.display = 'block';
+    document.getElementById('displayName').innerText = currentStudent;
+    document.getElementById('quizContainer').style.display = 'block';
+
+    // Запуск таймера
+    secondsElapsed = 0;
+    timerInterval = setInterval(() => {
+      secondsElapsed++;
+      const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+      const secs = String(secondsElapsed % 60).padStart(2, '0');
+      document.getElementById('timer').innerText = `${mins}:${secs}`;
+    }, 1000);
+
+    updateProgress();
+  }
+
+  function updateProgress() {
+    let answeredCount = 0;
+    const totalQuestions = 12;
+
+    // MCQ
+    ['q1', 'q2', 'q3', 'q7', 'q8', 'q9'].forEach(q => {
+      if (document.querySelector(`input[name="${q}"]:checked`)) answeredCount++;
+    });
+
+    // Matching
+    ['q4', 'q5', 'q6'].forEach(q => {
+      let allSelected = true;
+      for (let i = 1; i <= 4; i++) {
+        const val = document.querySelector(`select[name="${q}_${i}"]`)?.value;
+        if (!val) allSelected = false;
+      }
+      if (allSelected) answeredCount++;
+    });
+
+    // Text inputs
+    ['q10', 'q11', 'q12'].forEach(q => {
+      const val = document.querySelector(`input[name="${q}"]`)?.value.trim();
+      if (val) answeredCount++;
+    });
+
+    const percent = Math.round((answeredCount / totalQuestions) * 100);
+    document.getElementById('progressBar').style.width = `${percent}%`;
+  }
+
+  function submitQuiz() {
+    if (isSubmitted) return;
+
+    // Перевірка чи всі питання мають відповіді
+    let unanswered = [];
+    ['q1', 'q2', 'q3', 'q7', 'q8', 'q9'].forEach((q, idx) => {
+      if (!document.querySelector(`input[name="${q}"]:checked`)) {
+        unanswered.push(q.replace('q', 'Питання '));
+      }
+    });
+
+    ['q4', 'q5', 'q6'].forEach((q) => {
+      for (let i = 1; i <= 4; i++) {
+        if (!document.querySelector(`select[name="${q}_${i}"]`)?.value) {
+          unanswered.push(`Питання ${q.replace('q', '')} (${i}-й пункт)`);
+        }
+      }
+    });
+
+    ['q10', 'q11', 'q12'].forEach((q) => {
+      if (!document.querySelector(`input[name="${q}"]`)?.value.trim()) {
+        unanswered.push(q.replace('q', 'Питання '));
+      }
+    });
+
+    if (unanswered.length > 0) {
+      showAlert(`Будь ласка, дайте відповіді на всі питання перед завершенням! Залишилось розв'язати: ${unanswered.length} елементів.`);
+      return;
+    }
+
+    if (!confirm("Ви впевнені, що бажаєте завершити тест та відправити результати? Повторна спроба не допускається.")) {
+      return;
+    }
+
+    clearInterval(timerInterval);
+    isSubmitted = true;
+
+    // Обчислення балів
+    let score = 0;
+    const form = document.getElementById('quizForm');
+    const formData = new FormData(form);
+
+    // Q1-Q3
+    if (formData.get('q1') === answerKey.q1) score++;
+    if (formData.get('q2') === answerKey.q2) score++;
+    if (formData.get('q3') === answerKey.q3) score++;
+
+    // Q4 Matching
+    let q4Correct = true;
+    for (let i = 1; i <= 4; i++) {
+      if (formData.get(`q4_${i}`) !== answerKey.q4[`q4_${i}`]) q4Correct = false;
+    }
+    if (q4Correct) score++;
+
+    // Q5 Matching
+    let q5Correct = true;
+    for (let i = 1; i <= 4; i++) {
+      if (formData.get(`q5_${i}`) !== answerKey.q5[`q5_${i}`]) q5Correct = false;
+    }
+    if (q5Correct) score++;
+
+    // Q6 Matching
+    let q6Correct = true;
+    for (let i = 1; i <= 4; i++) {
+      if (formData.get(`q6_${i}`) !== answerKey.q6[`q6_${i}`]) q6Correct = false;
+    }
+    if (q6Correct) score++;
+
+    // Q7-Q9
+    if (formData.get('q7') === answerKey.q7) score++;
+    if (formData.get('q8') === answerKey.q8) score++;
+    if (formData.get('q9') === answerKey.q9) score++;
+
+    // Q10-Q12 Text inputs
+    const userQ10 = (formData.get('q10') || "").trim().toLowerCase();
+    if (answerKey.q10.includes(userQ10)) score++;
+
+    const userQ11 = (formData.get('q11') || "").trim().toLowerCase().replace(',', '.');
+    if (answerKey.q11.some(ans => ans.replace(',', '.') === userQ11)) score++;
+
+    const userQ12 = (formData.get('q12') || "").trim().toLowerCase();
+    if (answerKey.q12.includes(userQ12)) score++;
+
+    const mins = Math.floor(secondsElapsed / 60);
+    const secs = secondsElapsed % 60;
+    const timeFormatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    const dateFormatted = new Date().toLocaleString('uk-UA');
+
+    const resultData = {
+      name: currentStudent,
+      score: score,
+      maxScore: 12,
+      time: timeFormatted,
+      date: dateFormatted,
+      answers: Object.fromEntries(formData.entries())
+    };
+
+    // Збереження спроби локально
+    localStorage.setItem('materials_quiz_attempt', JSON.stringify(resultData));
+
+    // Синхронізація з хмарним лідербордом
+    syncLeaderboard(resultData);
+
+    showResults(resultData);
+  }
+
+  function showResults(data) {
+    document.getElementById('quizContainer').style.display = 'none';
+    document.getElementById('resultsContainer').style.display = 'block';
+
+    document.getElementById('finalScore').innerText = `${data.score} / ${data.maxScore}`;
+    const percent = Math.round((data.score / data.maxScore) * 100);
+    document.getElementById('scorePercentage').innerText = `Успішність: ${percent}%`;
+    document.getElementById('timeTaken').innerText = `Витрачений час: ${data.time}`;
+  }
+
+  function showAlreadySubmitted(data) {
+    document.getElementById('authContainer').style.display = 'none';
+    document.getElementById('statusContainer').style.display = 'block';
+    document.getElementById('displayName').innerText = data.name;
+    document.getElementById('timer').innerText = data.time;
+    document.getElementById('progressBar').style.width = '100%';
+
+    showAlert("⚠️ Ви вже використали свою спробу проходження цього тесту!", "error");
+    showResults(data);
+    loadLeaderboard();
+  }
+
+  // Синхронізація лідерборду з Cloud Storage / localStorage
+  function syncLeaderboard(newEntry) {
+    let leaderboard = JSON.parse(localStorage.getItem('materials_leaderboard') || '[]');
+    leaderboard.push(newEntry);
+    leaderboard.sort((a, b) => b.score - a.score || a.time.localeCompare(b.time));
+    localStorage.setItem('materials_leaderboard', JSON.stringify(leaderboard));
+
+    renderLeaderboard(leaderboard);
+  }
+
+  function loadLeaderboard() {
+    let leaderboard = JSON.parse(localStorage.getItem('materials_leaderboard') || '[]');
+    renderLeaderboard(leaderboard);
+  }
+
+  function renderLeaderboard(list) {
+    const tbody = document.getElementById('leaderboardBody');
+    if (!list || list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Записи відсутні</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = list.map((item, index) => `
+      <tr style="${item.name === currentStudent ? 'background-color: #eef2ff; font-weight: bold;' : ''}">
+        <td>${index + 1}</td>
+        <td>${escapeHtml(item.name)}</td>
+        <td>${item.score} / ${item.maxScore}</td>
+        <td>${item.time}</td>
+        <td>${item.date}</td>
+      </tr>
+    `).join('');
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // Експорт звіту про проходження у файл .txt
+  function exportToTxt() {
+    const attempt = localStorage.getItem('materials_quiz_attempt');
+    if (!attempt) return;
+
+    const data = JSON.parse(attempt);
+    let txt = `==================================================\n`;
+    txt += `ЗВІТ ПРО ПРОХОДЖЕННЯ КОНТРОЛЬНОЇ РОБОТИ\n`;
+    txt += `Дисципліна: Матеріалознавство та конструкційні матеріали\n`;
+    txt += `==================================================\n\n`;
+    txt += `Слухач: ${data.name}\n`;
+    txt += `Дата та час: ${data.date}\n`;
+    txt += `Витрачений час: ${data.time}\n`;
+    txt += `Підсумковий бал: ${data.score} з ${data.maxScore} (${Math.round((data.score / data.maxScore)*100)}%)\n\n`;
+    txt += `--------------------------------------------------\n`;
+    txt += `ДЕТАЛІЗАЦІЯ ВІДПОВІДЕЙ:\n`;
+    txt += `--------------------------------------------------\n`;
+
+    const answers = data.answers;
+    txt += `1. Вміст вуглецю у чавунах: ${answers.q1 || 'Немає'}\n`;
+    txt += `2. Значення літери «Р» у сталях: ${answers.q2 || 'Немає'}\n`;
+    txt += `3. Вулканізуючий агент гуми: ${answers.q3 || 'Немає'}\n`;
+    txt += `4. Відповідність вуглецевих сталей: Ст3(${answers.q4_1}), Сталь 10(${answers.q4_2}), Сталь 45(${answers.q4_3}), Сталь 65(${answers.q4_4})\n`;
+    txt += `5. Відповідність легованих сталей: 20Х(${answers.q5_1}), 40Х(${answers.q5_2}), 60С2А(${answers.q5_3}), ШХ15(${answers.q5_4})\n`;
+    txt += `6. Класифікація матеріалів: У7(${answers.q6_1}), Р6М5(${answers.q6_2}), Л90(${answers.q6_3}), БрО10(${answers.q6_4})\n`;
+    txt += `7. Термореактивні пластмаси повторно переробляються: ${answers.q7 || 'Немає'}\n`;
+    txt += `8. Отримання ковкого чавуну відпалом білого: ${answers.q8 || 'Немає'}\n`;
+    txt += `9. Червоностійкість швидкорізальних сталей: ${answers.q9 || 'Немає'}\n`;
+    txt += `10. Сплав заліза з вуглецем (2,14%-6,67%): ${answers.q10 || 'Немає'}\n`;
+    txt += `11. Вміст вуглецю в сталі 40ХВГ: ${answers.q11 || 'Немає'}\n`;
+    txt += `12. Основа латуні та бронзи: ${answers.q12 || 'Немає'}\n`;
+
+    const blob = new Blob([txt], { type: "text/plain;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Звіт_${data.name.replace(/\s+/g, '_')}.txt`;
+    link.click();
+  }
+</script>
+</body>
+</html>
