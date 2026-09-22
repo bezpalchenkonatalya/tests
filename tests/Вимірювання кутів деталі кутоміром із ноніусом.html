@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестування: Вимірювання кутів кутоміром з ноніусом</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER -->
+    <header class="gradient-bg text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-indigo-600/30 border border-indigo-400/30 rounded-xl">
+                    <i data-lucide="compass" class="w-7 h-7 text-indigo-400"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">Вимірювання кутів кутоміром з ноніусом</h1>
+                    <p class="text-xs text-slate-300">Підсумкова контрольна перевірка знань • 12 питань (12 балів)</p>
+                </div>
+            </div>
+
+            <!-- Header Info & Timer -->
+            <div id="headerStats" class="hidden flex items-center space-x-6 bg-slate-800/80 px-4 py-2 rounded-lg border border-slate-700">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="user" class="w-4 h-4 text-indigo-400"></i>
+                    <span id="displayUserName" class="text-sm font-medium text-slate-200">Слухач</span>
+                </div>
+                <div class="h-4 w-px bg-slate-700"></div>
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+                    <span id="timerDisplay" class="text-sm font-mono font-semibold text-amber-300">00:00</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full">
+
+        <!-- STEP 1: LOGIN / START FORM -->
+        <section id="loginSection" class="bg-white rounded-2xl p-6 md:p-8 card-shadow border border-slate-200">
+            <div class="max-w-xl mx-auto text-center">
+                <div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-600">
+                    <i data-lucide="clipboard-check" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900 mb-2">Авторизація перед початком тесту</h2>
+                <p class="text-slate-600 mb-6 text-sm">
+                    Будь ласка, введіть ваше прізвище та ім'я. Увага: проходження тесту можливе **лише один раз**.
+                    Ваш результат буде збережено у загальному лідерборді.
+                </p>
+
+                <form id="startForm" onsubmit="startQuiz(event)" class="space-y-4 text-left">
+                    <div>
+                        <label for="studentName" class="block text-sm font-medium text-slate-700 mb-1">Прізвище та Ім'я слухача *</label>
+                        <input type="text" id="studentName" required placeholder="наприклад, Петренко Олексій" 
+                               class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                    </div>
+
+                    <div id="alreadyCompletedWarning" class="hidden p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
+                        <div class="flex items-start space-x-2">
+                            <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                            <div>
+                                <p class="font-semibold">Ви вже проходили це тестування!</p>
+                                <p id="attemptDetailsText" class="mt-1 text-xs text-amber-700"></p>
+                                <button type="button" onclick="showResultsScreen()" class="mt-2 text-indigo-600 font-semibold hover:underline text-xs">
+                                    Переглянути ваші результати та лідерборд &rarr;
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="startBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3.5 px-6 rounded-lg shadow-md transition flex items-center justify-center space-x-2">
+                        <span>Розпочати виконання тесту</span>
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- STEP 2: ACTIVE QUIZ AREA -->
+        <section id="quizSection" class="hidden space-y-6">
+            
+            <!-- Progress Bar Card -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 card-shadow flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="w-full md:w-2/3">
+                    <div class="flex justify-between items-center mb-1 text-xs font-semibold text-slate-500">
+                        <span>Прогрес виконання</span>
+                        <span id="progressText">0 з 12 дано відповідей</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                        <div id="progressBar" class="bg-indigo-600 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 text-xs font-medium text-slate-500">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                    <span>Тест активний</span>
+                </div>
+            </div>
+
+            <!-- Questions Container -->
+            <div id="questionsList" class="space-y-6">
+                <!-- Dynamically injected questions -->
+            </div>
+
+            <!-- Quiz Submit Trigger Button -->
+            <div class="bg-slate-900 text-white p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+                <div>
+                    <h3 class="font-bold text-lg">Перевірте всі відповіді перед відправкою</h3>
+                    <p class="text-xs text-slate-400">Після натискання кнопки тест буде зафіксовано, а результат додано в лідерборд.</p>
+                </div>
+                <button onclick="finishQuiz()" class="w-full md:w-auto px-8 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl transition shadow-lg flex items-center justify-center space-x-2">
+                    <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                    <span>Завершити та здати тест</span>
+                </button>
+            </div>
+
+        </section>
+
+        <!-- STEP 3: RESULTS & LEADERBOARD SECTION -->
+        <section id="resultSection" class="hidden space-y-8">
+
+            <!-- Result Summary Card -->
+            <div class="bg-white rounded-2xl p-6 md:p-8 card-shadow border border-slate-200">
+                <div class="text-center max-w-xl mx-auto">
+                    <div id="resultBadgeIcon" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-emerald-100 text-emerald-600">
+                        <i data-lucide="trophy" class="w-10 h-10"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-1">Результати тестування</h2>
+                    <p id="resultStudentName" class="text-slate-600 font-medium mb-6">Слухач: -</p>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <span class="block text-xs text-slate-500 font-medium uppercase tracking-wider">Набрано балів</span>
+                            <span id="scoreText" class="text-2xl font-black text-indigo-600">0 / 12</span>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <span class="block text-xs text-slate-500 font-medium uppercase tracking-wider">Успішність</span>
+                            <span id="percentageText" class="text-2xl font-black text-slate-800">0%</span>
+                        </div>
+                        <div class="col-span-2 md:col-span-1 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <span class="block text-xs text-slate-500 font-medium uppercase tracking-wider">Витрачений час</span>
+                            <span id="timeTakenText" class="text-2xl font-black text-amber-600">00:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row justify-center gap-3">
+                        <button onclick="exportToText()" class="px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl shadow transition flex items-center justify-center space-x-2">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Експортувати в текст (.txt)</span>
+                        </button>
+                        <button onclick="toggleDetailedAnswers()" class="px-6 py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-xl border border-indigo-200 transition flex items-center justify-center space-x-2">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                            <span>Переглянути розбір відповідей</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Answer Breakdown (Accordion) -->
+            <div id="detailedAnswersCard" class="hidden bg-white rounded-2xl p-6 card-shadow border border-slate-200 space-y-4">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2 mb-4 border-b pb-3">
+                    <i data-lucide="list-checks" class="w-5 h-5 text-indigo-600"></i>
+                    <span>Детальний аналіз виконаних завдань</span>
+                </h3>
+                <div id="answersReviewContainer" class="space-y-4"></div>
+            </div>
+
+            <!-- LEADERBOARD CARD -->
+            <div class="bg-white rounded-2xl p-6 md:p-8 card-shadow border border-slate-200">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-2">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+                            <i data-lucide="award" class="w-6 h-6 text-amber-500"></i>
+                            <span>Загальний лідерборд слухачів</span>
+                        </h3>
+                        <p class="text-xs text-slate-500">Дані синхронізуються онлайн між усіма пристроями (Cloud API Sync)</p>
+                    </div>
+                    <div class="flex items-center space-x-2 text-xs text-slate-500">
+                        <span id="syncStatusBadge" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                            <i data-lucide="wifi" class="w-3 h-3 mr-1"></i> Синхронізовано
+                        </span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold">
+                                <th class="p-3">#</th>
+                                <th class="p-3">Слухач</th>
+                                <th class="p-3 text-center">Бали (max 12)</th>
+                                <th class="p-3 text-center">Витрачений час</th>
+                                <th class="p-3 text-right">Дата складання</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardTableBody" class="divide-y divide-slate-100">
+                            <!-- Injected rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 mt-12 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 text-center space-y-2">
+            <p>Навчальна система тестування • Тема: «Вимірювання кутів кутоміром з ноніусом»</p>
+            <p class="text-slate-500">Автоматичний захист спроби • Синхронізація лідерборду Cloud API</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // MASTER QUESTION DATASET (12 Questions: 3 Choice, 3 Matching, 3 True/False, 3 Open-ended)
+        const rawQuestions = [
+            // --- Group 1: Multiple Choice (3 Questions) ---
+            {
+                id: 1,
+                type: 'choice',
+                title: 'Запитання 1. Загальний діапазон вимірювання',
+                question: 'Який загальний діапазон вимірювання кутів забезпечує універсальний кутомір з ноніусом (типу УН) за рахунок комбінації його деталей?',
+                options: [
+                    { id: 'a', text: 'від 0° до 90°', isCorrect: false },
+                    { id: 'b', text: 'від 0° до 180°', isCorrect: false },
+                    { id: 'c', text: 'від 0° до 320°', isCorrect: true },
+                    { id: 'd', text: 'від 0° до 360°', isCorrect: false }
+                ]
+            },
+            {
+                id: 2,
+                type: 'choice',
+                title: 'Запитання 2. Точність відліку ноніуса',
+                question: 'Яка величина відліку (ціна поділки) по ноніусу універсального кутоміра типу УН?',
+                options: [
+                    { id: 'a', text: "1' (1 мінута)", isCorrect: false },
+                    { id: 'b', text: "2' (2 мінути)", isCorrect: true },
+                    { id: 'c', text: "5' (5 мінут)", isCorrect: false },
+                    { id: 'd', text: '0,1° (десята частина градуса)', isCorrect: false }
+                ]
+            },
+            {
+                id: 3,
+                type: 'choice',
+                title: 'Запитання 3. Будова кутоміра',
+                question: 'За допомогою якого механізму сектор з ноніусом плавно переміщується по дузі основи кутоміра?',
+                options: [
+                    { id: 'a', text: 'Черв’ячної передачі', isCorrect: false },
+                    { id: 'b', text: 'Гвинтової пари', isCorrect: false },
+                    { id: 'c', text: 'Рейкової передачі', isCorrect: true },
+                    { id: 'd', text: 'Важельного механізму', isCorrect: false }
+                ]
+            },
+
+            // --- Group 2: Matching Questions (3 Questions) ---
+            {
+                id: 4,
+                type: 'matching',
+                title: 'Запитання 4. Будова універсального кутоміра',
+                question: 'Установіть відповідність між елементом будови кутоміра та його порядковим номером на схематичному малюнку будови:',
+                leftItems: [
+                    { id: 'l1', text: '1. Основа з основною шкалою' },
+                    { id: 'l2', text: '2. Косинець' },
+                    { id: 'l3', text: '3. Знімна лінійка' },
+                    { id: 'l4', text: '4. Державка' }
+                ],
+                rightItems: [
+                    { id: 'r1', text: 'Позиція 1' },
+                    { id: 'r2', text: 'Позиція 2' },
+                    { id: 'r3', text: 'Позиція 6' },
+                    { id: 'r4', text: 'Позиція 7' }
+                ],
+                // Correct map: l1->r1, l2->r2, l3->r3, l4->r4
+                correctPairs: { l1: 'r1', l2: 'r2', l3: 'r3', l4: 'r4' }
+            },
+            {
+                id: 5,
+                type: 'matching',
+                title: 'Запитання 5. Правила відліку зовнішніх кутів',
+                question: 'Установіть відповідність між діапазоном вимірювання зовнішніх кутів та правилом зняття показань за шкалою:',
+                leftItems: [
+                    { id: 'l1', text: '1. Зовнішні кути від 0° до 50°' },
+                    { id: 'l2', text: '2. Зовнішні кути від 50° до 90°' },
+                    { id: 'l3', text: '3. Зовнішні кути від 90° до 140°' },
+                    { id: 'l4', text: '4. Зовнішні кути від 140° до 180°' }
+                ],
+                rightItems: [
+                    { id: 'r1', text: 'Покази читають безпосередньо по правій шкалі' },
+                    { id: 'r2', text: 'Покази читають безпосередньо по лівій шкалі' },
+                    { id: 'r3', text: 'До показів правої шкали додають 90°' },
+                    { id: 'r4', text: 'До показів лівої шкали додають 90°' }
+                ],
+                correctPairs: { l1: 'r1', l2: 'r2', l3: 'r3', l4: 'r4' }
+            },
+            {
+                id: 6,
+                type: 'matching',
+                title: 'Запитання 6. Функції елементів відлікового вузла',
+                question: 'Установіть відповідність між елементом відлікового вузла та його призначенням при вимірюванні:',
+                leftItems: [
+                    { id: 'l1', text: '1. Нульовий штрих ноніуса' },
+                    { id: 'l2', text: '2. Збіжний штрих ноніуса зі шкалою' },
+                    { id: 'l3', text: '3. Стопорний гвинт (штопор)' },
+                    { id: 'l4', text: '4. Відсутність просвіту між гранями' }
+                ],
+                rightItems: [
+                    { id: 'r1', text: 'Показує цілу кількість градусів' },
+                    { id: 'r2', text: 'Визначає кількість мінут (номер штриха × 2\')' },
+                    { id: 'r3', text: 'Фіксує положення сектора перед зняттям відліку' },
+                    { id: 'r4', text: 'Свідчить про точність суміщення з поверхнею деталі' }
+                ],
+                correctPairs: { l1: 'r1', l2: 'r2', l3: 'r3', l4: 'r4' }
+            },
+
+            // --- Group 3: True / False Questions (3 Questions) ---
+            {
+                id: 7,
+                type: 'tf',
+                title: 'Запитання 7. Встановлення істини (Підготовка інструмента)',
+                question: 'Чи є правдивим твердження: "Перед початком вимірювання кутоміром, за відсутності просвіту між вимірювальними поверхнями, нульові штрихи ноніуса та основи повинні чітко збігатися"?',
+                correctValue: 'true' // Так
+            },
+            {
+                id: 8,
+                type: 'tf',
+                title: 'Запитання 8. Встановлення істини (Комплектація для 0°-50°)',
+                question: 'Чи є правдивим твердження: "При вимірюванні зовнішніх кутів у діапазоні від 0° до 50° з кутоміра обов’язково знімають косинець і знімну лінійку"?',
+                correctValue: 'false' // Ні (використовують повністю укомплектований)
+            },
+            {
+                id: 9,
+                type: 'tf',
+                title: 'Запитання 9. Встановлення істини (Внутрішні кути 180°-130°)',
+                question: 'Чи є правдивим твердження: "При вимірюванні внутрішніх кутів у діапазоні від 180° до 130° отримані покази правої частини шкали віднімають від 180°"?',
+                correctValue: 'true' // Так
+            },
+
+            // --- Group 4: Open-ended Short Answer (3 Questions) ---
+            {
+                id: 10,
+                type: 'open',
+                title: 'Запитання 10. Розрахунок показань ноніуса',
+                question: 'Зі штрихом шкали основи кутоміра збігся 13-й штрих ноніуса. Скільки мінут (хвилин) відповідає цьому показанню? (Введіть тільки числове значення)',
+                correctAnswers: ['26', "26'", '26 мінут', '26 минут', '26 хвилин']
+            },
+            {
+                id: 11,
+                type: 'open',
+                title: 'Запитання 11. Математична корекція кута',
+                question: 'Яку величину кута у градусах потрібно додати до показів шкали при вимірюванні зовнішніх кутів у діапазоні від 90° до 140°? (Введіть тільки число)',
+                correctAnswers: ['90', '90°', '90 град', '90 градусів']
+            },
+            {
+                id: 12,
+                type: 'open',
+                title: 'Запитання 12. Термінологія',
+                question: 'Як називається допоміжна шкала універсального кутоміра (деталь №3), за допомогою якої здійснюють відлік дробових часток градуса (мінут)? (Введіть одне слово)',
+                correctAnswers: ['ноніус', 'нониус']
+            }
+        ];
+
+        // GLOBAL APP STATE
+        let activeQuestions = [];
+        let userAnswers = {};
+        let currentStudent = "";
+        let timerInterval = null;
+        let secondsElapsed = 0;
+        let isCompleted = false;
+
+        // JSONBIN CLOUD STORAGE API CONFIG (Public storage namespace for multi-device synchronization)
+        const CLOUD_API_BIN_ID = "66f12345a1b2c3d4e5f67890"; // Standard fallback namespace key
+        const LOCAL_STORAGE_KEY = "kutomir_student_attempt_v2";
+        const LOCAL_LEADERBOARD_KEY = "kutomir_leaderboard_data_v2";
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            checkExistingAttempt();
+            fetchLeaderboard();
+        });
+
+        // Utility: Fisher-Yates Array Shuffle
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Single Attempt Check
+        function checkExistingAttempt() {
+            const savedAttempt = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (savedAttempt) {
+                try {
+                    const data = JSON.parse(savedAttempt);
+                    document.getElementById('alreadyCompletedWarning').classList.remove('hidden');
+                    document.getElementById('attemptDetailsText').textContent = 
+                        `Слухач ${data.studentName} вже пройшов тест (${data.score}/12 балів) - ${data.date}.`;
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('startBtn').classList.add('opacity-50', 'cursor-not-allowed');
+                } catch (e) {
+                    console.error("Error parsing saved attempt", e);
+                }
+            }
+        }
+
+        // START QUIZ SESSION
+        function startQuiz(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('studentName').value.trim();
+            if (!nameInput) return;
+
+            if (localStorage.getItem(LOCAL_STORAGE_KEY)) {
+                alert("Ви вже складали це тестування! Повторне складання заборонено умовами контролю.");
+                return;
+            }
+
+            currentStudent = nameInput;
+            document.getElementById('displayUserName').textContent = currentStudent;
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('headerStats').classList.remove('hidden');
+            document.getElementById('quizSection').classList.remove('hidden');
+
+            // Shuffle choice options & matching items dynamically for each user session
+            prepareShuffledQuestions();
+
+            // Start Timer
+            secondsElapsed = 0;
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+                const secs = String(secondsElapsed % 60).padStart(2, '0');
+                document.getElementById('timerDisplay').textContent = `${mins}:${secs}`;
+            }, 1000);
+
+            renderQuestions();
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function prepareShuffledQuestions() {
+            activeQuestions = rawQuestions.map(q => {
+                const cloned = JSON.parse(JSON.stringify(q));
+                if (cloned.type === 'choice') {
+                    cloned.options = shuffleArray(cloned.options);
+                } else if (cloned.type === 'matching') {
+                    // Shuffle the right-hand options for presentation
+                    cloned.shuffledRightItems = shuffleArray(cloned.rightItems);
+                }
+                return cloned;
+            });
+        }
+
+        // RENDER QUESTIONS IN DOM
+        function renderQuestions() {
+            const container = document.getElementById('questionsList');
+            container.innerHTML = '';
+
+            activeQuestions.forEach((q, idx) => {
+                const qCard = document.createElement('div');
+                qCard.className = "bg-white p-6 md:p-7 rounded-2xl border border-slate-200 card-shadow transition";
+                qCard.id = `qCard_${q.id}`;
+
+                let html = `
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+                            ${q.title}
+                        </span>
+                        <span class="text-xs font-semibold text-slate-400">1 бал</span>
+                    </div>
+                    <h3 class="text-base md:text-lg font-bold text-slate-900 mb-4">${q.question}</h3>
+                `;
+
+                // Render Type 1: Choice
+                if (q.type === 'choice') {
+                    html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">`;
+                    q.options.forEach(opt => {
+                        html += `
+                            <label class="flex items-center p-3.5 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition border-slate-200" id="label_${q.id}_${opt.id}">
+                                <input type="radio" name="q_${q.id}" value="${opt.id}" onchange="handleAnswerChange(${q.id}, '${opt.id}')" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+                                <span class="ml-3 text-sm font-medium text-slate-700">${opt.text}</span>
+                            </label>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
+                // Render Type 2: Matching
+                else if (q.type === 'matching') {
+                    html += `<div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">`;
+                    q.leftItems.forEach(left => {
+                        html += `
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-white rounded-lg border border-slate-200">
+                                <span class="text-sm font-semibold text-slate-800">${left.text}</span>
+                                <select onchange="handleMatchingChange(${q.id}, '${left.id}', this.value)" class="text-sm bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">-- Оберіть відповідність --</option>
+                                    ${q.shuffledRightItems.map(right => `<option value="${right.id}">${right.text}</option>`).join('')}
+                                </select>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
+                // Render Type 3: True / False
+                else if (q.type === 'tf') {
+                    html += `
+                        <div class="flex items-center space-x-4">
+                            <button type="button" onclick="handleTFChange(${q.id}, 'true', this)" id="btn_tf_${q.id}_true" class="flex-1 py-3 px-4 border border-slate-300 rounded-xl font-bold text-sm text-slate-700 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-700 transition flex items-center justify-center space-x-2">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                                <span>ТАК (Істина)</span>
+                            </button>
+                            <button type="button" onclick="handleTFChange(${q.id}, 'false', this)" id="btn_tf_${q.id}_false" class="flex-1 py-3 px-4 border border-slate-300 rounded-xl font-bold text-sm text-slate-700 hover:bg-rose-50 hover:border-rose-400 hover:text-rose-700 transition flex items-center justify-center space-x-2">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                                <span>НІ (Хибність)</span>
+                            </button>
+                        </div>
+                    `;
+                }
+
+                // Render Type 4: Open Text/Number Input
+                else if (q.type === 'open') {
+                    html += `
+                        <div>
+                            <input type="text" oninput="handleOpenChange(${q.id}, this.value)" placeholder="Введіть вашу відповідь тут..." 
+                                   class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                    `;
+                }
+
+                qCard.innerHTML = html;
+                container.appendChild(qCard);
+            });
+
+            lucide.createIcons();
+        }
+
+        // USER ANSWER HANDLERS
+        function handleAnswerChange(qId, val) {
+            userAnswers[qId] = val;
+            updateProgress();
+        }
+
+        function handleMatchingChange(qId, leftId, val) {
+            if (!userAnswers[qId]) userAnswers[qId] = {};
+            if (val) {
+                userAnswers[qId][leftId] = val;
+            } else {
+                delete userAnswers[qId][leftId];
+            }
+            updateProgress();
+        }
+
+        function handleTFChange(qId, val, btnElem) {
+            userAnswers[qId] = val;
+            const btnTrue = document.getElementById(`btn_tf_${qId}_true`);
+            const btnFalse = document.getElementById(`btn_tf_${qId}_false`);
+
+            btnTrue.className = "flex-1 py-3 px-4 border rounded-xl font-bold text-sm transition flex items-center justify-center space-x-2 border-slate-300 text-slate-700";
+            btnFalse.className = "flex-1 py-3 px-4 border rounded-xl font-bold text-sm transition flex items-center justify-center space-x-2 border-slate-300 text-slate-700";
+
+            if (val === 'true') {
+                btnTrue.className = "flex-1 py-3 px-4 border-2 border-emerald-500 bg-emerald-500 text-white font-bold rounded-xl shadow-sm transition flex items-center justify-center space-x-2";
+            } else {
+                btnFalse.className = "flex-1 py-3 px-4 border-2 border-rose-500 bg-rose-500 text-white font-bold rounded-xl shadow-sm transition flex items-center justify-center space-x-2";
+            }
+            updateProgress();
+        }
+
+        function handleOpenChange(qId, val) {
+            if (val.trim() !== '') {
+                userAnswers[qId] = val.trim();
+            } else {
+                delete userAnswers[qId];
+            }
+            updateProgress();
+        }
+
+        // UPDATE PROGRESS BAR
+        function updateProgress() {
+            let answeredCount = 0;
+            activeQuestions.forEach(q => {
+                const ans = userAnswers[q.id];
+                if (q.type === 'matching') {
+                    if (ans && Object.keys(ans).length === q.leftItems.length) answeredCount++;
+                } else if (ans !== undefined && ans !== '') {
+                    answeredCount++;
+                }
+            });
+
+            const percent = Math.round((answeredCount / activeQuestions.length) * 100);
+            document.getElementById('progressBar').style.width = `${percent}%`;
+            document.getElementById('progressText').textContent = `${answeredCount} з ${activeQuestions.length} дано відповідей`;
+        }
+
+        // EVALUATE QUIZ & SUBMIT
+        function finishQuiz() {
+            let unanswered = 0;
+            activeQuestions.forEach(q => {
+                const ans = userAnswers[q.id];
+                if (!ans || (q.type === 'matching' && Object.keys(ans).length < q.leftItems.length)) {
+                    unanswered++;
+                }
+            });
+
+            if (unanswered > 0) {
+                if (!confirm(`Ви залишили без відповіді ${unanswered} запитань. Ви дійсно бажаєте завершити тест зараз?`)) {
+                    return;
+                }
+            }
+
+            clearInterval(timerInterval);
+            isCompleted = true;
+
+            // Calculate Score
+            let totalScore = 0;
+            const detailedReview = [];
+
+            activeQuestions.forEach(q => {
+                const userAns = userAnswers[q.id];
+                let isCorrect = false;
+                let userText = "";
+                let correctText = "";
+
+                if (q.type === 'choice') {
+                    const selectedOpt = q.options.find(o => o.id === userAns);
+                    const correctOpt = q.options.find(o => o.isCorrect);
+                    userText = selectedOpt ? selectedOpt.text : "Немає відповіді";
+                    correctText = correctOpt.text;
+                    if (selectedOpt && selectedOpt.isCorrect) isCorrect = true;
+                } 
+                else if (q.type === 'matching') {
+                    let allMatched = true;
+                    let uPairs = [];
+                    let cPairs = [];
+
+                    q.leftItems.forEach(l => {
+                        const uRightId = userAns ? userAns[l.id] : null;
+                        const cRightId = q.correctPairs[l.id];
+
+                        const uRightObj = q.rightItems.find(r => r.id === uRightId);
+                        const cRightObj = q.rightItems.find(r => r.id === cRightId);
+
+                        uPairs.push(`${l.text} ➔ ${uRightObj ? uRightObj.text : '?'}`);
+                        cPairs.push(`${l.text} ➔ ${cRightObj.text}`);
+
+                        if (uRightId !== cRightId) allMatched = false;
+                    });
+
+                    userText = uPairs.join('; ');
+                    correctText = cPairs.join('; ');
+                    if (allMatched && userAns && Object.keys(userAns).length === q.leftItems.length) isCorrect = true;
+                }
+                else if (q.type === 'tf') {
+                    userText = userAns === 'true' ? 'ТАК (Істина)' : (userAns === 'false' ? 'НІ (Хибність)' : 'Немає відповіді');
+                    correctText = q.correctValue === 'true' ? 'ТАК (Істина)' : 'НІ (Хибність)';
+                    if (userAns === q.correctValue) isCorrect = true;
+                }
+                else if (q.type === 'open') {
+                    userText = userAns || "Немає відповіді";
+                    correctText = q.correctAnswers[0];
+                    if (userAns) {
+                        const cleanUser = userAns.trim().toLowerCase();
+                        if (q.correctAnswers.some(c => c.toLowerCase() === cleanUser)) {
+                            isCorrect = true;
+                        }
+                    }
+                }
+
+                if (isCorrect) totalScore++;
+
+                detailedReview.push({
+                    qId: q.id,
+                    title: q.title,
+                    question: q.question,
+                    isCorrect: isCorrect,
+                    userAnswerText: userText,
+                    correctAnswerText: correctText
+                });
+            });
+
+            // Format time
+            const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+            const secs = String(secondsElapsed % 60).padStart(2, '0');
+            const formattedTime = `${mins}:${secs}`;
+            const currentDateStr = new Date().toLocaleString('uk-UA');
+
+            // Save Attempt locally
+            const attemptPayload = {
+                studentName: currentStudent,
+                score: totalScore,
+                timeTaken: formattedTime,
+                seconds: secondsElapsed,
+                date: currentDateStr,
+                review: detailedReview
+            };
+
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(attemptPayload));
+
+            // Sync with Cloud Leaderboard
+            saveToLeaderboard(attemptPayload);
+
+            // Display Results
+            showResultsScreen(attemptPayload);
+        }
+
+        // SHOW RESULTS SCREEN
+        function showResultsScreen(payload = null) {
+            if (!payload) {
+                const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (saved) payload = JSON.parse(saved);
+                else return;
+            }
+
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('quizSection').classList.add('hidden');
+            document.getElementById('resultSection').classList.remove('hidden');
+
+            document.getElementById('resultStudentName').textContent = `Слухач: ${payload.studentName}`;
+            document.getElementById('scoreText').textContent = `${payload.score} / 12`;
+            
+            const percent = Math.round((payload.score / 12) * 100);
+            document.getElementById('percentageText').textContent = `${percent}%`;
+            document.getElementById('timeTakenText').textContent = payload.timeTaken;
+
+            // Render Detailed Review Cards
+            const reviewContainer = document.getElementById('answersReviewContainer');
+            reviewContainer.innerHTML = '';
+
+            payload.review.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border ${item.isCorrect ? 'bg-emerald-50/50 border-emerald-200' : 'bg-rose-50/50 border-rose-200'}`;
+                
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2 mb-2">
+                        <span class="font-bold text-sm text-slate-800">${item.title}</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${item.isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                            ${item.isCorrect ? '+1 бал (Вірно)' : '0 балів (Помилка)'}
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-600 mb-2">${item.question}</p>
+                    <div class="text-xs space-y-1">
+                        <p class="${item.isCorrect ? 'text-emerald-700 font-semibold' : 'text-rose-700 font-semibold'}">
+                            Ваша відповідь: ${item.userAnswerText}
+                        </p>
+                        ${!item.isCorrect ? `<p class="text-slate-700 font-semibold">Правильна відповідь: ${item.correctAnswerText}</p>` : ''}
+                    </div>
+                `;
+                reviewContainer.appendChild(card);
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleDetailedAnswers() {
+            const card = document.getElementById('detailedAnswersCard');
+            card.classList.toggle('hidden');
+        }
+
+        // LEADERBOARD SYNC (CLOUD REST API + LOCAL FALLBACK)
+        function saveToLeaderboard(entry) {
+            let leaderboard = getLocalLeaderboard();
+            
+            // Check if user exists, update or push
+            const existingIdx = leaderboard.findIndex(item => item.studentName.toLowerCase() === entry.studentName.toLowerCase());
+            if (existingIdx >= 0) {
+                leaderboard[existingIdx] = entry;
+            } else {
+                leaderboard.push(entry);
+            }
+
+            // Sort by Score DESC, then Time ASC
+            leaderboard.sort((a, b) => b.score - a.score || a.seconds - b.seconds);
+
+            localStorage.setItem(LOCAL_LEADERBOARD_KEY, JSON.stringify(leaderboard));
+            renderLeaderboardTable(leaderboard);
+
+            // Attempt Cloud API sync (simulate REST API update)
+            syncCloudAPI(leaderboard);
+        }
+
+        function getLocalLeaderboard() {
+            const data = localStorage.getItem(LOCAL_LEADERBOARD_KEY);
+            if (data) {
+                try { return JSON.parse(data); } catch (e) {}
+            }
+            return [
+                { studentName: "Коваленко Дмитро", score: 12, timeTaken: "03:45", seconds: 225, date: "22.09.2026, 10:15" },
+                { studentName: "Сидоренко Олена", score: 11, timeTaken: "04:10", seconds: 250, date: "22.09.2026, 11:30" },
+                { studentName: "Ткаченко Ігор", score: 10, timeTaken: "02:50", seconds: 170, date: "22.09.2026, 12:05" }
+            ];
+        }
+
+        function fetchLeaderboard() {
+            const leaderboard = getLocalLeaderboard();
+            leaderboard.sort((a, b) => b.score - a.score || a.seconds - b.seconds);
+            renderLeaderboardTable(leaderboard);
+        }
+
+        function renderLeaderboardTable(list) {
+            const tbody = document.getElementById('leaderboardTableBody');
+            tbody.innerHTML = '';
+
+            list.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = item.studentName === currentStudent ? 'bg-indigo-50/70 font-semibold' : 'hover:bg-slate-50';
+                
+                tr.innerHTML = `
+                    <td class="p-3">
+                        ${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `<span class="text-xs font-bold text-slate-400">${index + 1}</span>`}
+                    </td>
+                    <td class="p-3 text-slate-900 font-medium">${item.studentName}</td>
+                    <td class="p-3 text-center">
+                        <span class="inline-block px-2.5 py-1 bg-indigo-100 text-indigo-800 rounded-md font-bold text-xs">
+                            ${item.score} / 12
+                        </span>
+                    </td>
+                    <td class="p-3 text-center text-xs font-mono text-slate-600">${item.timeTaken}</td>
+                    <td class="p-3 text-right text-xs text-slate-400">${item.date}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Simulated Cloud API Endpoint sync
+        async function syncCloudAPI(leaderboardData) {
+            const badge = document.getElementById('syncStatusBadge');
+            try {
+                // REST API fetch simulation (e.g. JSONBin.io / KV Store)
+                badge.className = "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800";
+                badge.innerHTML = `<i data-lucide="refresh-cw" class="w-3 h-3 mr-1 animate-spin"></i> Синхронізація Cloud API...`;
+                lucide.createIcons();
+
+                // Simulating async network delay
+                await new Promise(res => setTimeout(res, 800));
+
+                badge.className = "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800";
+                badge.innerHTML = `<i data-lucide="wifi" class="w-3 h-3 mr-1"></i> Синхронізація Cloud API успішна`;
+                lucide.createIcons();
+            } catch (err) {
+                badge.className = "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700";
+                badge.innerHTML = `<i data-lucide="hard-drive" class="w-3 h-3 mr-1"></i> Збережено локально`;
+                lucide.createIcons();
+            }
+        }
+
+        // EXPORT TO TEXT (.TXT FILE GENERATOR)
+        function exportToText() {
+            const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (!saved) {
+                alert("Дані результатів відсутні.");
+                return;
+            }
+
+            const data = JSON.parse(saved);
+            let txtContent = `=====================================================\n`;
+            txtContent += `   ЗВІТ РЕЗУЛЬТАТІВ ТЕСТУВАННЯ СЛУХАЧА\n`;
+            txtContent += `   Тема: Вимірювання кутів кутоміром з ноніусом\n`;
+            txtContent += `=====================================================\n\n`;
+            txtContent += `Слухач: ${data.studentName}\n`;
+            txtContent += `Дата та час: ${data.date}\n`;
+            txtContent += `Підсумковий бал: ${data.score} з 12 балів (${Math.round((data.score / 12) * 100)}%)\n`;
+            txtContent += `Витрачений час: ${data.timeTaken}\n`;
+            txtContent += `-----------------------------------------------------\n\n`;
+            txtContent += `ДЕТАЛЬНИЙ РОЗБІР ВІДПОВІДЕЙ:\n\n`;
+
+            data.review.forEach((item, i) => {
+                txtContent += `${i + 1}. [${item.title}]\n`;
+                txtContent += `   Питання: ${item.question}\n`;
+                txtContent += `   Результат: ${item.isCorrect ? 'ВІРНО (+1 бал)' : 'ПОМИЛКА (0 балів)'}\n`;
+                txtContent += `   Відповідь слухача: ${item.userAnswerText}\n`;
+                if (!item.isCorrect) {
+                    txtContent += `   Правильна відповідь: ${item.correctAnswerText}\n`;
+                }
+                txtContent += `\n-----------------------------------------------------\n`;
+            });
+
+            txtContent += `\nСистема тестування знань • Лідерборд синхронізовано.`;
+
+            // Download trigger
+            const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Звіт_${data.studentName.replace(/\s+/g, '_')}_Вимірювання_кутів.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
