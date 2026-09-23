@@ -1,0 +1,9 @@
+{
+  "student_id": "ST-1042",
+  "student_name": "Іван Іваненко",
+  "time_spent_seconds": 320,
+  "answers": [
+    { "question_id": 1, "answer": "Б" },
+    { "question_id": 10, "answer": "Бабіти" }
+  ]
+}
