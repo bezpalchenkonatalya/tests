@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="uk" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тест: Властивості кольорових сплавів</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-950">
+
+  <!-- STICKY HEADER (Hidden initially until user registers) -->
+  <header id="sticky-header" class="hidden sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-xl transition-all duration-300">
+    <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <!-- Student Info -->
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div class="flex items-center gap-2.5 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700/60">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-user-graduate"></i>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400 font-medium">Студент / Учень:</div>
+            <div id="header-student-name" class="text-sm font-bold text-white truncate max-w-[200px]">—</div>
+          </div>
+        </div>
+
+        <span class="text-xs bg-emerald-950 text-emerald-300 border border-emerald-800 px-2.5 py-1 rounded-lg font-medium hidden xs:inline-block">
+          Слюсар з ремонту СГМ
+        </span>
+      </div>
+
+      <!-- Counters & Stats -->
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+        <div class="flex items-center gap-4 bg-slate-800/80 px-3.5 py-1.5 rounded-xl border border-slate-700/60 text-xs sm:text-sm">
+          <div class="flex items-center gap-1.5">
+            <i class="fa-solid fa-list-check text-slate-400"></i>
+            <span class="text-slate-400">Відповідано:</span>
+            <span id="answered-counter" class="font-bold text-slate-100">0 / 10</span>
+          </div>
+          <div class="w-px h-4 bg-slate-700"></div>
+          <div class="flex items-center gap-1.5">
+            <i class="fa-solid fa-award text-amber-400"></i>
+            <span class="text-slate-400">Балів:</span>
+            <span id="score-counter" class="font-bold text-amber-400">0 / 12</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="w-full bg-slate-800 h-1.5 overflow-hidden">
+      <div id="progress-bar" class="bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 h-full w-0 transition-all duration-500 ease-out"></div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="max-w-4xl w-full mx-auto px-4 py-6 sm:px-6 sm:py-8 flex-grow space-y-8">
+
+    <!-- 1. REGISTRATION CARD (Shown initially if test is not taken) -->
+    <section id="registration-card" class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-sm max-w-xl mx-auto my-8">
+      <div class="text-center space-y-3 mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-400 text-3xl border border-emerald-500/20 shadow-inner mb-1">
+          <i class="fa-solid fa-screwdriver-wrench"></i>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white">Властивості кольорових сплавів</h1>
+        <p class="text-sm text-slate-300">
+          Інтерактивний контроль знань з матеріалознавства для спеціальності «Слюсар з ремонту сільськогосподарських машин».
+        </p>
+      </div>
+
+      <!-- Info badges -->
+      <div class="grid grid-cols-2 gap-3 mb-6 text-xs">
+        <div class="bg-slate-900/60 border border-slate-700/60 p-3 rounded-xl flex items-center gap-2.5">
+          <i class="fa-solid fa-shield-halved text-amber-400 text-base"></i>
+          <div>
+            <div class="font-semibold text-slate-200">12-бальна шкала</div>
+            <div class="text-slate-400">10 запитань</div>
+          </div>
+        </div>
+        <div class="bg-slate-900/60 border border-slate-700/60 p-3 rounded-xl flex items-center gap-2.5">
+          <i class="fa-solid fa-lock text-rose-400 text-base"></i>
+          <div>
+            <div class="font-semibold text-slate-200">Одна спроба</div>
+            <div class="text-slate-400">Захист від повтору</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Registration Form -->
+      <form id="registration-form" onsubmit="handleStartQuiz(event)" class="space-y-4">
+        <div>
+          <label for="last-name" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            Прізвище <span class="text-rose-400">*</span>
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <input type="text" id="last-name" required placeholder="Введіть ваше прізвище" 
+                   class="w-full pl-10 pr-4 py-3 bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl text-white placeholder-slate-500 text-sm outline-none transition-all">
+          </div>
+        </div>
+
+        <div>
+          <label for="first-name" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            Ім'я <span class="text-rose-400">*</span>
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <i class="fa-solid fa-id-card"></i>
+            </div>
+            <input type="text" id="first-name" required placeholder="Введіть ваше ім'я" 
+                   class="w-full pl-10 pr-4 py-3 bg-slate-900/80 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl text-white placeholder-slate-500 text-sm outline-none transition-all">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 px-6 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-slate-950 font-bold rounded-xl shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 transition-all duration-200 transform active:scale-[0.99] flex items-center justify-center gap-2 mt-2">
+          <span>Розпочати тест</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+    </section>
+
+    <!-- 2. QUIZ QUESTIONS SECTION (Hidden initially) -->
+    <section id="quiz-section" class="hidden space-y-6">
+      <!-- Test Rules Header -->
+      <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm">
+        <div class="flex items-center gap-3">
+          <i class="fa-solid fa-circle-info text-amber-400 text-lg flex-shrink-0"></i>
+          <span class="text-slate-300">Оберіть варіант відповіді. Після вибору відповідь одразу перевіряється і блокується.</span>
+        </div>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 text-[11px] font-semibold">Початковий (2б)</span>
+          <span class="px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 text-[11px] font-semibold">Середній (2б)</span>
+          <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 text-[11px] font-semibold">Достатній (4б)</span>
+          <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800 text-[11px] font-semibold">Високий (4б)</span>
+        </div>
+      </div>
+
+      <!-- Dynamic Questions List -->
+      <div id="questions-container" class="space-y-6"></div>
+    </section>
+
+    <!-- 3. FINAL RESULT / LOCKED CARD (Hidden initially) -->
+    <section id="summary-card" class="hidden bg-slate-800/90 border-2 border-emerald-500/40 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6 transform transition-all duration-500">
+      
+      <!-- Locked Notice Banner (If re-accessed) -->
+      <div id="already-completed-banner" class="hidden bg-rose-950/80 border border-rose-700/80 text-rose-200 p-4 rounded-2xl flex items-center gap-3 text-sm">
+        <i class="fa-solid fa-triangle-exclamation text-rose-400 text-xl flex-shrink-0"></i>
+        <div>
+          <div class="font-bold">Ви вже проходили цей тест! Повторна спроба неможлива.</div>
+          <div class="text-xs text-rose-300">Нижче збережено ваш остаточний офіційний результат.</div>
+        </div>
+      </div>
+
+      <div class="text-center space-y-2">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500/10 text-emerald-400 text-4xl mb-2 border border-emerald-500/20">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-white">Результати тестування</h2>
+        <p class="text-slate-400 text-sm">
+          Студент: <span id="summary-student-name" class="font-bold text-white">—</span>
+        </p>
+        <p id="summary-timestamp" class="text-xs text-slate-500">Час проходження: —</p>
+      </div>
+
+      <!-- Main Score Circle & Level Badge -->
+      <div class="bg-slate-900/90 rounded-2xl p-6 border border-slate-700/80 flex flex-col sm:flex-row items-center justify-around gap-6 text-center sm:text-left">
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Підсумкова оцінка</div>
+          <div class="flex items-baseline justify-center sm:justify-start gap-1">
+            <span id="final-score-text" class="text-5xl font-black text-emerald-400">0</span>
+            <span class="text-2xl font-bold text-slate-500">/ 12 балів</span>
+          </div>
+        </div>
+
+        <div class="w-full sm:w-px h-px sm:h-16 bg-slate-800"></div>
+
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Рівень навчальних досягнень</div>
+          <div id="grade-title" class="text-xl font-bold text-amber-400">Початковий рівень</div>
+          <p id="grade-description" class="text-xs text-slate-300 max-w-xs mt-1">...</p>
+        </div>
+      </div>
+
+      <!-- Level Breakdown Grid -->
+      <div class="space-y-3">
+        <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 px-1">Деталізація за рівнями складності:</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Level 1 -->
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-indigo-900/50 flex justify-between items-center">
+            <div>
+              <div class="text-xs font-bold text-indigo-400 uppercase">Початковий рівень</div>
+              <div class="text-xs text-slate-400">Основи та термінологія (2 питання)</div>
+            </div>
+            <div class="text-right">
+              <span id="level1-score" class="text-base font-bold text-indigo-300">0 / 2</span>
+              <span class="text-[10px] text-slate-500 block">балів</span>
+            </div>
+          </div>
+
+          <!-- Level 2 -->
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-sky-900/50 flex justify-between items-center">
+            <div>
+              <div class="text-xs font-bold text-sky-400 uppercase">Середній рівень</div>
+              <div class="text-xs text-slate-400">Склад та властивості (2 питання)</div>
+            </div>
+            <div class="text-right">
+              <span id="level2-score" class="text-base font-bold text-sky-300">0 / 2</span>
+              <span class="text-[10px] text-slate-500 block">балів</span>
+            </div>
+          </div>
+
+          <!-- Level 3 -->
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-amber-900/50 flex justify-between items-center">
+            <div>
+              <div class="text-xs font-bold text-amber-400 uppercase">Достатній рівень</div>
+              <div class="text-xs text-slate-400">Застосування у вузлах (4 питання)</div>
+            </div>
+            <div class="text-right">
+              <span id="level3-score" class="text-base font-bold text-amber-300">0 / 4</span>
+              <span class="text-[10px] text-slate-500 block">балів</span>
+            </div>
+          </div>
+
+          <!-- Level 4 -->
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-purple-900/50 flex justify-between items-center">
+            <div>
+              <div class="text-xs font-bold text-purple-400 uppercase">Високий рівень</div>
+              <div class="text-xs text-slate-400">Ремонтні ситуації (2 питання)</div>
+            </div>
+            <div class="text-right">
+              <span id="level4-score" class="text-base font-bold text-purple-300">0 / 4</span>
+              <span class="text-[10px] text-slate-500 block">балів</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lock Banner -->
+      <div class="bg-slate-900/80 border border-slate-700/80 p-4 rounded-xl text-center space-y-1">
+        <p class="text-xs text-slate-400 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-lock text-amber-400"></i>
+          <span>Тест виконано лише 1 раз. Повторне проходження заблоковано для даного браузера.</span>
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-950 border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
+    <p>© Спеціальність «Слюсар з ремонту сільськогосподарських машин» | Навчальна дисципліна «Матеріалознавство»</p>
+  </footer>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    const STORAGE_KEY = 'color_alloys_quiz_data_v2026';
+
+    // State Variables
+    let currentUser = {
+      lastName: '',
+      firstName: ''
+    };
+    let answeredCount = 0;
+    let totalScore = 0;
+    let levelScores = { 1: 0, 2: 0, 3: 0, 4: 0 };
+    let userAnswers = {};
+
+    // 10 Questions mapped strictly to specifications
+    const quizQuestions = [
+      {
+        id: 1,
+        level: 1,
+        levelName: "Початковий рівень",
+        points: 1,
+        badgeClass: "bg-indigo-950 text-indigo-300 border-indigo-800",
+        question: "1. Який металевий елемент є основною базовою компонентою для створення латуней та бронз?",
+        options: [
+          "Залізо",
+          "Мідь",
+          "Алюміній",
+          "Титан"
+        ],
+        correct: 1,
+        explanation: "Мідь (Cu) є основною матрицею: латунь — це сплав міді з цинком, а бронза — сплав міді з оловом, алюмінієм чи іншими елементами."
+      },
+      {
+        id: 2,
+        level: 1,
+        levelName: "Початковий рівень",
+        points: 1,
+        badgeClass: "bg-indigo-950 text-indigo-300 border-indigo-800",
+        question: "2. Які основні переваги мають алюмінієві сплави для їх широкого застосування у двигунах внутрішнього згоряння?",
+        // CRITICAL REQUIREMENT: NO LETTERS IN PARENTHESES!
+        options: [
+          "Висока густина та феромагнітні властивості",
+          "Мала маса, висока теплопровідність та добра корозійна стійкість",
+          "Надзвичайно висока температура плавлення понад 1500 градусів Цельсія",
+          "Низька пластичність та підвищена крихкість за кімнатної температури"
+        ],
+        correct: 1,
+        explanation: "Алюмінієві сплави мають низьку густину (малу масу) та відмінну теплопровідність, що є вирішальним для поршнів та блоків ДВЗ."
+      },
+      {
+        id: 3,
+        level: 2,
+        levelName: "Середній рівень",
+        points: 1,
+        badgeClass: "bg-sky-950 text-sky-300 border-sky-800",
+        question: "3. Який металевий елемент є основним легуючим компонентом у латунях?",
+        options: [
+          "Олово",
+          "Цинк",
+          "Свинець",
+          "Нікель"
+        ],
+        correct: 1,
+        explanation: "Латунь — це сплав на основі міді, де головним легуючим елементом виступає цинк (Zn)."
+      },
+      {
+        id: 4,
+        level: 2,
+        levelName: "Середній рівень",
+        points: 1,
+        badgeClass: "bg-sky-950 text-sky-300 border-sky-800",
+        question: "4. Завдяки якій властивості бабіти широко застосовують для заливки вкладишів підшипників ковзання колінчастого вала?",
+        options: [
+          "Високі антифрикційні властивості та відмінна припрацьовуваність",
+          "Здатність витримувати температуру понад 1000 °C",
+          "Надзвичайно висока твердість, вища ніж у загартованої сталі",
+          "Збільшення загальної маси колінчастого вала"
+        ],
+        correct: 0,
+        explanation: "Бабіти володіють низьким коефіцієнтом тертя, чудово утримують мастило і легко припрацьовуються до шийок вала."
+      },
+      {
+        id: 5,
+        level: 3,
+        levelName: "Достатній рівень",
+        points: 1,
+        badgeClass: "bg-amber-950 text-amber-300 border-amber-800",
+        question: "5. Чому для виготовлення складних литих деталей (поршні, корпуси насосів НШ, ГБЦ) використовують силуміни (сплави Al-Si)?",
+        options: [
+          "Вони мають відмінну рідкотекучість, малу усадку та гарну герметичність",
+          "Вони мають найвищу температура плавлення серед усіх кольорових металів",
+          "Вони абсолютно не піддаються механічній обробці",
+          "Вони розчиняються у воді для легкого утилізування"
+        ],
+        correct: 0,
+        explanation: "Силуміни (сплави алюмінію з кремнієм) мають високі ливарні властивості — малу усадку, чудову рідкотекучість та відсутність гарячих тріщин."
+      },
+      {
+        id: 6,
+        level: 3,
+        levelName: "Достатній рівень",
+        points: 1,
+        badgeClass: "bg-amber-950 text-amber-300 border-amber-800",
+        question: "6. Чому для втулок поворотних цапф та шатунів тракторів використовують безолов'янисту алюмінієву бронзу БрАЖ9-4?",
+        options: [
+          "Вона має високу міцність, зносостійкість і низьке тертя в парах зі сталевими валами",
+          "Вона виготовляється із чистого заліза та вуглецю",
+          "Вона значно м'якша за чистий свинець",
+          "Вона швидко руйнується під дією моторної олії"
+        ],
+        correct: 0,
+        explanation: "Бронза БрАЖ9-4 (алюмінієво-залізна) поєднує високі механічні характеристики з відмінними антифрикційними властивостями під великим навантаженням."
+      },
+      {
+        id: 7,
+        level: 3,
+        levelName: "Достатній рівень",
+        points: 1,
+        badgeClass: "bg-amber-950 text-amber-300 border-amber-800",
+        question: "7. У яких вузлах тракторних дизелів доцільно застосовувати жароміцні нікелеві сплави?",
+        options: [
+          "У випускних клапанах, деталей турбокомпресорів та розпилювачах форсунок",
+          "У рамах та кронштейнах навісної системи",
+          "У паливних баках для зменшення ваги",
+          "У гусеничних пальцях та тракторних колесах"
+        ],
+        correct: 0,
+        explanation: "Нікелеві жароміцні сплави збережуть високу міцність і корозійну стійкість за екстремальних температур (800–1000 °C)."
+      },
+      {
+        id: 8,
+        level: 3,
+        levelName: "Достатній рівень",
+        points: 1,
+        badgeClass: "bg-amber-950 text-amber-300 border-amber-800",
+        question: "8. Яка ключова вимога безпеки висувається під час механічної обробки деталей з магнієвих сплавів на ремонтній дільниці?",
+        options: [
+          "Запобігання перегріву й іскренню, оскільки дрібна стружка та пил магнію легко займаються",
+          "Обов'язкове охолодження деталі чистою водою під високим тиском",
+          "Використання магнітних затискачів для фіксації деталей",
+          "Захист від радіоактивного випромінювання магнію"
+        ],
+        correct: 0,
+        explanation: "Дрібна стружка магнію є пожежонебезпечною та активною. Гасити магнієві пожежі водою суворо заборонено!"
+      },
+      {
+        id: 9,
+        level: 4,
+        levelName: "Високий рівень",
+        points: 2,
+        badgeClass: "bg-purple-950 text-purple-300 border-purple-800",
+        question: "9. Під час ремонту ПНВТ слюсар замінює зношену штуцерну втулку. Чому замість чистої міді обрано свинцевисту латунь ЛС59-1?",
+        options: [
+          "Добавка свинцю забезпечує відмінну оброблюваність різанням із підламуванням стружки та високу точність на токарному верстаті",
+          "Латунь ЛС59-1 плавиться при температурі кімнати",
+          "Чиста мідь є занадто крихкою і розпадається при точінні",
+          "Свинцевиста латунь має меншу густину за пінопласт"
+        ],
+        correct: 0,
+        explanation: "Свинець у латуні ЛС59-1 діє як внутрішнє змащення при точінні, утворюючи коротку ламку стружку, що дозволяє отримувати точні детальки паливної апаратури."
+      },
+      {
+        id: 10,
+        level: 4,
+        levelName: "Високий рівень",
+        points: 2,
+        badgeClass: "bg-purple-950 text-purple-300 border-purple-800",
+        question: "10. Під час відновлення зварюванням тріщини на силуміновому корпусі КПП виникає проблема. Що її спричиняє і як це долають?",
+        options: [
+          "Оксидна плівка Al2O3 з tпл≈2050°C, яку руйнують аргонодуговим зварюванням (TIG) на змінному струмі",
+          "Високе магнітне поле алюмінію, яке знімають за допомогою заземлення",
+          "Низька температура кипіння алюмінію, через яку він випаровується у повітря",
+          "Неможливість підігріву корпусу через його вибухонебезпечність"
+        ],
+        correct: 0,
+        explanation: "На поверхні алюмінію існує міцна оксидна плівка Al2O3 з температурою плавлення ~2050 °C. Змінний струм при TIG-зварюванні забезпечує катодне очищення від цієї плівки."
+      }
+    ];
+
+    // Check local storage on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      checkExistingTest();
+    });
+
+    function checkExistingTest() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          if (data && data.completed) {
+            // Lock and show results directly
+            showCompletedResults(data);
+          }
+        } catch (e) {
+          console.error("Помилка читання localStorage:", e);
+        }
+      }
+    }
+
+    function handleStartQuiz(e) {
+      e.preventDefault();
+      const lastName = document.getElementById('last-name').value.trim();
+      const firstName = document.getElementById('first-name').value.trim();
+
+      if (!lastName || !firstName) {
+        alert("Будь ласка, введіть ваші Прізвище та Ім'я.");
+        return;
+      }
+
+      currentUser.lastName = lastName;
+      currentUser.firstName = firstName;
+
+      // Update UI Header
+      document.getElementById('header-student-name').textContent = `${lastName} ${firstName}`;
+
+      // Transition Cards
+      document.getElementById('registration-card').classList.add('hidden');
+      document.getElementById('sticky-header').classList.remove('hidden');
+      document.getElementById('quiz-section').classList.remove('hidden');
+
+      // Render Questions
+      renderQuestions();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderQuestions() {
+      const container = document.getElementById('questions-container');
+      container.innerHTML = '';
+
+      quizQuestions.forEach((q, index) => {
+        const card = document.createElement('div');
+        card.id = `question-card-${q.id}`;
+        card.className = "bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-xl transition-all duration-300";
+
+        let optionsHTML = '';
+        q.options.forEach((opt, optIdx) => {
+          optionsHTML += `
+            <label id="opt-label-${q.id}-${optIdx}" 
+                   class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-700/70 bg-slate-900/50 hover:bg-slate-800 hover:border-slate-600 cursor-pointer transition-all duration-200">
+              <input type="radio" 
+                     name="q-${q.id}" 
+                     value="${optIdx}" 
+                     onchange="handleSelectOption(${q.id}, ${optIdx})"
+                     class="mt-0.5 text-emerald-500 focus:ring-emerald-500/20 bg-slate-900 border-slate-700 w-4 h-4 cursor-pointer">
+              <span class="text-sm text-slate-200 leading-snug">${opt}</span>
+            </label>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <span class="px-2.5 py-1 rounded-lg border text-xs font-bold ${q.badgeClass}">
+              ${q.levelName} (${q.points} б.)
+            </span>
+            <span class="text-xs text-slate-400 font-medium">Питання ${index + 1} з 10</span>
+          </div>
+
+          <h3 class="text-base sm:text-lg font-bold text-white mb-4 leading-snug">
+            ${q.question}
+          </h3>
+
+          <div class="space-y-2.5 mb-4">
+            ${optionsHTML}
+          </div>
+
+          <!-- Feedback Box (Hidden initially) -->
+          <div id="feedback-${q.id}" class="hidden p-4 rounded-xl border text-xs sm:text-sm space-y-1.5 transform transition-all">
+            <div id="feedback-title-${q.id}" class="font-bold flex items-center gap-2 text-sm"></div>
+            <p id="feedback-text-${q.id}" class="text-slate-300 leading-relaxed"></p>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function handleSelectOption(qId, selectedIdx) {
+      if (userAnswers[qId] !== undefined) return; // Already answered
+
+      const question = quizQuestions.find(q => q.id === qId);
+      if (!question) return;
+
+      userAnswers[qId] = selectedIdx;
+      answeredCount++;
+
+      const isCorrect = (selectedIdx === question.correct);
+
+      if (isCorrect) {
+        totalScore += question.points;
+        levelScores[question.level] += question.points;
+      }
+
+      // Disable all radio inputs for this question
+      const radios = document.getElementsByName(`q-${qId}`);
+      radios.forEach(r => r.disabled = true);
+
+      // Style Option Labels
+      question.options.forEach((_, optIdx) => {
+        const label = document.getElementById(`opt-label-${qId}-${optIdx}`);
+        label.classList.remove('hover:bg-slate-800', 'hover:border-slate-600', 'cursor-pointer');
+        label.classList.add('cursor-not-allowed');
+
+        if (optIdx === question.correct) {
+          // Highlight correct green
+          label.className = "flex items-start gap-3 p-3.5 rounded-xl border-2 border-emerald-500/80 bg-emerald-950/60 text-emerald-100 font-medium shadow-md";
+        } else if (optIdx === selectedIdx && !isCorrect) {
+          // Highlight selected wrong red
+          label.className = "flex items-start gap-3 p-3.5 rounded-xl border-2 border-rose-500/80 bg-rose-950/60 text-rose-100 font-medium";
+        } else {
+          label.classList.add('opacity-40');
+        }
+      });
+
+      // Show Feedback Box
+      const feedbackBox = document.getElementById(`feedback-${qId}`);
+      const feedbackTitle = document.getElementById(`feedback-title-${qId}`);
+      const feedbackText = document.getElementById(`feedback-text-${qId}`);
+
+      feedbackBox.classList.remove('hidden');
+      if (isCorrect) {
+        feedbackBox.className = "p-4 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-200 space-y-1";
+        feedbackTitle.className = "font-bold flex items-center gap-2 text-sm text-emerald-400";
+        feedbackTitle.innerHTML = `<i class="fa-solid fa-circle-check text-lg"></i> Правильно! (+${question.points} б.)`;
+      } else {
+        feedbackBox.className = "p-4 rounded-xl border border-rose-500/50 bg-rose-950/40 text-rose-200 space-y-1";
+        feedbackTitle.className = "font-bold flex items-center gap-2 text-sm text-rose-400";
+        feedbackTitle.innerHTML = `<i class="fa-solid fa-circle-xmark text-lg"></i> Помилка! (0 б.)`;
+      }
+      feedbackText.textContent = question.explanation;
+
+      // Update Header Stats
+      updateHeaderProgress();
+
+      // Check if finished
+      if (answeredCount === quizQuestions.length) {
+        setTimeout(finishQuiz, 600);
+      }
+    }
+
+    function updateHeaderProgress() {
+      document.getElementById('answered-counter').textContent = `${answeredCount} / ${quizQuestions.length}`;
+      document.getElementById('score-counter').textContent = `${totalScore} / 12`;
+
+      const pct = (answeredCount / quizQuestions.length) * 100;
+      document.getElementById('progress-bar').style.width = `${pct}%`;
+    }
+
+    function finishQuiz() {
+      const timestamp = new Date().toLocaleString('uk-UA', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+
+      const resultData = {
+        studentLastName: currentUser.lastName,
+        studentFirstName: currentUser.firstName,
+        score: totalScore,
+        levelScores: levelScores,
+        timestamp: timestamp,
+        completed: true
+      };
+
+      // Save to Local Storage to prevent retakes
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(resultData));
+
+      // Display Final Summary
+      showCompletedResults(resultData);
+    }
+
+    function showCompletedResults(data) {
+      // Hide other cards
+      document.getElementById('registration-card').classList.add('hidden');
+      document.getElementById('quiz-section').classList.add('hidden');
+
+      // Header state
+      const header = document.getElementById('sticky-header');
+      header.classList.remove('hidden');
+      document.getElementById('header-student-name').textContent = `${data.studentLastName} ${data.studentFirstName}`;
+      document.getElementById('answered-counter').textContent = `10 / 10`;
+      document.getElementById('score-counter').textContent = `${data.score} / 12`;
+      document.getElementById('progress-bar').style.width = `100%`;
+
+      // Fill Summary Card
+      document.getElementById('summary-student-name').textContent = `${data.studentLastName} ${data.studentFirstName}`;
+      document.getElementById('summary-timestamp').textContent = `Час виконання: ${data.timestamp}`;
+      document.getElementById('final-score-text').textContent = data.score;
+
+      // Level Breakdown
+      document.getElementById('level1-score').textContent = `${data.levelScores[1]} / 2`;
+      document.getElementById('level2-score').textContent = `${data.levelScores[2]} / 2`;
+      document.getElementById('level3-score').textContent = `${data.levelScores[3]} / 4`;
+      document.getElementById('level4-score').textContent = `${data.levelScores[4]} / 4`;
+
+      // Verbal Grade Mapping (Ukrainian 12-point system)
+      const gradeTitle = document.getElementById('grade-title');
+      const gradeDesc = document.getElementById('grade-description');
+
+      if (data.score >= 10) {
+        gradeTitle.textContent = "Високий рівень (10-12 балів)";
+        gradeTitle.className = "text-xl font-bold text-emerald-400";
+        gradeDesc.textContent = "Відмінні знання класифікації, властивостей кольорових сплавів та технології ремонту вузлів СГТ!";
+      } else if (data.score >= 7) {
+        gradeTitle.textContent = "Достатній рівень (7-9 балів)";
+        gradeTitle.className = "text-xl font-bold text-teal-400";
+        gradeDesc.textContent = "Добре розуміння характеристик алюмінієвих, мідних та інших сплавів у сільгоспмашинах.";
+      } else if (data.score >= 4) {
+        gradeTitle.textContent = "Середній рівень (4-6 балів)";
+        gradeTitle.className = "text-xl font-bold text-amber-400";
+        gradeDesc.textContent = "Задовільні знання базових фактів. Рекомендується повторити матеріал щодо застосування сплавів.";
+      } else {
+        gradeTitle.textContent = "Початковий рівень (1-3 бали)";
+        gradeTitle.className = "text-xl font-bold text-rose-400";
+        gradeDesc.textContent = "Потребує додаткового вивчення конспекту з кольорових сплавів та їх властивостей.";
+      }
+
+      // Show locked warning banner if loaded directly
+      if (localStorage.getItem(STORAGE_KEY)) {
+        document.getElementById('already-completed-banner').classList.remove('hidden');
+      }
+
+      // Reveal summary
+      const summaryCard = document.getElementById('summary-card');
+      summaryCard.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
