@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тест: Налагодження верстату на нарізання різьби</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+
+  <!-- Header / Navigation -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 py-6 px-4 shadow-lg">
+    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+      <div class="flex items-center gap-3">
+        <div class="p-3 bg-indigo-600/30 border border-indigo-500/40 rounded-xl text-indigo-400">
+          <i class="fa-solid fa-gears text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-white">Тестування з спецтехнології</h1>
+          <p class="text-xs text-slate-400 mt-0.5">Тема: Налагодження верстату на нарізання різьби на свердлильному верстаті</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-medium text-slate-300">
+        <i class="fa-solid fa-award text-amber-400"></i>
+        <span>12-бальна система оцінювання</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sticky Progress Bar Container (Hidden initially) -->
+  <div id="sticky-progress" class="hidden sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm transition-all duration-300">
+    <div class="max-w-4xl mx-auto px-4 py-3">
+      <div class="flex flex-wrap items-center justify-between gap-2 text-sm font-semibold mb-2">
+        <div class="flex items-center gap-2 text-slate-700">
+          <i class="fa-solid fa-user-graduate text-indigo-600"></i>
+          <span id="student-name-display" class="truncate max-w-[180px] sm:max-w-xs text-indigo-900 font-bold">Учень</span>
+        </div>
+        <div class="flex items-center gap-4 text-xs sm:text-sm">
+          <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md border border-slate-200">
+            Відповідано: <span id="progress-text" class="font-bold text-slate-900">0 / 8</span>
+          </span>
+          <span class="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-md border border-indigo-100 font-bold">
+            Набрано: <span id="score-text">0</span> / 12 балів
+          </span>
+        </div>
+      </div>
+      <!-- Progress Bar Track -->
+      <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
+        <div id="progress-bar-fill" class="bg-gradient-to-r from-indigo-500 to-indigo-600 h-full w-0 transition-all duration-500 ease-out"></div>
+      </div>
+    </div>
+  </div>
+
+  <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full">
+
+    <!-- Screen 1: Registration Card -->
+    <section id="registration-screen" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 max-w-xl mx-auto my-6">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-50 text-indigo-600 text-2xl mb-3">
+          <i class="fa-solid fa-user-pen"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-900">Реєстрація перед тестуванням</h2>
+        <p class="text-slate-500 text-sm mt-1">Вкажіть свої дані для фіксації результату в системі оцінювання</p>
+      </div>
+
+      <form id="start-form" onsubmit="startTest(event)" class="space-y-4">
+        <div>
+          <label for="student-name" class="block text-sm font-semibold text-slate-700 mb-1">Прізвище та ім'я учня <span class="text-rose-500">*</span></label>
+          <input type="text" id="student-name" required placeholder="Наприклад: Петренко Іван" 
+                 class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-slate-900 placeholder:text-slate-400">
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-900 text-xs space-y-2">
+          <div class="font-bold flex items-center gap-1.5 text-amber-800 text-sm">
+            <i class="fa-solid fa-circle-info"></i> Правила проходження тесту:
+          </div>
+          <ul class="list-disc list-inside space-y-1 text-amber-800/90 leading-relaxed">
+            <li>Тест можна пройти <strong>лише один раз</strong> з одного пристрою.</li>
+            <li>Усього <strong>8 питань</strong>, розподілених за 4 рівнями складності.</li>
+            <li>Загальна максимальна оцінка — <strong>12 балів</strong>.</li>
+            <li>Варіанти відповідей перемішуються автоматично.</li>
+            <li>Правильність відповіді показується <strong>одразу</strong> після вибору.</li>
+          </ul>
+        </div>
+
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transition transform active:scale-[0.99] flex items-center justify-center gap-2 text-base">
+          <span>Розпочати тестування</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+    </section>
+
+    <!-- Screen 2: Test Questions Container (Hidden initially) -->
+    <section id="test-screen" class="hidden space-y-6 my-4">
+      <div id="questions-container" class="space-y-6">
+        <!-- Dynamic questions rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Screen 3: Results Summary Card (Hidden initially) -->
+    <section id="results-screen" class="hidden space-y-6 my-6">
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+        <!-- Result Banner -->
+        <div class="bg-slate-900 text-white p-6 sm:p-8 text-center relative overflow-hidden">
+          <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl text-white pointer-events-none">
+            <i class="fa-solid fa-award"></i>
+          </div>
+          <span class="inline-block bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-3 py-1 rounded-full text-xs font-semibold mb-3">
+            Підсумковий результат
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold" id="result-student-name">Ім'я Учня</h2>
+          <p class="text-slate-400 text-sm mt-1">Тест: Налагодження верстату на нарізання різьби</p>
+
+          <!-- Big Grade Display -->
+          <div class="mt-6 inline-flex flex-col items-center justify-center bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl p-6 min-w-[200px]">
+            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-1">Загальний бал</span>
+            <div class="text-5xl font-black text-amber-400 tracking-tight" id="final-score-display">0 / 12</div>
+            <span class="text-sm font-medium text-slate-300 mt-2" id="grade-qualitative">Оцінка</span>
+          </div>
+        </div>
+
+        <!-- Level Breakdown Details -->
+        <div class="p-6 sm:p-8 space-y-6">
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+            <i class="fa-solid fa-chart-pie text-indigo-600"></i> Деталізація за рівнями складності
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Level 1 -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-700 flex items-center gap-1.5">
+                  <i class="fa-solid fa-seedling"></i> Початковий рівень
+                </span>
+                <span class="text-xs bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded" id="lvl1-score">0 / 2 б.</span>
+              </div>
+              <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                <div id="lvl1-bar" class="bg-blue-600 h-full w-0 transition-all duration-500"></div>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-2">Базові факти, терміни та інструменти (макс. 2 б.)</p>
+            </div>
+
+            <!-- Level 2 -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
+                  <i class="fa-solid fa-gears"></i> Середній рівень
+                </span>
+                <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded" id="lvl2-score">0 / 2 б.</span>
+              </div>
+              <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                <div id="lvl2-bar" class="bg-emerald-600 h-full w-0 transition-all duration-500"></div>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-2">Розподіл навантаження та пристосування (макс. 2 б.)</p>
+            </div>
+
+            <!-- Level 3 -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1.5">
+                  <i class="fa-solid fa-wrench"></i> Достатній рівень
+                </span>
+                <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded" id="lvl3-score">0 / 4 б.</span>
+              </div>
+              <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                <div id="lvl3-bar" class="bg-amber-600 h-full w-0 transition-all duration-500"></div>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-2">Причинно-наслідкові зв'язки та брак (макс. 4 б.)</p>
+            </div>
+
+            <!-- Level 4 -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-purple-700 flex items-center gap-1.5">
+                  <i class="fa-solid fa-brain"></i> Високий рівень
+                </span>
+                <span class="text-xs bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded" id="lvl4-score">0 / 4 б.</span>
+              </div>
+              <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                <div id="lvl4-bar" class="bg-purple-600 h-full w-0 transition-all duration-500"></div>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-2">Аналіз технологічних режимів та виведення (макс. 4 б.)</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-slate-100 rounded-xl border border-slate-200 text-center text-slate-600 text-xs flex items-center justify-center gap-2">
+            <i class="fa-solid fa-lock text-slate-400"></i>
+            <span>Результат успішно збережено. Повторне проходження тесту блоковане.</span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+            <button onclick="window.print()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold rounded-xl shadow transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-print"></i>
+              <span>Роздрукувати результат</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800 mt-auto">
+    <div class="max-w-4xl mx-auto px-4 space-y-1">
+      <p>Інтерактивний навчальний тест з професійно-теоретичної підготовки</p>
+      <p class="text-slate-500">Розроблено відповідно до вимог 12-бальної системи оцінювання України</p>
+    </div>
+  </footer>
+
+  <script>
+    // Raw Question Bank with 8 questions mapped to 4 levels (Total 12 points)
+    const rawQuestions = [
+      {
+        id: 1,
+        levelKey: 'lvl1',
+        levelName: 'Початковий рівень',
+        levelBadgeBg: 'bg-blue-100 text-blue-800 border-blue-200',
+        points: 1,
+        text: 'Яка стандартна кількість мітчиків найчастіше входить до основного комплекту для нарізання різьби на свердлильному верстаті?',
+        options: [
+          { text: 'Комплект з 2 мітчиків (чорновий та чистовий)', correct: true },
+          { text: 'Комплект з 4 мітчиків різного кроку', correct: false },
+          { text: 'Завжди лише 1 універсальний мітчик', correct: false },
+          { text: 'Набір з 5 мітчиків послідовного діаметра', correct: false }
+        ],
+        explanation: 'Згідно з конспектом, на свердлильному верстаті зазвичай застосовується комплект з двох мітчиків: чорнового та чистового.'
+      },
+      {
+        id: 2,
+        levelKey: 'lvl1',
+        levelName: 'Початковий рівень',
+        levelBadgeBg: 'bg-blue-100 text-blue-800 border-blue-200',
+        points: 1,
+        text: 'Яка технологічна операція обов’язково виконується на вхідному торці отвору перед нарізанням різьби?',
+        options: [
+          { text: 'Зняття фаски на вхідному торці', correct: true },
+          { text: 'Нарізання зовнішньої канавки', correct: false },
+          { text: 'Повне загартування вхідної поверхні', correct: false },
+          { text: 'Розточування отвору під конус', correct: false }
+        ],
+        explanation: 'Фаска на вхідному торці деталі полегшує заведення та центрування мітчика в отворі.'
+      },
+      {
+        id: 3,
+        levelKey: 'lvl2',
+        levelName: 'Середній рівень',
+        levelBadgeBg: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+        points: 1,
+        text: 'Як розподіляється робоче навантаження між чорновим і чистовим мітчиками в комплекті з двох інструментів?',
+        options: [
+          { text: '70% — на чорновий, 30% — на чистовий', correct: true },
+          { text: '50% — на чорновий, 50% — на чистовий', correct: false },
+          { text: '30% — на чорновий, 70% — на чистовий', correct: false },
+          { text: '90% — на чорновий, 10% — на чистовий', correct: false }
+        ],
+        explanation: 'Схема розподілу навантаження: чорновий мітчик знімає 70% припуску, а чистовий — 30%.'
+      },
+      {
+        id: 4,
+        levelKey: 'lvl2',
+        levelName: 'Середній рівень',
+        levelBadgeBg: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+        points: 1,
+        text: 'Який пристрій застосовують для надійного закріплення заготовок циліндричної форми на столі свердлильного верстата?',
+        options: [
+          { text: 'Призми з прихоплювачем', correct: true },
+          { text: 'Прямі машинні лещата без затиску', correct: false },
+          { text: 'Гвинтові струбцини без опор', correct: false },
+          { text: 'Закріплення безпосередньо болтом без призм', correct: false }
+        ],
+        explanation: 'Для надійного закріплення заготовок циліндричної форми застосовують призми з прихоплювачем.'
+      },
+      {
+        id: 5,
+        levelKey: 'lvl3',
+        levelName: 'Достатній рівень',
+        levelBadgeBg: 'bg-amber-100 text-amber-800 border-amber-200',
+        points: 2,
+        text: 'До яких негативних наслідків призводить завищення діаметра просвердленого отвору під нарізання різьби?',
+        options: [
+          { text: 'До «прославлення» різьби (невиправний брак)', correct: true },
+          { text: 'До «усадки» різьби та заклинювання мітчика', correct: false },
+          { text: 'До розриву корпусу деталі', correct: false },
+          { text: 'До збільшення швидкості різання', correct: false }
+        ],
+        explanation: 'Завищення діаметра отвору призводить до недорізання витків за висотою — «прославлення» різьби, що є невиправним браком.'
+      },
+      {
+        id: 6,
+        levelKey: 'lvl3',
+        levelName: 'Достатній рівень',
+        levelBadgeBg: 'bg-amber-100 text-amber-800 border-amber-200',
+        points: 2,
+        text: 'З якою метою мітчик закріплюють у самовисувному мітчикотримачі (хитній оправці), а не жорстко у патроні?',
+        options: [
+          { text: 'Щоб запобігти перекосу мітчика та розбиванню (збільшенню) діаметра різьби', correct: true },
+          { text: 'Щоб збільшити оберти шпинделя під час нарізання', correct: false },
+          { text: 'Щоб виключити потребу у змащуванні МОР', correct: false },
+          { text: 'Щоб прискорити свердління глибоких отворів', correct: false }
+        ],
+        explanation: 'Самовисувний мітчикотримач виключає перекоси та дозволяє мітчику прямувати за власним кроком різьби, запобігаючи розбиванню отвору.'
+      },
+      {
+        id: 7,
+        levelKey: 'lvl4',
+        levelName: 'Високий рівень',
+        levelBadgeBg: 'bg-purple-100 text-purple-800 border-purple-200',
+        points: 2,
+        text: 'Як повинен діяти верстатник після того, як мітчик нарізав перші 2-3 витки різьби в заготовці?',
+        options: [
+          { text: 'Припинити підтискування, оскільки мітчик далі сам угвинчується в деталь', correct: true },
+          { text: 'Збільшити ручний тиск на шпиндель для прискорення нарізання', correct: false },
+          { text: 'Негайно ввімкнути реверс і витягти мітчик з отвору', correct: false },
+          { text: 'Повністю вимкнути верстат і повернути деталь вручну', correct: false }
+        ],
+        explanation: 'Після утворення перших 2-3 витків мітчик самостійно втягується в різьбу, а висувна гільза оправки слідує за ним, тому додатково підтискувати шпиндель непотрібно.'
+      },
+      {
+        id: 8,
+        levelKey: 'lvl4',
+        levelName: 'Високий рівень',
+        levelBadgeBg: 'bg-purple-100 text-purple-800 border-purple-200',
+        points: 2,
+        text: 'Яких вимог необхідно дотримуватися щодо зазору та технології виведення мітчика з отвору?',
+        options: [
+          { text: 'Зазор між оправкою та корпусом має бути не менше 25 мм; виводити мітчик слід на зворотному обертанні шпинделя з легкою подачею вгору', correct: true },
+          { text: 'Зазор має бути 0 мм; виводити мітчик силовим висмикуванням на прямих обертах', correct: false },
+          { text: 'Зазор не має значення; виводити мітчик виключно ручним прокручуванням заготовки', correct: false },
+          { text: 'Зазор має бути не більше 5 мм; виводити мітчик під час зупиненого шпинделя', correct: false }
+        ],
+        explanation: 'Зазор між оправкою та корпусом повинен складати не менше 25 мм. Виведення здійснюють на реверсі шпинделя, злегка подаючи його вгору для «самовигвинчування» мітчика.'
+      }
+    ];
+
+    // State Variables
+    let currentQuestions = [];
+    let studentName = "";
+    let answeredCount = 0;
+    let totalScore = 0;
+    let levelScores = { lvl1: 0, lvl2: 0, lvl3: 0, lvl4: 0 };
+    let questionStates = []; // tracks answered status per question
+
+    // Utility: Fisher-Yates Shuffle
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // On Page Load: Check single attempt persistence
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedResult = localStorage.getItem("thread_test_result_v1");
+      if (savedResult) {
+        const data = JSON.parse(savedResult);
+        showCompletedResultsFromStorage(data);
+      }
+    });
+
+    // Start Test Action
+    function startTest(e) {
+      e.preventDefault();
+      const input = document.getElementById("student-name");
+      studentName = input.value.trim();
+      if (!studentName) return;
+
+      // Shuffle options for each question
+      currentQuestions = rawQuestions.map(q => ({
+        ...q,
+        options: shuffleArray(q.options)
+      }));
+
+      questionStates = new Array(currentQuestions.length).fill(false);
+
+      // DOM Updates
+      document.getElementById("student-name-display").textContent = studentName;
+      document.getElementById("registration-screen").classList.add("hidden");
+      document.getElementById("sticky-progress").classList.remove("hidden");
+      document.getElementById("test-screen").classList.remove("hidden");
+
+      renderQuestions();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Render Question Cards
+    function renderQuestions() {
+      const container = document.getElementById("questions-container");
+      container.innerHTML = "";
+
+      currentQuestions.forEach((q, qIndex) => {
+        const qCard = document.createElement("div");
+        qCard.className = "bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 transition hover:shadow-md";
+        qCard.id = `question-card-${qIndex}`;
+
+        let optionsHTML = q.options.map((opt, oIndex) => `
+          <label id="opt-label-${qIndex}-${oIndex}" 
+                 onclick="handleOptionSelect(${qIndex}, ${oIndex})"
+                 class="group flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100/80 cursor-pointer transition relative select-none">
+            <input type="radio" name="question-${qIndex}" value="${oIndex}" class="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300">
+            <span class="text-sm sm:text-base font-medium text-slate-800 leading-snug flex-grow">${opt.text}</span>
+            <div id="opt-icon-${qIndex}-${oIndex}" class="hidden text-lg"></div>
+          </label>
+        `).join("");
+
+        qCard.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${q.levelBadgeBg}">
+              ${q.levelName}
+            </span>
+            <span class="text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md">
+              Цінність: ${q.points} ${q.points === 1 ? 'бал' : 'бали'}
+            </span>
+          </div>
+
+          <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-4 leading-snug">
+            <span class="text-indigo-600">${qIndex + 1}.</span> ${q.text}
+          </h3>
+
+          <div class="space-y-2.5">
+            ${optionsHTML}
+          </div>
+
+          <!-- Feedback Panel (Hidden initially) -->
+          <div id="feedback-${qIndex}" class="hidden mt-4 p-4 rounded-xl border text-sm transition-all duration-300">
+            <div class="font-bold flex items-center gap-2 mb-1" id="feedback-title-${qIndex}"></div>
+            <p class="text-slate-700 leading-relaxed" id="feedback-text-${qIndex}">${q.explanation}</p>
+          </div>
+        `;
+
+        container.appendChild(qCard);
+      });
+    }
+
+    // Handle Option Selection
+    function handleOptionSelect(qIndex, selectedOptIndex) {
+      if (questionStates[qIndex]) return; // Lock: option already chosen for this question
+
+      questionStates[qIndex] = true;
+      const question = currentQuestions[qIndex];
+      const selectedOption = question.options[selectedOptIndex];
+      const isCorrect = selectedOption.correct;
+
+      // Lock all radio inputs for this question
+      const radios = document.getElementsByName(`question-${qIndex}`);
+      radios.forEach(radio => radio.disabled = true);
+
+      // Style options based on correctness
+      question.options.forEach((opt, oIndex) => {
+        const label = document.getElementById(`opt-label-${qIndex}-${oIndex}`);
+        const iconDiv = document.getElementById(`opt-icon-${qIndex}-${oIndex}`);
+
+        label.classList.remove("hover:bg-slate-100/80", "cursor-pointer");
+        label.classList.add("cursor-default");
+
+        if (opt.correct) {
+          // Highlight correct answer in Green
+          label.className = "flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/90 text-emerald-950 font-semibold transition relative";
+          iconDiv.classList.remove("hidden");
+          iconDiv.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i>`;
+        } else if (oIndex === selectedOptIndex && !isCorrect) {
+          // Highlight selected wrong answer in Red
+          label.className = "flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border-2 border-rose-500 bg-rose-50/90 text-rose-950 font-medium transition relative";
+          iconDiv.classList.remove("hidden");
+          iconDiv.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i>`;
+        } else {
+          // Unselected neutral options faded
+          label.classList.add("opacity-50");
+        }
+      });
+
+      // Update Scoring
+      if (isCorrect) {
+        totalScore += question.points;
+        levelScores[question.levelKey] += question.points;
+      }
+      answeredCount++;
+
+      // Update Feedback Panel
+      const feedbackBox = document.getElementById(`feedback-${qIndex}`);
+      const feedbackTitle = document.getElementById(`feedback-title-${qIndex}`);
+      feedbackBox.classList.remove("hidden");
+
+      if (isCorrect) {
+        feedbackBox.className = "mt-4 p-4 rounded-xl border border-emerald-300 bg-emerald-50/80 text-emerald-900 text-sm";
+        feedbackTitle.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> Правильно! (+${question.points} ${question.points === 1 ? 'бал' : 'бали'})`;
+      } else {
+        feedbackBox.className = "mt-4 p-4 rounded-xl border border-rose-300 bg-rose-50/80 text-rose-900 text-sm";
+        feedbackTitle.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i> Помилка (+0 балів)`;
+      }
+
+      // Update Sticky Progress Bar
+      updateProgress();
+
+      // Check if all questions are answered
+      if (answeredCount === currentQuestions.length) {
+        setTimeout(finishTest, 800);
+      }
+    }
+
+    // Update Progress Bar
+    function updateProgress() {
+      document.getElementById("progress-text").textContent = `${answeredCount} / ${currentQuestions.length}`;
+      document.getElementById("score-text").textContent = totalScore;
+      
+      const percentage = (answeredCount / currentQuestions.length) * 100;
+      document.getElementById("progress-bar-fill").style.width = `${percentage}%`;
+    }
+
+    // Finish Test and Show Summary
+    function finishTest() {
+      const resultData = {
+        studentName: studentName,
+        totalScore: totalScore,
+        levelScores: levelScores,
+        date: new Date().toLocaleString('uk-UA')
+      };
+
+      // Save to LocalStorage to enforce ONE attempt
+      localStorage.setItem("thread_test_result_v1", JSON.stringify(resultData));
+
+      displaySummaryCard(resultData);
+    }
+
+    // Display Summary Card
+    function displaySummaryCard(data) {
+      document.getElementById("sticky-progress").classList.add("hidden");
+      document.getElementById("test-screen").classList.add("hidden");
+      
+      const resultsScreen = document.getElementById("results-screen");
+      resultsScreen.classList.remove("hidden");
+
+      document.getElementById("result-student-name").textContent = data.studentName;
+      document.getElementById("final-score-display").textContent = `${data.totalScore} / 12`;
+
+      // Qualitative Grade Label
+      const qualElem = document.getElementById("grade-qualitative");
+      if (data.totalScore >= 10) {
+        qualElem.textContent = "Високий рівень (Відмінно)";
+        qualElem.className = "text-sm font-semibold text-emerald-400 mt-2";
+      } else if (data.totalScore >= 7) {
+        qualElem.textContent = "Достатній рівень (Добре)";
+        qualElem.className = "text-sm font-semibold text-blue-400 mt-2";
+      } else if (data.totalScore >= 4) {
+        qualElem.textContent = "Середній рівень (Задовільно)";
+        qualElem.className = "text-sm font-semibold text-amber-400 mt-2";
+      } else {
+        qualElem.textContent = "Початковий рівень (Потребує опрацювання)";
+        qualElem.className = "text-sm font-semibold text-rose-400 mt-2";
+      }
+
+      // Level Scores Display
+      const l1 = data.levelScores.lvl1 || 0;
+      const l2 = data.levelScores.lvl2 || 0;
+      const l3 = data.levelScores.lvl3 || 0;
+      const l4 = data.levelScores.lvl4 || 0;
+
+      document.getElementById("lvl1-score").textContent = `${l1} / 2 б.`;
+      document.getElementById("lvl1-bar").style.width = `${(l1 / 2) * 100}%`;
+
+      document.getElementById("lvl2-score").textContent = `${l2} / 2 б.`;
+      document.getElementById("lvl2-bar").style.width = `${(l2 / 2) * 100}%`;
+
+      document.getElementById("lvl3-score").textContent = `${l3} / 4 б.`;
+      document.getElementById("lvl3-bar").style.width = `${(l3 / 4) * 100}%`;
+
+      document.getElementById("lvl4-score").textContent = `${l4} / 4 б.`;
+      document.getElementById("lvl4-bar").style.width = `${(l4 / 4) * 100}%`;
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Render stored results if user reloads page
+    function showCompletedResultsFromStorage(data) {
+      document.getElementById("registration-screen").classList.add("hidden");
+      displaySummaryCard(data);
+    }
+  </script>
+</body>
+</html>
