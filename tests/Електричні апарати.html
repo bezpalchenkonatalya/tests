@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Інтерактивний тест: Електричні апарати</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between">
+
+  <!-- Header / Navigation -->
+  <header class="bg-slate-900 text-white py-4 shadow-md">
+    <div class="max-w-4xl mx-auto px-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="bg-blue-600 text-white p-2.5 rounded-xl shadow">
+          <i class="fa-solid fa-bolt text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold leading-tight">Електричні апарати</h1>
+          <p class="text-xs text-slate-400">Підсумкове інтерактивне тестування</p>
+        </div>
+      </div>
+      <div id="studentBadge" class="hidden sm:flex items-center gap-2 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium">
+        <i class="fa-solid fa-user text-blue-400"></i>
+        <span id="studentBadgeName" class="text-slate-200">Учень</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sticky Progress Bar Panel (Visible during test) -->
+  <div id="stickyProgress" class="hidden sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm py-3 px-4">
+    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div class="flex justify-between sm:justify-start items-center gap-4 text-xs sm:text-sm font-semibold">
+        <span class="text-slate-600 flex items-center gap-1.5">
+          <i class="fa-solid fa-[#3b82f6] fa-list-check text-blue-500"></i>
+          Відповідано: <strong id="progressCount" class="text-slate-900">0 / 8</strong>
+        </span>
+        <span class="text-slate-600 flex items-center gap-1.5">
+          <i class="fa-solid fa-trophy text-amber-500"></i>
+          Бал: <strong id="progressPoints" class="text-slate-900">0 / 12</strong>
+        </span>
+      </div>
+      <!-- Visual Bar -->
+      <div class="w-full sm:w-64 bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
+        <div id="progressBarFill" class="bg-blue-600 h-full w-0 transition-all duration-300 rounded-full"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full">
+
+    <!-- 1. Registration Screen -->
+    <section id="registrationScreen" class="max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-8">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl mb-3 shadow-inner">
+          <i class="fa-solid fa-user-graduate text-3xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-900">Вхід до тестування</h2>
+        <p class="text-sm text-slate-500 mt-1">Вкажіть свої дані для початку роботи</p>
+      </div>
+
+      <form id="startForm" onsubmit="handleStartTest(event)" class="space-y-4">
+        <div>
+          <label for="lastName" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Прізвище</label>
+          <input type="text" id="lastName" required placeholder="Наприклад: Іваненко"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm">
+        </div>
+        <div>
+          <label for="firstName" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Ім'я</label>
+          <input type="text" id="firstName" required placeholder="Наприклад: Тарас"
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm">
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex items-start gap-3 text-xs text-amber-800">
+          <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base shrink-0 mt-0.5"></i>
+          <div>
+            <strong>Увага:</strong> Тест можна пройти <strong>лише один раз</strong>. Варіанти відповідей перемішуються автоматично.
+          </div>
+        </div>
+
+        <button type="submit"
+          class="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2">
+          <span>Розпочати тест</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+    </section>
+
+    <!-- 2. Test Container -->
+    <section id="testScreen" class="hidden space-y-6">
+      <div id="questionsContainer" class="space-y-6"></div>
+    </section>
+
+    <!-- 3. Results Screen -->
+    <section id="resultScreen" class="hidden max-w-2xl mx-auto space-y-6">
+      <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-8 text-center relative overflow-hidden">
+        <div id="resultHeaderBg" class="absolute top-0 left-0 right-0 h-3 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-emerald-50 text-emerald-600 rounded-full mb-4 ring-8 ring-emerald-50/50">
+          <i class="fa-solid fa-award text-4xl"></i>
+        </div>
+
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Результати тестування</h2>
+        <p id="resultStudentName" class="text-base text-slate-600 font-medium mt-1"></p>
+
+        <!-- Main Score display -->
+        <div class="my-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 max-w-sm mx-auto">
+          <div class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">Підсумковий бал</div>
+          <div class="text-5xl font-black text-slate-900 flex items-center justify-center gap-1">
+            <span id="finalScore">0</span>
+            <span class="text-2xl text-slate-400 font-semibold">/ 12</span>
+          </div>
+          <div id="levelBadge" class="inline-block px-4 py-1.5 rounded-full text-xs font-bold mt-3">
+            --
+          </div>
+        </div>
+
+        <!-- Breakdown by levels -->
+        <div class="text-left mt-6">
+          <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-chart-pie text-blue-500"></i>
+            Деталізація по рівнях складності:
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Initial -->
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-center">
+              <div>
+                <span class="text-xs font-bold text-blue-700 block">Початковий рівень</span>
+                <span class="text-xs text-slate-500">Прості факти (2 бали)</span>
+              </div>
+              <span id="scoreInitial" class="font-bold text-slate-800 text-sm">0 / 2</span>
+            </div>
+            <!-- Middle -->
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-center">
+              <div>
+                <span class="text-xs font-bold text-indigo-700 block">Середній рівень</span>
+                <span class="text-xs text-slate-500">Базові поняття (2 бали)</span>
+              </div>
+              <span id="scoreMiddle" class="font-bold text-slate-800 text-sm">0 / 2</span>
+            </div>
+            <!-- Sufficient -->
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-center">
+              <div>
+                <span class="text-xs font-bold text-purple-700 block">Достатній рівень</span>
+                <span class="text-xs text-slate-500">Розуміння та аналіз (4 бали)</span>
+              </div>
+              <span id="scoreSufficient" class="font-bold text-slate-800 text-sm">0 / 4</span>
+            </div>
+            <!-- High -->
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-center">
+              <div>
+                <span class="text-xs font-bold text-amber-700 block">Високий рівень</span>
+                <span class="text-xs text-slate-500">Застосування знань (4 бали)</span>
+              </div>
+              <span id="scoreHigh" class="font-bold text-slate-800 text-sm">0 / 4</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-400 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-lock text-slate-400"></i>
+          <span>Спроба вичерпана. Повторне проходження вимкнено.</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-400 text-xs py-4 border-t border-slate-800 mt-auto">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      Електричні апарати &bull; 12-бальна система оцінювання
+    </div>
+  </footer>
+
+  <script>
+    // Raw Questions Database (8 questions mapped to 12 points total)
+    const rawQuestions = [
+      {
+        id: 1,
+        level: "Початковий",
+        levelCode: "initial",
+        points: 1,
+        question: "Які електричні апарати призначені для захисту електричних кіл і машин від струмів короткого замикання та перевантаження?",
+        options: [
+          "Захисні апарати (автоматичні вимикачі, запобіжники, реле)",
+          "Комутуючі апарати (рубильники, вимикачі, перемикачі)",
+          "Пускорегулювальні апарати (електромагнітні муфти)",
+          "Контролюючі апарати (датчики напруги)"
+        ],
+        correctIndex: 0,
+        explanation: "Захисні апарати (автоматичні вимикачі, запобіжники, реле) розмикають коло при виникненні струмів перевантаження та короткого замикання."
+      },
+      {
+        id: 2,
+        level: "Початковий",
+        levelCode: "initial",
+        points: 1,
+        question: "До електричних апаратів низької напруги належать пристрої, розраховані на робочу напругу:",
+        options: [
+          "До 1000 В (як правило, до 660 В включно)",
+          "Понад 1000 В (від 6 кВ і вище)",
+          "Виключно до 36 В",
+          "Від 10 кВ до 35 кВ"
+        ],
+        correctIndex: 0,
+        explanation: "За класифікацією за напругою, апарати низької напруги працюють при напрузі до 1000 В (зазвичай до 660 В включно)."
+      },
+      {
+        id: 3,
+        level: "Середній",
+        levelCode: "middle",
+        points: 1,
+        question: "У чому полягає відмінність перемикача від звичайного вимикача?",
+        options: [
+          "Перемикач має 3 контакти та створює новий ланцюг, а вимикач має 2 контакти для роз'єднання/з'єднання",
+          "Вимикач має 3 контакти, а перемикач тільки 2 контакти",
+          "Вимикач є безконтактним пристроєм, а перемикач — контактним",
+          "Між ними немає жодної конструктивної чи функціональної відмінності"
+        ],
+        correctIndex: 0,
+        explanation: "Вимикач має 2 контакти для замикання/розмикання кола, тоді як перемикач має 3 контакти й дозволяє переключати струм на інший ланцюг."
+      },
+      {
+        id: 4,
+        level: "Середній",
+        levelCode: "middle",
+        points: 1,
+        question: "Який принцип дії плавкого запобіжника під час виникнення надмірного струму?",
+        options: [
+          "Дріт або пластина запобіжника розплавляється та розриває електричне коло",
+          "Електромагнітна котушка втягує сердечник та розмикає контакти",
+          "Запобіжник збільшує опір без фізичного розриву кола",
+          "Теплове реле вимикає кнопку й потребує manual натискання"
+        ],
+        correctIndex: 0,
+        explanation: "При надмірному струмі плавкий елемент (дріт або пластина) розплавляється від виділеного тепла, розриваючи коло."
+      },
+      {
+        id: 5,
+        level: "Достатній",
+        levelCode: "sufficient",
+        points: 2,
+        question: "Для чого призначені контактори та у яких режимах роботи вони використовуються?",
+        options: [
+          "Для частих дистанційних вмикань і вимикань силових кіл при нормальних режимах",
+          "Для одноразового захисного вимкнення короткого замикання",
+          "Для автоматичної зміни частоти струму в колах високої напруги",
+          "Для ручного нечастого вимикання струму на ввідному щитку"
+        ],
+        correctIndex: 0,
+        explanation: "Контактори — це апарати дистанційної дії для частих вмикань та вимикань силових електричних кіл при нормальних режимах роботи."
+      },
+      {
+        id: 6,
+        level: "Достатній",
+        levelCode: "sufficient",
+        points: 2,
+        question: "У чому полягає принцип дії безконтактних електричних апаратів?",
+        options: [
+          "Вони здійснюють керування колами зміною своїх електричних параметрів (індуктивності, ємності, опору)",
+          "Вони розмикають коло за допомогою занурення контактів у масло",
+          "Вони функціонують лише за рахунок розплавлення внутрішніх деталей",
+          "Вони не потребують підключення провідників для передачі струму"
+        ],
+        correctIndex: 0,
+        explanation: "Безконтактні апарати здійснюють керування приєднаними колами без механічного розмикання контактів — зміною індуктивності, ємності чи опору."
+      },
+      {
+        id: 7,
+        level: "Високий",
+        levelCode: "high",
+        points: 2,
+        question: "Яку конструктивну особливість мають контакти автоматичного вимикача для гасіння електричної дуги?",
+        options: [
+          "Вони мають особливу форму та розміщені у спеціальній дугогасильній камері",
+          "Вони покриті воском, який миттєво випаровує дугу",
+          "Вони занурені у водяний резервуар всередині корпуса",
+          "Вони розмикаються виключно в вакуумних колбах високої напруги"
+        ],
+        correctIndex: 0,
+        explanation: "Під час розчеплення контактів під навантаженням виникає електрична дуга, тому контакти мають особливу форму і знаходяться в дугогасильній камері."
+      },
+      {
+        id: 8,
+        level: "Високий",
+        levelCode: "high",
+        points: 2,
+        question: "Яка із загальних вимог до електричних апаратів визначає їх здатність протистояти механічним руйнуванням під час короткого замикання?",
+        options: [
+          "Деталі повинні витримувати без порушень електродинамічні зусилля під час протікання струмів КЗ",
+          "Контакти повинні повністю випаровуватися при виникненні струму КЗ",
+          "Ізоляція повинна витримувати необмежену напругу будь-якого значення",
+          "Струмопровідні частини не повинні нагріватися вище 0°C"
+        ],
+        correctIndex: 0,
+        explanation: "Вимога електродинамічної стійкості означає, що деталі апарата повинні витримувати електродинамічні зусилля від великих струмів короткого замикання без деформацій чи руйнувань."
+      }
+    ];
+
+    // State Variables
+    let studentData = { lastName: '', firstName: '' };
+    let preparedQuestions = [];
+    let userAnswers = {}; // qIndex -> { selectedOptionIndex, isCorrect, pointsEarned }
+    let answeredCount = 0;
+    let totalScore = 0;
+    let levelScores = { initial: 0, middle: 0, sufficient: 0, high: 0 };
+
+    const STORAGE_KEY = 'elec_app_test_result_v1';
+
+    // Helper: Fisher-Yates Shuffle
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // Initialize Page
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedResult = localStorage.getItem(STORAGE_KEY);
+      if (savedResult) {
+        // User already completed the test
+        const data = JSON.parse(savedResult);
+        showSavedResults(data);
+      }
+    });
+
+    // Start Test Action
+    function handleStartTest(e) {
+      e.preventDefault();
+      const lastName = document.getElementById('lastName').value.trim();
+      const firstName = document.getElementById('firstName').value.trim();
+
+      if (!lastName || !firstName) return;
+
+      studentData = { lastName, firstName };
+      document.getElementById('studentBadgeName').innerText = `${lastName} ${firstName}`;
+      document.getElementById('studentBadge').classList.remove('hidden');
+
+      // Prepare questions with shuffled options
+      preparedQuestions = rawQuestions.map((q) => {
+        const optionObjs = q.options.map((opt, idx) => ({
+          text: opt,
+          isCorrect: idx === q.correctIndex
+        }));
+        return {
+          ...q,
+          shuffledOptions: shuffle(optionObjs)
+        };
+      });
+
+      // Render UI
+      document.getElementById('registrationScreen').classList.add('hidden');
+      document.getElementById('stickyProgress').classList.remove('hidden');
+      document.getElementById('testScreen').classList.remove('hidden');
+
+      renderQuestions();
+    }
+
+    // Render Question Cards
+    function renderQuestions() {
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+
+      preparedQuestions.forEach((q, qIndex) => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 transition-all hover:shadow-md';
+        card.id = `question-card-${qIndex}`;
+
+        // Level Badge Styling
+        let levelBadgeClass = '';
+        if (q.levelCode === 'initial') levelBadgeClass = 'bg-blue-100 text-blue-800 border-blue-200';
+        else if (q.levelCode === 'middle') levelBadgeClass = 'bg-indigo-100 text-indigo-800 border-indigo-200';
+        else if (q.levelCode === 'sufficient') levelBadgeClass = 'bg-purple-100 text-purple-800 border-purple-200';
+        else if (q.levelCode === 'high') levelBadgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+
+        let pointsText = q.points === 1 ? '1 бал' : `${q.points} бали`;
+
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${levelBadgeClass}">
+              <i class="fa-solid fa-layer-group text-[10px]"></i>
+              ${q.level} рівень (${pointsText})
+            </span>
+            <span class="text-xs font-semibold text-slate-400">Питання ${qIndex + 1} з ${preparedQuestions.length}</span>
+          </div>
+
+          <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-4 leading-snug">
+            ${q.question}
+          </h3>
+
+          <div class="space-y-2.5" id="options-container-${qIndex}">
+            ${q.shuffledOptions.map((opt, oIndex) => `
+              <label id="opt-label-${qIndex}-${oIndex}" class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-100/80 cursor-pointer transition text-sm text-slate-700 select-none">
+                <input type="radio" name="question-${qIndex}" value="${oIndex}" onchange="selectAnswer(${qIndex},${oIndex})"
+                  class="mt-0.5 w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 shrink-0">
+                <span class="leading-relaxed">${opt.text}</span>
+              </label>
+            `).join('')}
+          </div>
+
+          <div id="feedback-${qIndex}" class="hidden mt-4 pt-4 border-t border-slate-100"></div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // Select Answer Event
+    function selectAnswer(qIndex, selectedOptIndex) {
+      if (userAnswers[qIndex] !== undefined) return; // Already answered
+
+      const q = preparedQuestions[qIndex];
+      const selectedOption = q.shuffledOptions[selectedOptIndex];
+      const isCorrect = selectedOption.isCorrect;
+      const pointsEarned = isCorrect ? q.points : 0;
+
+      // Save user answer
+      userAnswers[qIndex] = {
+        selectedOptIndex,
+        isCorrect,
+        pointsEarned
+      };
+
+      answeredCount++;
+      totalScore += pointsEarned;
+      levelScores[q.levelCode] += pointsEarned;
+
+      // Disable all inputs for this question
+      const inputs = document.querySelectorAll(`input[name="question-${qIndex}"]`);
+      inputs.forEach(input => input.disabled = true);
+
+      // Highlight options
+      q.shuffledOptions.forEach((opt, oIndex) => {
+        const label = document.getElementById(`opt-label-${qIndex}-${oIndex}`);
+        label.classList.remove('hover:bg-slate-100/80', 'cursor-pointer', 'bg-slate-50/50');
+        label.classList.add('cursor-default');
+
+        if (oIndex === selectedOptIndex) {
+          if (isCorrect) {
+            label.className = 'flex items-start gap-3 p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/90 text-emerald-900 font-medium text-sm transition';
+          } else {
+            label.className = 'flex items-start gap-3 p-3.5 rounded-xl border-2 border-rose-500 bg-rose-50/90 text-rose-900 font-medium text-sm transition';
+          }
+        } else if (opt.isCorrect) {
+          // Highlight correct answer if user picked wrong
+          label.className = 'flex items-start gap-3 p-3.5 rounded-xl border-2 border-emerald-500/60 bg-emerald-50/50 text-emerald-900 text-sm transition';
+        } else {
+          label.classList.add('opacity-50');
+        }
+      });
+
+      // Show Feedback Box
+      const feedbackDiv = document.getElementById(`feedback-${qIndex}`);
+      feedbackDiv.classList.remove('hidden');
+
+      if (isCorrect) {
+        feedbackDiv.innerHTML = `
+          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 text-xs sm:text-sm text-emerald-900">
+            <div class="flex items-center gap-2 font-bold mb-1 text-emerald-700">
+              <i class="fa-solid fa-circle-check text-base"></i>
+              Правильно! (+${q.points} б.)
+            </div>
+            <p class="text-emerald-800 leading-relaxed">${q.explanation}</p>
+          </div>
+        `;
+      } else {
+        feedbackDiv.innerHTML = `
+          <div class="bg-rose-50 border border-rose-200 rounded-xl p-3.5 text-xs sm:text-sm text-rose-900">
+            <div class="flex items-center gap-2 font-bold mb-1 text-rose-700">
+              <i class="fa-solid fa-circle-xmark text-base"></i>
+              Помилка (0 б.)
+            </div>
+            <p class="text-rose-800 leading-relaxed">${q.explanation}</p>
+          </div>
+        `;
+      }
+
+      // Update Top Sticky Progress Bar
+      updateProgress();
+
+      // Check if finished
+      if (answeredCount === preparedQuestions.length) {
+        setTimeout(finishTest, 600);
+      }
+    }
+
+    // Update Progress Header
+    function updateProgress() {
+      document.getElementById('progressCount').innerText = `${answeredCount} / ${preparedQuestions.length}`;
+      document.getElementById('progressPoints').innerText = `${totalScore} / 12 балів`;
+      const pct = (answeredCount / preparedQuestions.length) * 100;
+      document.getElementById('progressBarFill').style.width = `${pct}%`;
+    }
+
+    // Finish Test & Process Results
+    function finishTest() {
+      const resultData = {
+        student: studentData,
+        totalScore,
+        levelScores,
+        date: new Date().toLocaleString('uk-UA')
+      };
+
+      // Lock test permanently in localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(resultData));
+
+      showSavedResults(resultData);
+    }
+
+    // Display Results Screen
+    function showSavedResults(data) {
+      document.getElementById('registrationScreen').classList.add('hidden');
+      document.getElementById('stickyProgress').classList.add('hidden');
+      document.getElementById('testScreen').classList.add('hidden');
+      document.getElementById('studentBadge').classList.add('hidden');
+
+      const resultScreen = document.getElementById('resultScreen');
+      resultScreen.classList.remove('hidden');
+
+      document.getElementById('resultStudentName').innerText = `${data.student.lastName} ${data.student.firstName}`;
+      document.getElementById('finalScore').innerText = data.totalScore;
+
+      // Breakdown scores
+      document.getElementById('scoreInitial').innerText = `${data.levelScores.initial} / 2 б.`;
+      document.getElementById('scoreMiddle').innerText = `${data.levelScores.middle} / 2 б.`;
+      document.getElementById('scoreSufficient').innerText = `${data.levelScores.sufficient} / 4 б.`;
+      document.getElementById('scoreHigh').innerText = `${data.levelScores.high} / 4 б.`;
+
+      // Rating Category
+      const badge = document.getElementById('levelBadge');
+      if (data.totalScore >= 10) {
+        badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold mt-3 bg-emerald-100 text-emerald-800 border border-emerald-200';
+        badge.innerText = 'Високий рівень знань (Відмінно)';
+      } else if (data.totalScore >= 7) {
+        badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold mt-3 bg-blue-100 text-blue-800 border border-blue-200';
+        badge.innerText = 'Достатній рівень знань (Добре)';
+      } else if (data.totalScore >= 4) {
+        badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold mt-3 bg-amber-100 text-amber-800 border border-amber-200';
+        badge.innerText = 'Середній рівень знань (Задовільно)';
+      } else {
+        badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold mt-3 bg-rose-100 text-rose-800 border border-rose-200';
+        badge.innerText = 'Початковий рівень (Потребує доопрацювання)';
+      }
+    }
+  </script>
+</body>
+</html>
