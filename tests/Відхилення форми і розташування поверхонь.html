@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="uk" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Допуски і відхилення форми та розташування поверхонь</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-radio:checked + div {
+            border-color: currentColor;
+        }
+    </style>
+</head>
+<body class="min-h-full flex flex-col text-slate-800 antialiased pb-12">
+
+    <!-- Sticky Progress Header -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-sm shadow-blue-200">
+                    <i class="fa-solid me-0 fa-ruler-combined"></i>
+                </div>
+                <div>
+                    <h1 class="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wider">Інтерактивний тест</h1>
+                    <p class="text-sm sm:text-base font-bold text-slate-900 leading-tight truncate max-w-[180px] sm:max-w-xs">Відхилення формы і розташування</p>
+                </div>
+            </div>
+
+            <!-- Stats Badge & Bar -->
+            <div class="flex flex-col items-end gap-1">
+                <div class="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-600">
+                    <span>Відповідано: <strong id="progress-text" class="text-slate-900">0 / 8</strong></span>
+                    <span class="text-slate-300">|</span>
+                    <span class="text-blue-600 font-bold"><span id="score-text">0</span> / 12 б.</span>
+                </div>
+                <div class="w-28 sm:w-44 bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200">
+                    <div id="progress-bar" class="bg-blue-600 h-full w-0 transition-all duration-500 ease-out rounded-full"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
+        
+        <!-- Intro Banner -->
+        <div class="mb-8 p-5 sm:p-6 bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl shadow-md relative overflow-hidden">
+            <div class="relative z-10">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/30 text-blue-200 backdrop-blur-md mb-3 border border-blue-400/20">
+                    <i class="fa-solid fa-circle-info text-blue-300"></i>
+                    12-бальна система оцінювання
+                </span>
+                <h2 class="text-xl sm:text-2xl font-bold mb-2">Перевірка знань: Допуски і відхилення</h2>
+                <p class="text-sm text-blue-100/90 leading-relaxed max-w-2xl">
+                    Тест містить 8 запитань, розподілених за 4 рівнями складності. Кожне питання можна виконати лише один раз. Одразу після вибору відповіді ви отримаєте результат та детальне пояснення.
+                </p>
+            </div>
+            <i class="fa-solid fa-compass-drafting absolute -right-6 -bottom-6 text-9xl text-white/5 pointer-events-none"></i>
+        </div>
+
+        <!-- Questions List Container -->
+        <div id="questions-container" class="space-y-6">
+            <!-- Questions rendered via JS -->
+        </div>
+
+        <!-- Final Summary Card (Hidden by default) -->
+        <div id="summary-card" class="hidden mt-10 p-6 sm:p-8 bg-white border border-slate-200 rounded-2xl shadow-xl transition-all duration-700 transform translate-y-4">
+            <div class="text-center max-w-lg mx-auto">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-50 text-blue-600 mb-4 text-3xl shadow-inner">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-1">Тестування завершено!</h3>
+                <p class="text-slate-500 text-sm mb-6">Ваш підсумковий результат та деталізація по рівнях складності:</p>
+
+                <!-- Big Grade Display -->
+                <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200/80 mb-6 flex flex-col items-center justify-center">
+                    <span class="text-xs uppercase font-bold tracking-widest text-slate-400 mb-1">Загальна оцінка</span>
+                    <div class="flex items-baseline gap-1">
+                        <span id="final-grade" class="text-5xl sm:text-6xl font-black text-blue-600">0</span>
+                        <span class="text-2xl font-bold text-slate-400">/ 12 балів</span>
+                    </div>
+                    <span id="final-verbal-grade" class="mt-2 text-sm sm:text-base font-semibold px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
+                        -
+                    </span>
+                </div>
+
+                <!-- Breakdown by Levels -->
+                <div class="space-y-3 text-left mb-8">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Розбивка по рівнях складності:</h4>
+                    
+                    <div class="p-3.5 bg-slate-50 rounded-xl flex items-center justify-between text-sm border border-slate-100">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <span class="font-medium text-slate-700">Початковий рівень (2 б.)</span>
+                        </div>
+                        <span id="score-level-1" class="font-bold text-slate-900">0 / 2 б.</span>
+                    </div>
+
+                    <div class="p-3.5 bg-slate-50 rounded-xl flex items-center justify-between text-sm border border-slate-100">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                            <span class="font-medium text-slate-700">Середній рівень (2 б.)</span>
+                        </div>
+                        <span id="score-level-2" class="font-bold text-slate-900">0 / 2 б.</span>
+                    </div>
+
+                    <div class="p-3.5 bg-slate-50 rounded-xl flex items-center justify-between text-sm border border-slate-100">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                            <span class="font-medium text-slate-700">Достатній рівень (4 б.)</span>
+                        </div>
+                        <span id="score-level-3" class="font-bold text-slate-900">0 / 4 б.</span>
+                    </div>
+
+                    <div class="p-3.5 bg-slate-50 rounded-xl flex items-center justify-between text-sm border border-slate-100">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                            <span class="font-medium text-slate-700">Високий рівень (4 б.)</span>
+                        </div>
+                        <span id="score-level-4" class="font-bold text-slate-900">0 / 4 б.</span>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-amber-50 border border-amber-200/60 rounded-xl text-left flex gap-3 text-amber-800 text-xs sm:text-sm">
+                    <i class="fa-solid fa-lock text-amber-600 text-base mt-0.5"></i>
+                    <div>
+                        <strong>Зверніть увагу:</strong> Тест завершено й заблоковано. Повторне перепроходження в поточній сесії не передбачене вимогами.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Quiz Data and Execution Logic -->
+    <script>
+        const rawQuestions = [
+            {
+                id: 1,
+                level: 1,
+                levelName: "Початковий рівень",
+                points: 1,
+                question: "До якої групи геометричних відхилень належать овальність та огранування поперечного перерізу циліндричної поверхні?",
+                options: [
+                    { text: "Відхилення від круглості (відхилення форми)", isCorrect: true },
+                    { text: "Відхилення від співвісності (відхилення розташування)", isCorrect: false },
+                    { text: "Відхилення від паралельності (відхилення розташування)", isCorrect: false },
+                    { text: "Суммарні відхилення форми та розташування", isCorrect: false }
+                ],
+                explanation: "Овальність та огранування є окремими випадками відхилення від круглості, які належать до відхилень геометричної форми поверхонь."
+            },
+            {
+                id: 2,
+                level: 1,
+                levelName: "Початковий рівень",
+                points: 1,
+                question: "Яким графічним знаком у прямокутній рамці на кресленнях позначають допуск перпендикулярності поверхонь?",
+                options: [
+                    { text: "⊥", isCorrect: true },
+                    { text: "//", isCorrect: false },
+                    { text: "◎", isCorrect: false },
+                    { text: "↗", isCorrect: false }
+                ],
+                explanation: "Графічний символ ⊥ застосовується у першій клітинці прямокутної рамки для позначення вимог до перпендикулярності поверхонь."
+            },
+            {
+                id: 3,
+                level: 2,
+                levelName: "Середній рівень",
+                points: 1,
+                question: "Який дефект профілю поздовжнього перерізу вала характеризується тим, що реальні діаметри зменшуються від країв до середини?",
+                options: [
+                    { text: "Сідлоподібність", isCorrect: true },
+                    { text: "Бочкоподібність", isCorrect: false },
+                    { text: "Конусоподібність", isCorrect: false },
+                    { text: "Огранування", isCorrect: false }
+                ],
+                explanation: "При сідлоподібності найменший діаметр спостерігається у середній частині вала, а найбільші діаметри — на його краях."
+            },
+            {
+                id: 4,
+                level: 2,
+                levelName: "Середній рівень",
+                points: 1,
+                question: "Що розуміють під радіальним биттям поверхні обертання?",
+                options: [
+                    { text: "Різницю між найбільшою і найменшою відстанями від точок реального профілю до осі обертання у фіксованому поперечному перерізі", isCorrect: true },
+                    { text: "Відхилення відстані між двома паралельними площинами по всій довжині деталі", isCorrect: false },
+                    { text: "Найбільшу відстань між точками реального та прилеглого профілів у поздовжньому перерізі", isCorrect: false },
+                    { text: "Кутове відхилення осі деталі відносно базової площини", isCorrect: false }
+                ],
+                explanation: "Радіальне биття оцінюється у фіксованому поперечному перерізі та є результатом сумарної дії відхилення від круглості та відхилення від співвісності."
+            },
+            {
+                id: 5,
+                level: 3,
+                levelName: "Достатній рівень",
+                points: 2,
+                question: "У чому полягає принципова відмінність між радіальним биттям і повним радіальним биттям?",
+                options: [
+                    { text: "Повне радіальне биття вимірюється по всій довжині нормованої поверхні під час переміщення вздовж осі, а радіальне — лише в одному перерізі", isCorrect: true },
+                    { text: "Радіальне биття включає відхилення від площинності, а повне радіальне биття — лише відхилення від круглості", isCorrect: false },
+                    { text: "Повне радіальне биття стосується виключно торцевих поверхонь, а звичайне — тільки циліндричних", isCorrect: false },
+                    { text: "Між цими поняттями немає відмінностей, це взаємозамінні терміни", isCorrect: false }
+                ],
+                explanation: "Звичайне радіальне биття контролюється в окремому перерізі, тоді як повне радіальне биття враховує відхилення профілю поздовжнього перерізу та прямолінійності осі по всій довжині."
+            },
+            {
+                id: 6,
+                level: 3,
+                levelName: "Достатній рівень",
+                points: 2,
+                question: "У прямокутній рамці позначення допуску на кресленні вказано три клітинки: 1) знак ◎; 2) Ø 0,02; 3) літера А. Як правильно розшифрувати цей запис?",
+                options: [
+                    { text: "Допуск співвісності в діаметральному вираженні становить 0,02 мм відносно бази А", isCorrect: true },
+                    { text: "Допуск симетричності становить 0,02 мм відносно базової поверхні А", isCorrect: false },
+                    { text: "Допуск радіального биття поверхні А не повинен перевищувати 0,02 мм", isCorrect: false },
+                    { text: "Допуск перпендикулярності осі становить 0,02 мм без застосування бази", isCorrect: false }
+                ],
+                explanation: "Символ ◎ означає допуск співвісності, знак Ø вказує на те, що поле допуску задано у діаметральному вираженні (0,02 мм), а літера А визначає базову вісь."
+            },
+            {
+                id: 7,
+                level: 4,
+                levelName: "Високий рівень",
+                points: 2,
+                question: "Під час контролю вала зафіксовано овальність поперечного перерізу 0,01 мм та неспіввісність відносно базових шийок 0,015 мм. Яке максимальне значення радіального биття може бути виявлено при вимірюванні?",
+                options: [
+                    { text: "0,025 мм", isCorrect: true },
+                    { text: "0,015 мм", isCorrect: false },
+                    { text: "0,010 мм", isCorrect: false },
+                    { text: "0,005 мм", isCorrect: false }
+                ],
+                explanation: "Радіальне биття є сумарним відхиленням круглості (овальності) та розташування (співвісності). У найнесприятливішому випадку ці величини додаються: 0,010 + 0,015 = 0,025 мм."
+            },
+            {
+                id: 8,
+                level: 4,
+                levelName: "Високий рівень",
+                points: 2,
+                question: "Під час поздовжнього точіння довгого вала малої жорсткості без використання люнета виникло відтискання деталі від різця силaми різання у середині прольоту. Який вид відхилення профілю поздовжнього перерізу це спричинить?",
+                options: [
+                    { text: "Бочкоподібність (найбільший діаметр посередині вала)", isCorrect: true },
+                    { text: "Сідлоподібність (найменший діаметр посередині вала)", isCorrect: false },
+                    { text: "Конусоподібність (рівномірне зменшення діаметра від патрона до задньої бабки)", isCorrect: false },
+                    { text: "Огранування з непарною кількістю граней", isCorrect: false }
+                ],
+                explanation: "Внаслідок прогину деталі у середині прольоту різець менше заглиблюється у матеріал, що призводить до збільшення реального діаметра посередині — тобто до бочкоподібності."
+            }
+        ];
+
+        // State tracking
+        let state = {
+            answeredCount: 0,
+            totalPoints: 0,
+            levelScores: { 1: 0, 2: 0, 3: 0, 4: 0 },
+            answers: {}
+        };
+
+        // Utility: Fisher-Yates Shuffle
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Return badge style per level
+        function getLevelBadgeStyle(level) {
+            switch(level) {
+                case 1: return { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-200' };
+                case 2: return { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200' };
+                case 3: return { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-200' };
+                case 4: return { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-200' };
+                default: return { bg: 'bg-slate-100', text: 'text-slate-800', border: 'border-slate-200' };
+            }
+        }
+
+        // Initialize quiz
+        function initQuiz() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            rawQuestions.forEach((q, index) => {
+                const shuffledOptions = shuffleArray(q.options);
+                const badge = getLevelBadgeStyle(q.level);
+
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm transition-all duration-300 relative";
+                card.id = `q-card-${q.id}`;
+
+                let optionsHTML = '';
+                shuffledOptions.forEach((opt, optIdx) => {
+                    optionsHTML += `
+                        <label id="opt-label-${q.id}-${optIdx}" 
+                               class="group flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 cursor-pointer transition-all duration-150">
+                            <input type="radio" 
+                                   name="question-${q.id}" 
+                                   value="${optIdx}" 
+                                   onchange="handleSelect(${q.id}, ${optIdx}, ${opt.isCorrect})"
+                                   class="custom-radio mt-0.5 w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 flex-shrink-0">
+                            <span class="text-sm sm:text-base text-slate-700 group-hover:text-slate-900 leading-snug flex-grow">
+                                ${opt.text}
+                            </span>
+                            <i id="opt-icon-${q.id}-${optIdx}" class="fa-solid hidden text-base mt-0.5"></i>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold ${badge.bg} ${badge.text} border ${badge.border}">
+                            ${q.levelName} (${q.points} б.)
+                        </span>
+                        <span class="text-xs font-semibold text-slate-400">Питання ${index + 1} з ${rawQuestions.length}</span>
+                    </div>
+
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-4 leading-snug">
+                        ${q.question}
+                    </h3>
+
+                    <div id="options-group-${q.id}" class="space-y-2.5">
+                        ${optionsHTML}
+                    </div>
+
+                    <!-- Feedback Box (Hidden initially) -->
+                    <div id="feedback-${q.id}" class="hidden mt-5 p-4 rounded-xl border text-sm leading-relaxed transition-all duration-300">
+                        <div class="flex items-center gap-2 font-bold mb-1" id="feedback-title-${q.id}"></div>
+                        <p id="feedback-text-${q.id}" class="text-slate-700"></p>
+                    </div>
+                `;
+
+                // Store runtime options reference for validation
+                q._runtimeOptions = shuffledOptions;
+                container.appendChild(card);
+            });
+        }
+
+        // Option selection logic
+        function handleSelect(qId, selectedOptIdx, isCorrect) {
+            if (state.answers[qId] !== undefined) return; // Prevent multiple selection
+
+            const q = rawQuestions.find(item => item.id === qId);
+            state.answers[qId] = selectedOptIdx;
+            state.answeredCount++;
+
+            // Lock all radios for this question
+            const radios = document.querySelectorAll(`input[name="question-${qId}"]`);
+            radios.forEach(r => r.disabled = true);
+
+            // Update scores
+            if (isCorrect) {
+                state.totalPoints += q.points;
+                state.levelScores[q.level] += q.points;
+            }
+
+            // UI feedback styling
+            q._runtimeOptions.forEach((opt, idx) => {
+                const label = document.getElementById(`opt-label-${qId}-${idx}`);
+                const icon = document.getElementById(`opt-icon-${qId}-${idx}`);
+                
+                label.classList.remove('hover:border-slate-300', 'hover:bg-slate-50/80', 'cursor-pointer');
+                label.classList.add('cursor-default');
+
+                if (opt.isCorrect) {
+                    // Correct answer style
+                    label.classList.remove('border-slate-200');
+                    label.classList.add('border-emerald-500', 'bg-emerald-50/70', 'text-emerald-900');
+                    icon.classList.remove('hidden');
+                    icon.classList.add('fa-circle-check', 'text-emerald-600');
+                } else if (idx === selectedOptIdx && !isCorrect) {
+                    // Selected wrong answer style
+                    label.classList.remove('border-slate-200');
+                    label.classList.add('border-rose-400', 'bg-rose-50/80', 'text-rose-900');
+                    icon.classList.remove('hidden');
+                    icon.classList.add('fa-circle-xmark', 'text-rose-500');
+                } else {
+                    label.classList.add('opacity-50');
+                }
+            });
+
+            // Feedback Box display
+            const feedbackBox = document.getElementById(`feedback-${qId}`);
+            const feedbackTitle = document.getElementById(`feedback-title-${qId}`);
+            const feedbackText = document.getElementById(`feedback-text-${qId}`);
+
+            feedbackBox.classList.remove('hidden');
+            feedbackText.textContent = q.explanation;
+
+            if (isCorrect) {
+                feedbackBox.classList.add('bg-emerald-50', 'border-emerald-200');
+                feedbackTitle.className = 'flex items-center gap-2 font-bold mb-1 text-emerald-800';
+                feedbackTitle.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> Правильно (+${q.points} б.)`;
+            } else {
+                feedbackBox.classList.add('bg-rose-50', 'border-rose-200');
+                feedbackTitle.className = 'flex items-center gap-2 font-bold mb-1 text-rose-800';
+                feedbackTitle.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i> Помилка (0 б.)`;
+            }
+
+            // Update Progress Header
+            updateProgress();
+
+            // Check completion
+            if (state.answeredCount === rawQuestions.length) {
+                setTimeout(showSummary, 600);
+            }
+        }
+
+        // Update Header Progress Bar
+        function updateProgress() {
+            const progressText = document.getElementById('progress-text');
+            const scoreText = document.getElementById('score-text');
+            const progressBar = document.getElementById('progress-bar');
+
+            progressText.textContent = `${state.answeredCount} / ${rawQuestions.length}`;
+            scoreText.textContent = state.totalPoints;
+            
+            const percentage = (state.answeredCount / rawQuestions.length) * 100;
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        // Verbal evaluation helper
+        function getVerbalGrade(score) {
+            if (score <= 3) return { text: "Початковий рівень", color: "bg-amber-100 text-amber-800" };
+            if (score <= 6) return { text: "Середній рівень", color: "bg-blue-100 text-blue-800" };
+            if (score <= 9) return { text: "Достатній рівень", color: "bg-indigo-100 text-indigo-800" };
+            return { text: "Високий рівень", color: "bg-emerald-100 text-emerald-800" };
+        }
+
+        // Display Final Summary Card
+        function showSummary() {
+            const summaryCard = document.getElementById('summary-card');
+            const finalGrade = document.getElementById('final-grade');
+            const finalVerbal = document.getElementById('final-verbal-grade');
+
+            finalGrade.textContent = state.totalPoints;
+
+            const verbal = getVerbalGrade(state.totalPoints);
+            finalVerbal.textContent = verbal.text;
+            finalVerbal.className = `mt-2 text-sm sm:text-base font-semibold px-3.5 py-1 rounded-full ${verbal.color}`;
+
+            document.getElementById('score-level-1').textContent = `${state.levelScores[1]} / 2 б.`;
+            document.getElementById('score-level-2').textContent = `${state.levelScores[2]} / 2 б.`;
+            document.getElementById('score-level-3').textContent = `${state.levelScores[3]} / 4 б me.`;
+            document.getElementById('score-level-4').textContent = `${state.levelScores[4]} / 4 б.`;
+
+            summaryCard.classList.remove('hidden');
+            summaryCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Run Init
+        document.addEventListener('DOMContentLoaded', initQuiz);
+    </script>
+</body>
+</html>
